@@ -1,0 +1,9 @@
+{
+	"name": "ItemInfo",
+	"author": "ODT",
+	"version": "0.1.0",
+	"akiVersion": "2.3.1",
+	"license": "NCSA",
+	"dependencies": {},
+	"main": "package.js"
+}
