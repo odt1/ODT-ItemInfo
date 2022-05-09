@@ -242,7 +242,7 @@ class ItemInfo {
 							}
 						}
 						
-						baseBarterString += "Bartered ×" + traderList[trader].assort.barter_scheme[barterID][0][srcs].count;
+						baseBarterString += "Traded ×" + traderList[trader].assort.barter_scheme[barterID][0][srcs].count;
 						baseBarterString += " @ " + traderList[trader].base.nickname + " lv." + barterLoyaltyLevel + " > " + ItemInfo.GetItemName(bartedForItem);
 
 						let extendedBarterString = " < … + ";
@@ -371,7 +371,7 @@ class ItemInfo {
 					}
 					usedForCraftingComponentsString = usedForCraftingComponentsString.slice(0, usedForCraftingComponentsString.length - 3);
 					usedForCraftingComponentsString += " | Δ" + " ≈ " + Math.round(ItemInfo.GetFleaPrice(hideoutProduction[craftID].endProduct)-totalRecipePrice) + "₽";
-					usedForCraftingString += "Part ×" + hideoutProduction[craftID].requirements[s].count + " > " + ItemInfo.GetItemName(hideoutProduction[craftID].endProduct);
+					usedForCraftingString += "Part ×" + hideoutProduction[craftID].requirements[s].count + " > " + ItemInfo.GetItemName(hideoutProduction[craftID].endProduct) + " ×" + hideoutProduction[craftID].count;
 					usedForCraftingString += " @ " + recipeAreaString +usedForCraftingComponentsString+ "\n";
 				}
 			}
