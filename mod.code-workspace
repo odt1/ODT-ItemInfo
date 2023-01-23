@@ -1,56 +1,7 @@
 {
 	"folders": [
 		{
-			"name": "Server",
-			"path": "../../../Aki_Data/Server"
-		},
-		{
-			"name": "ODT-xxCustom",
-			"path": "../ODT-xxCustom"
-		},
-		{
-			"name": "ODT-ItemInfo-1.1.0",
 			"path": "."
-		},
-		{
-			"name": "ModExamples 3.4.1",
-			"path": "../../../ModExamples 3.4.1"
-		},
-		{
-			"name": "SPT-Realism-Mod",
-			"path": "../../../../../Users/ODT/Downloads/Realism-Mod-v0.6.4-SPT-v3.4.1/user/mods/SPT-Realism-Mod"
-		},
-		{
-			"name": "zz_kobra-AIO",
-			"path": "../../../../../Users/ODT/Downloads/zz_kobra-AIO/zz_kobra-AIO"
-		},
-		{
-			"name": "Lua-ExamineTracker",
-			"path": "../../../../../Users/ODT/Downloads/Lua-ExamineTracker-v1.1.0-aki31x-32x/Lua-ExamineTracker"
-		},
-		{
-			"name": "Lua-FleaMarketPriceUpdater",
-			"path": "../../../../../Users/ODT/Downloads/Lua-FleaMarketPriceUpdater-v3.1.2-aki321/Lua-FleaMarketPriceUpdater"
-		},
-		{
-			"name": "zFin-AITweaks",
-			"path": "../../../../../Users/ODT/Downloads/Fin-AITweaksVer1-24-4a/zFin-AITweaks"
-		},
-		{
-			"name": "Armalite-Reloaded_3.3.0",
-			"path": "../../../../../Users/ODT/Downloads/Armalite-Reloaded_3.3.0"
-		},
-		{
-			"name": "Faupi-MunitionsExpert 1.6.8",
-			"path": "../../../../../Users/ODT/Downloads/Faupi-MunitionsExpert 1.6.8"
-		},
-		{
-			"name": "jbs4bmx-MedicalAttention_325.0.1",
-			"path": "../../../../../Users/ODT/Downloads/jbs4bmx-MedicalAttention_325.0.1"
-		},
-		{
-			"name": "zRaiRaiTheRaichu-AmmoStats-2.2.0",
-			"path": "../../../../../Users/ODT/Downloads/zRaiRaiTheRaichu-AmmoStats-2.2.0/zRaiRaiTheRaichu-AmmoStats-2.2.0"
 		}
 	],
 	"extensions": {
