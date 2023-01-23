@@ -5,6 +5,7 @@ import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod"
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer"
 
 import translations from "./translations.json"
+import { maxHeaderSize } from "http";
 
 let database
 let tables
@@ -112,8 +113,7 @@ class ItemInfo implements IPostDBLoadMod {
 					// this.addToShortName(itemID, ` (${this.calculateArmorLevel(itemID)})`, "append");
 					this.addToName(itemID, ` (${item._props.Damage * damageMult}/${item._props.PenetrationPower})`, "append")
 
-					let bulletEnergy =
-						(item._props.BulletMassGram * item._props.InitialSpeed * item._props.InitialSpeed) / (1000 * 2)
+					let bulletEnergy = (item._props.BulletMassGram * item._props.InitialSpeed * item._props.InitialSpeed) / (1000 * 2)
 					// log(`---`)
 					// log(`${this.getItemName(itemID)} | Bullet energy: ${Math.round(bulletEnergy)} | Mass: ${item._props.BulletMassGram}g | Penetration: ${item._props.PenetrationPower}`)
 				}
@@ -205,11 +205,9 @@ class ItemInfo implements IPostDBLoadMod {
 
 				if (item._props.armorClass > 0) {
 					let armor = armors[item._props.ArmorMaterial]
-					armorDurabilityString += `Armor class: ${item._props.armorClass} | Effective durability: ${Math.round(
-						item._props.MaxDurability / armor.Destructibility
-					)} | Max: ${item._props.MaxDurability} | Repairability: ${100 - armor.MaxRepairDegradation * 100}%-${
-						100 - armor.MinRepairDegradation * 100
-					}%\n`
+					armorDurabilityString += `Armor class: ${item._props.armorClass} | Effective durability: ${Math.round(item._props.MaxDurability / armor.Destructibility)} | Max: ${
+						item._props.MaxDurability
+					} | Repairability: ${100 - armor.MaxRepairDegradation * 100}%-${100 - armor.MinRepairDegradation * 100}%\n`
 				}
 
 				if (item._props.Grids?.length > 0) {
@@ -220,9 +218,7 @@ class ItemInfo implements IPostDBLoadMod {
 					}
 
 					let slotEffeciency = this.roundWithPrecision(totalSlots / (item._props.Width * item._props.Height), 2)
-					slotEffeciencyString += `Slot effeciency: ${slotEffeciency} (${totalSlots}/${
-						item._props.Width * item._props.Height
-					})\n`
+					slotEffeciencyString += `Slot effeciency: ${slotEffeciency} (${totalSlots}/${item._props.Width * item._props.Height})\n`
 					// log(slotEffeciencyString)
 				}
 
@@ -243,11 +239,9 @@ class ItemInfo implements IPostDBLoadMod {
 				if (item._props.Distortion != undefined) {
 					let gain = item._props.CompressorGain
 					let thresh = item._props.CompressorTreshold
-					headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compression: ×${Math.abs(
-						(gain * thresh) / 100
-					)} | Resonance & Filter: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | Distortion: ${Math.round(
-						item._props.Distortion * 100
-					)}%\n\n`
+					headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compression: ×${Math.abs((gain * thresh) / 100)} | Resonance & Filter: ${item._props.Resonance}@${
+						item._props.CutoffFreq
+					}Hz | Distortion: ${Math.round(item._props.Distortion * 100)}%\n\n`
 				}
 
 				if (BuyableGenarator.string.length > 1) {
@@ -360,19 +354,7 @@ class ItemInfo implements IPostDBLoadMod {
 
 	calculateArmorLevel(penetrationValue) {
 		// calibrated for Realism mod
-		return penetrationValue > 79
-			? 6
-			: penetrationValue > 69
-			? 5
-			: penetrationValue > 59
-			? 4
-			: penetrationValue > 49
-			? 3
-			: penetrationValue > 29
-			? 2
-			: penetrationValue > 0
-			? 1
-			: 0
+		return penetrationValue > 79 ? 6 : penetrationValue > 69 ? 5 : penetrationValue > 59 ? 4 : penetrationValue > 49 ? 3 : penetrationValue > 29 ? 2 : penetrationValue > 0 ? 1 : 0
 	}
 
 	getItemInHandbook(itemID) {
@@ -391,10 +373,7 @@ class ItemInfo implements IPostDBLoadMod {
 		altTraderSellCategory = handbookCategories.ParentId
 
 		for (let i = 0; i < 8; i++) {
-			if (
-				traderList[i].base.sell_category.includes(traderSellCategory) ||
-				traderList[i].base.sell_category.includes(altTraderSellCategory)
-			) {
+			if (traderList[i].base.sell_category.includes(traderSellCategory) || traderList[i].base.sell_category.includes(altTraderSellCategory)) {
 				traderMulti = (100 - traderList[i].base.loyaltyLevels[0].buy_price_coef) / 100
 				traderName = traderList[i].base.nickname
 				return {
@@ -573,14 +552,11 @@ class ItemInfo implements IPostDBLoadMod {
 						}
 						rarityArray.push(barterLoyaltyLevel)
 						baseBarterString += `Traded ×${traderList[trader].assort.barter_scheme[barterID][0][srcs].count}`
-						baseBarterString += ` @ ${traderList[trader].base.nickname} lv.${barterLoyaltyLevel} > ${this.getItemName(
-							bartedForItem
-						)}`
+						baseBarterString += ` @ ${traderList[trader].base.nickname} lv.${barterLoyaltyLevel} > ${this.getItemName(bartedForItem)}`
 
 						let extendedBarterString = " < … + "
 						for (let barterResource in barterResources) {
-							totalBarterPrice +=
-								this.getFleaPrice(barterResources[barterResource]._tpl) * barterResources[barterResource].count
+							totalBarterPrice += this.getFleaPrice(barterResources[barterResource]._tpl) * barterResources[barterResource].count
 							if (barterResources[barterResource]._tpl != itemID) {
 								extendedBarterString += this.getItemShortName(barterResources[barterResource]._tpl)
 								extendedBarterString += ` ×${barterResources[barterResource].count} + `
@@ -631,7 +607,7 @@ class ItemInfo implements IPostDBLoadMod {
 				// Find every recipe for itemid and don't use Christmas Tree crafts
 				let recipe = hideoutProduction[recipeId]
 				let componentsString = ""
-				let recipeAreaString = ""
+				let recipeAreaString = this.getCraftingAreaName(recipe.areaType)
 				let totalRecipePrice = 0
 				let recipeDivision = ""
 
@@ -644,7 +620,7 @@ class ItemInfo implements IPostDBLoadMod {
 						let recipeArea = recipe.requirements[i] // Find and save craft area object
 						recipeAreaString = this.getCraftingAreaName(recipeArea.areaType) + " lv." + recipeArea.requiredLevel
 						rarityArray.push(this.getCraftingRarity(recipeArea.areaType, recipeArea.requiredLevel))
-					}
+					} 
 					if (recipe.requirements[i].type === "Item") {
 						let craftComponentId = recipe.requirements[i].templateId
 						let craftComponentCount = recipe.requirements[i].count
@@ -653,15 +629,21 @@ class ItemInfo implements IPostDBLoadMod {
 						componentsString += this.getItemShortName(craftComponentId) + " ×" + craftComponentCount + " + "
 						totalRecipePrice += craftComponentPrice * craftComponentCount
 					}
+					if (recipe.requirements[i].type === "Resource") {
+						let craftComponentId = recipe.requirements[i].templateId
+						let resourceProportion = recipe.requirements[i].resource / items[recipe.requirements[i].templateId]._props.Resource
+						let craftComponentPrice = this.getFleaPrice(craftComponentId)
+
+						componentsString += this.getItemShortName(craftComponentId) + " ×" + Math.round(resourceProportion*100) + "%" + " + "
+						totalRecipePrice += Math.round(craftComponentPrice * resourceProportion)
+					}
 				}
 				if (recipe.count > 1) {
 					recipeDivision = " per item"
 				}
 				componentsString = componentsString.slice(0, componentsString.length - 3)
 				craftableString += `Crafted ×${recipe.count} @ ${recipeAreaString} < `
-				craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${Math.round(
-					totalRecipePrice / recipe.count
-				)}₽\n`
+				craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${Math.round(totalRecipePrice / recipe.count)}₽\n`
 
 				// this.AddToItemDescription(itemID, componentsString + ", at total price per item: " + Math.round(totalRecipePrice/recipe.count) + "\n", "prepend");
 				// this.AddToItemDescription(itemID, recipe.count + " can be crafted at " + recipeAreaString + " with:", "prepend");
@@ -681,9 +663,7 @@ class ItemInfo implements IPostDBLoadMod {
 			for (let s in hideoutAreas[area].stages) {
 				for (let a in hideoutAreas[area].stages[s].requirements) {
 					if (hideoutAreas[area].stages[s].requirements[a].templateId == itemID) {
-						hideoutString += `Need ×${hideoutAreas[area].stages[s].requirements[a].count} > ${this.getCraftingAreaName(
-							hideoutAreas[area].type
-						)} lv.${s}\n`
+						hideoutString += `Need ×${hideoutAreas[area].stages[s].requirements[a].count} > ${this.getCraftingAreaName(hideoutAreas[area].type)} lv.${s}\n`
 					}
 				}
 			}
@@ -708,37 +688,34 @@ class ItemInfo implements IPostDBLoadMod {
 						i-- // Itterate
 					) {
 						if (hideoutProduction[craftID].requirements[i].type == "Area") {
-							recipeAreaString =
-								this.getCraftingAreaName(hideoutProduction[craftID].requirements[i].areaType) +
-								" lv." +
-								hideoutProduction[craftID].requirements[i].requiredLevel
+							recipeAreaString = this.getCraftingAreaName(hideoutProduction[craftID].requirements[i].areaType) + " lv." + hideoutProduction[craftID].requirements[i].requiredLevel
 						}
 						if (hideoutProduction[craftID].requirements[i].type == "Item") {
 							let craftComponent = hideoutProduction[craftID].requirements[i]
 							if (craftComponent.templateId != itemID) {
-								usedForCraftingComponentsString +=
-									this.getItemShortName(craftComponent.templateId) + " ×" + craftComponent.count + " + "
+								usedForCraftingComponentsString += this.getItemShortName(craftComponent.templateId) + " ×" + craftComponent.count + " + "
 							}
 							totalRecipePrice += this.getFleaPrice(craftComponent.templateId) * craftComponent.count
 						}
+						if (hideoutProduction[craftID].requirements[i].type == "Resource") {
+							let craftComponent = hideoutProduction[craftID].requirements[i]
+							let resourceProportion = craftComponent.resource / items[craftComponent.templateId]._props.Resource
+							if (craftComponent.templateId != itemID) {
+								usedForCraftingComponentsString += this.getItemShortName(craftComponent.templateId) + " ×" + Math.round(resourceProportion*100) + "%" + " + "
+							}
+							totalRecipePrice += Math.round(this.getFleaPrice(craftComponent.templateId) * resourceProportion)
+						}
 					}
-					usedForCraftingComponentsString = usedForCraftingComponentsString.slice(
-						0,
-						usedForCraftingComponentsString.length - 3
-					)
-					usedForCraftingComponentsString += ` | Δ ≈ ${Math.round(
-						this.getFleaPrice(hideoutProduction[craftID].endProduct) * hideoutProduction[craftID].count -
-							totalRecipePrice
-					)}₽`
-					usedForCraftingString += `Part ×${hideoutProduction[craftID].requirements[s].count} > ${this.getItemName(
-						hideoutProduction[craftID].endProduct
-					)} ×${hideoutProduction[craftID].count}`
+					usedForCraftingComponentsString = usedForCraftingComponentsString.slice(0, usedForCraftingComponentsString.length - 3)
+					usedForCraftingComponentsString += ` | Δ ≈ ${Math.round(this.getFleaPrice(hideoutProduction[craftID].endProduct) * hideoutProduction[craftID].count - totalRecipePrice)}₽`
+					usedForCraftingString += `${hideoutProduction[craftID].requirements[s].type == "Tool" ? "Tool" : "Part ×" + hideoutProduction[craftID].requirements[s].count} > ${this.getItemName(hideoutProduction[craftID].endProduct)} ×${hideoutProduction[craftID].count}`
 					usedForCraftingString += ` @ ${recipeAreaString + usedForCraftingComponentsString}\n`
 				}
 			}
 		}
 		// console.log(hideoutString)
-		return usedForCraftingString
+		// log (usedForCraftingString)
+		return usedForCraftingString	
 	}
 
 	usedForQuestGenerator(itemID) {
@@ -748,9 +725,9 @@ class ItemInfo implements IPostDBLoadMod {
 			for (let i in questConditions) {
 				if (questConditions[i]._parent == "HandoverItem" && questConditions[i]._props.target[0] == itemID) {
 					let trader = quests[questID].traderId
-					questString += `Found ${questConditions[i]._props.onlyFoundInRaid ? "(✔) " : ""}×${
-						questConditions[i]._props.value
-					} > ${quests[questID].QuestName} @ ${tables.traders[trader].base.nickname}\n`
+					questString += `Found ${questConditions[i]._props.onlyFoundInRaid ? "(✔) " : ""}×${questConditions[i]._props.value} > ${quests[questID].QuestName} @ ${
+						tables.traders[trader].base.nickname
+					}\n`
 				}
 			}
 		}

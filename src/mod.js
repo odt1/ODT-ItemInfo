@@ -187,7 +187,6 @@ class ItemInfo {
                 if (item._props.armorClass > 0) {
                     let armor = armors[item._props.ArmorMaterial];
                     armorDurabilityString += `Armor class: ${item._props.armorClass} | Effective durability: ${Math.round(item._props.MaxDurability / armor.Destructibility)} | Max: ${item._props.MaxDurability} | Repairability: ${100 - armor.MaxRepairDegradation * 100}%-${100 - armor.MinRepairDegradation * 100}%\n`;
-                    // console.log(`---\n${this.GetItemName(itemID)}\n${armorDurabilityString}`);
                 }
                 if (item._props.Grids?.length > 0) {
                     let totalSlots = 0;
@@ -198,14 +197,12 @@ class ItemInfo {
                     slotEffeciencyString += `Slot effeciency: ${slotEffeciency} (${totalSlots}/${item._props.Width * item._props.Height})\n`;
                     // log(slotEffeciencyString)
                 }
-                // FEATURE: ADD PRICES TO DESCRIPTION
-                let itemvalue = traderPrice / this.getItemSlotDensity(itemID); // Avarages traders sell price and flea price, and divides it by slot and stack sizes. This makes it so ammo is valued per stack and can be compared gains other items. Might break the desired calculation ratio if stacking mods are used.
+                let itemvalue = traderPrice / this.getItemSlotDensity(itemID);
                 let fleaValue = fleaPrice / this.getItemSlotDensity(itemID);
                 if (items[itemID]._parent != "5795f317245977243854e041") {
                     if (itemvalue > 20000 || fleaValue > 30000) {
                         this.addToShortName(itemID, "★", "prepend");
                         this.addToName(itemID, "★", "append");
-                        // log(`${this.getItemName(itemID)} | Value: ${itemvalue}`)
                     }
                     else if (itemvalue > 10000 || fleaValue > 15000) {
                         this.addToShortName(itemID, "☆", "prepend");
@@ -213,27 +210,10 @@ class ItemInfo {
                     }
                 }
                 priceString += `Flea price: ${fleaPrice} | ${traderName}'s valuation: ${traderPrice}₽\n\n`;
-                // FEATURE: MODIFY VALUABLE ITEMS
-                // if (itemTable[itemID]._parent != "5795f317245977243854e041") // Ignore containers
-                // {
-                // 	if (itemvalue > 15000 || fleaPrice > 50000 || traderPrice > 25000 || fleaPrice == "BANNED")
-                // 	{
-                // 		this.AddToItemShortName(itemID, "★", "prepend");
-                // 		this.AddToItemName(itemID, "★", "append");
-                // 	}
-                // 	else if (itemvalue > 10000 || fleaPrice > 35000 || traderPrice > 20000)
-                // 	{
-                // 		this.AddToItemShortName(itemID, "☆", "prepend");
-                // 		this.AddToItemName(itemID, "☆", "append");
-                // 	}
-                // }
-                function dbToLin(db) {
-                    return Math.pow(10, Math.abs(db) / 10);
-                }
                 if (item._props.Distortion != undefined) {
                     let gain = item._props.CompressorGain;
                     let thresh = item._props.CompressorTreshold;
-                    headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compression: ×${Math.abs(gain * thresh / 100)} | Resonance & Filter: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | Distortion: ${Math.round(item._props.Distortion * 100)}%\n\n`;
+                    headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compression: ×${Math.abs((gain * thresh) / 100)} | Resonance & Filter: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | Distortion: ${Math.round(item._props.Distortion * 100)}%\n\n`;
                 }
                 if (BuyableGenarator.string.length > 1) {
                     barterString = BuyableGenarator.string + "\n";
@@ -334,20 +314,8 @@ class ItemInfo {
         return (items[itemID]._props.Width * items[itemID]._props.Height) / items[itemID]._props.StackMaxSize;
     }
     calculateArmorLevel(penetrationValue) {
-        // Values are taken from NoFoodAfterMidnight's EFT Ammo/Armor charts
-        return penetrationValue > 79
-            ? 6
-            : penetrationValue > 69
-                ? 5
-                : penetrationValue > 59
-                    ? 4
-                    : penetrationValue > 49
-                        ? 3
-                        : penetrationValue > 29
-                            ? 2
-                            : penetrationValue > 0
-                                ? 1
-                                : 0;
+        // calibrated for Realism mod
+        return penetrationValue > 79 ? 6 : penetrationValue > 69 ? 5 : penetrationValue > 59 ? 4 : penetrationValue > 49 ? 3 : penetrationValue > 29 ? 2 : penetrationValue > 0 ? 1 : 0;
     }
     getItemInHandbook(itemID) {
         return handbook.Items.filter((i) => i.Id === itemID)[0]; // Outs: @Id, @ParentId, @Price
@@ -394,7 +362,8 @@ class ItemInfo {
         let itemBarters = [];
         for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
         ) {
-            for (let barter of traderList[trader].assort.items) { // iterate all seller barters
+            for (let barter of traderList[trader].assort.items) {
+                // iterate all seller barters
                 if (barter._tpl == itemID && barter.parentId === "hideout") {
                     // find itemid in barter results
                     let barterID = barter._id;
@@ -457,7 +426,8 @@ class ItemInfo {
         let tradesArray = [];
         for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
         ) {
-            for (let barter of traderList[trader].assort.items) { // iterate all seller barters
+            for (let barter of traderList[trader].assort.items) {
+                // iterate all seller barters
                 if (barter._tpl == itemID && barter.parentId === "hideout") {
                     // find itemid in barter results
                     let barterID = barter._id;
@@ -513,7 +483,8 @@ class ItemInfo {
         let rarityArray = [];
         for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
         ) {
-            for (let barterID in traderList[trader].assort.barter_scheme) { // iterate all seller barters
+            for (let barterID in traderList[trader].assort.barter_scheme) {
+                // iterate all seller barters
                 for (let srcs in traderList[trader].assort.barter_scheme[barterID][0]) {
                     if (traderList[trader].assort.barter_scheme[barterID][0][srcs]._tpl == itemID) {
                         let barterResources = traderList[trader].assort.barter_scheme[barterID][0];
@@ -580,7 +551,7 @@ class ItemInfo {
                 // Find every recipe for itemid and don't use Christmas Tree crafts
                 let recipe = hideoutProduction[recipeId];
                 let componentsString = "";
-                let recipeAreaString = "";
+                let recipeAreaString = this.getCraftingAreaName(recipe.areaType);
                 let totalRecipePrice = 0;
                 let recipeDivision = "";
                 for (let i = recipe.requirements.length - 1; i >= 0; i-- // Itterate
@@ -596,6 +567,13 @@ class ItemInfo {
                         let craftComponentPrice = this.getFleaPrice(craftComponentId);
                         componentsString += this.getItemShortName(craftComponentId) + " ×" + craftComponentCount + " + ";
                         totalRecipePrice += craftComponentPrice * craftComponentCount;
+                    }
+                    if (recipe.requirements[i].type === "Resource") {
+                        let craftComponentId = recipe.requirements[i].templateId;
+                        let resourceProportion = recipe.requirements[i].resource / items[recipe.requirements[i].templateId]._props.Resource;
+                        let craftComponentPrice = this.getFleaPrice(craftComponentId);
+                        componentsString += this.getItemShortName(craftComponentId) + " ×" + Math.round(resourceProportion * 100) + "%" + " + ";
+                        totalRecipePrice += Math.round(craftComponentPrice * resourceProportion);
                     }
                 }
                 if (recipe.count > 1) {
@@ -640,10 +618,7 @@ class ItemInfo {
                     for (let i = hideoutProduction[craftID].requirements.length - 1; i >= 0; i-- // Itterate
                     ) {
                         if (hideoutProduction[craftID].requirements[i].type == "Area") {
-                            recipeAreaString =
-                                this.getCraftingAreaName(hideoutProduction[craftID].requirements[i].areaType) +
-                                    " lv." +
-                                    hideoutProduction[craftID].requirements[i].requiredLevel;
+                            recipeAreaString = this.getCraftingAreaName(hideoutProduction[craftID].requirements[i].areaType) + " lv." + hideoutProduction[craftID].requirements[i].requiredLevel;
                         }
                         if (hideoutProduction[craftID].requirements[i].type == "Item") {
                             let craftComponent = hideoutProduction[craftID].requirements[i];
@@ -652,15 +627,24 @@ class ItemInfo {
                             }
                             totalRecipePrice += this.getFleaPrice(craftComponent.templateId) * craftComponent.count;
                         }
+                        if (hideoutProduction[craftID].requirements[i].type == "Resource") {
+                            let craftComponent = hideoutProduction[craftID].requirements[i];
+                            let resourceProportion = craftComponent.resource / items[craftComponent.templateId]._props.Resource;
+                            if (craftComponent.templateId != itemID) {
+                                usedForCraftingComponentsString += this.getItemShortName(craftComponent.templateId) + " ×" + Math.round(resourceProportion * 100) + "%" + " + ";
+                            }
+                            totalRecipePrice += Math.round(this.getFleaPrice(craftComponent.templateId) * resourceProportion);
+                        }
                     }
                     usedForCraftingComponentsString = usedForCraftingComponentsString.slice(0, usedForCraftingComponentsString.length - 3);
                     usedForCraftingComponentsString += ` | Δ ≈ ${Math.round(this.getFleaPrice(hideoutProduction[craftID].endProduct) * hideoutProduction[craftID].count - totalRecipePrice)}₽`;
-                    usedForCraftingString += `Part ×${hideoutProduction[craftID].requirements[s].count} > ${this.getItemName(hideoutProduction[craftID].endProduct)} ×${hideoutProduction[craftID].count}`;
+                    usedForCraftingString += `${hideoutProduction[craftID].requirements[s].type == "Tool" ? "Tool" : "Part ×" + hideoutProduction[craftID].requirements[s].count} > ${this.getItemName(hideoutProduction[craftID].endProduct)} ×${hideoutProduction[craftID].count}`;
                     usedForCraftingString += ` @ ${recipeAreaString + usedForCraftingComponentsString}\n`;
                 }
             }
         }
         // console.log(hideoutString)
+        // log (usedForCraftingString)
         return usedForCraftingString;
     }
     usedForQuestGenerator(itemID) {

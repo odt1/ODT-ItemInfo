@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../../../Aki_Data/Server"
 		}
 	],
 	"extensions": {
