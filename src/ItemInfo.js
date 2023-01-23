@@ -1,8 +1,6 @@
-"use strict"
+"use strict";
 
 //------------ CONFIGURATION START ---------------//
-
-const useExtendedTradeString = true;
 
 const userLocale = "en"; // TODO: Internationalise the mod
 
@@ -25,26 +23,23 @@ const peacekeeper = DatabaseServer.tables.traders["5935c25fb3acc3127c3d8cd9"];
 const skier = DatabaseServer.tables.traders["58330581ace78e27b8b10cee"];
 const fence = DatabaseServer.tables.traders["579dc571d53a0658a154fbec"];
 const traderList = [therapist, ragman, jaeger, mechanic, prapor, peacekeeper, skier, fence]; // Trader list, sorted by best buy price. Big brain move by ....
-const armors = {"Aramid": "0.25", "UHMWPE": "0.45", "Combined": "0.50", "Titan": "0.55", "Aluminium": "0.60", "ArmoredSteel": "0.70", "Ceramic": "0.80", "Glass": "0.80"};
+const armors = DatabaseServer.tables.globals.config.ArmorMaterials;
 const hideoutProduction = DatabaseServer.tables.hideout.production;
 const hideoutAreas = DatabaseServer.tables.hideout.areas;
 
-class ItemInfo {
-
+class ItemInfo
+{
 	static AddToItemDescription(itemID, addToDescription, place)
-	{	
-		for (var locale in locales)
+	{
+		let originalDescription = locales[userLocale].templates[itemID].Description;
+		switch (place)
 		{
-			let originalDescription = locales[locale].templates[itemID].Description;
-			switch (place)
-			{
-				case "prepend":
-					locales[locale].templates[itemID].Description = addToDescription + originalDescription;
-					break;
-				case "append":
-					locales[locale].templates[itemID].Description = originalDescription + addToDescription;
-					break;
-			}
+		case "prepend":
+			locales[userLocale].templates[itemID].Description = addToDescription + originalDescription;
+			break;
+		case "append":
+			locales[userLocale].templates[itemID].Description = originalDescription + addToDescription;
+			break;
 		}
 	}
 
@@ -53,15 +48,15 @@ class ItemInfo {
 		let originalShortName = locales[userLocale].templates[itemID].ShortName;
 		switch (place)
 		{
-			case "prepend":
-				locales[userLocale].templates[itemID].ShortName = addToShortName + originalShortName;
-				break;
-			case "append":
-				locales[userLocale].templates[itemID].ShortName = originalShortName + addToShortName;
-				break;
-			case "wrap":
-				locales[userLocale].templates[itemID].ShortName = addToShortName + originalShortName + addToShortName;
-				break;
+		case "prepend":
+			locales[userLocale].templates[itemID].ShortName = addToShortName + originalShortName;
+			break;
+		case "append":
+			locales[userLocale].templates[itemID].ShortName = originalShortName + addToShortName;
+			break;
+		case "wrap":
+			locales[userLocale].templates[itemID].ShortName = addToShortName + originalShortName + addToShortName;
+			break;
 		}
 	}
 
@@ -70,38 +65,43 @@ class ItemInfo {
 		let originalName = locales[userLocale].templates[itemID].Name;
 		switch (place)
 		{
-			case "prepend":
-				locales[userLocale].templates[itemID].Name = addToName + originalName;
-				break;
-			case "append":
-				locales[userLocale].templates[itemID].Name = originalName + addToName;
-				break;
-			case "wrap":
-				locales[userLocale].templates[itemID].Name = addToName + originalName + addToName;
-				break;
+		case "prepend":
+			locales[userLocale].templates[itemID].Name = addToName + originalName;
+			break;
+		case "append":
+			locales[userLocale].templates[itemID].Name = originalName + addToName;
+			break;
+		case "wrap":
+			locales[userLocale].templates[itemID].Name = addToName + originalName + addToName;
+			break;
 		}
 	}
 
 	static GetItemName(itemID)
 	{
-		return locales[userLocale].templates[itemID].Name
+		return locales[userLocale].templates[itemID].Name;
 	}
+
 	static GetItemShortName(itemID)
 	{
-		return locales[userLocale].templates[itemID].ShortName
+		return locales[userLocale].templates[itemID].ShortName;
 	}
+
 	static GetCraftingAreaName(areaType)
 	{
-		var stringName = `hideout_area_${areaType}_name`
-		return locales[userLocale].interface[stringName]
+		let stringName = `hideout_area_${areaType}_name`;
+		return locales[userLocale].interface[stringName];
 	}
+
 	static GetCraftingRarity(areaType, Level)
 	{
 		for (let s in hideoutAreas[areaType].stages)
 		{
-			if (s > 1){
-				return Level+1;
-			} else {
+			if (s > 1)
+			{
+				return Level + 1;
+			} else
+			{
 				return 4;
 			}
 		}
@@ -109,8 +109,8 @@ class ItemInfo {
 
 	static ArrayAvg(array)
 	{
-		var sum = array.reduce((a, b) => a + b, 0);
-		var avg = (sum / array.length) || 0;
+		let sum = array.reduce((a, b) => a + b, 0);
+		let avg = (sum / array.length) || 0;
 		return Math.round(avg);
 	}
 
@@ -118,12 +118,12 @@ class ItemInfo {
 	{
 		let penetrationValue = itemTable[itemID]._props.PenetrationPower;
 		return (penetrationValue >= 60) ? 6
-			:	(penetrationValue >= 50) ? 5
-			:	(penetrationValue >= 40) ? 4
-			:	(penetrationValue >= 30) ? 3
-			:	(penetrationValue >= 20) ? 2
-			:	(penetrationValue >= 10) ? 1
-			:	0
+			: (penetrationValue >= 50) ? 5
+				: (penetrationValue >= 40) ? 4
+					: (penetrationValue >= 30) ? 3
+						: (penetrationValue >= 20) ? 2
+							: (penetrationValue >= 10) ? 1
+								: 0;
 	}
 
 	static GetItemPrice(itemID)
@@ -132,30 +132,30 @@ class ItemInfo {
 		let parentId;
 		let bestTrader;
 
-		for(let i in handbookTable.Items)
+		for (let i in handbookTable.Items)
 		{
-			if(handbookTable.Items[i].Id === itemID)
+			if (handbookTable.Items[i].Id === itemID)
 			{
 				parentId = handbookTable.Items[i].ParentId;
 				bestTrader = ItemInfo.getBestTraderMulti(parentId);
 				itemBasePrice = handbookTable.Items[i].Price;
-				let result = parseInt(itemBasePrice*bestTrader.multi);
+				let result = parseInt(itemBasePrice * bestTrader.multi);
 				return {
-				 price: result,
-				 name: bestTrader.name,
-				 ParentId: parentId,
+					price: result,
+					name: bestTrader.name,
+					ParentId: parentId,
 				};
-			} 
+			}
 		}
 		return itemBasePrice;
 	}
 
 	static GetFleaPrice(itemID)
 	{
-		if(typeof fleaPrices[itemID] != undefined) 
-			{
-				return fleaPrices[itemID];
-			}
+		if (typeof fleaPrices[itemID] != "undefined") 
+		{
+			return fleaPrices[itemID];
+		}
 		return ItemInfo.GetItemPrice(itemID).price;
 	}
 
@@ -166,9 +166,9 @@ class ItemInfo {
 		let altTraderSellCategory = "";
 		let traderName = "";
 
-		for(let i in handbookTable.Categories)
+		for (let i in handbookTable.Categories)
 		{
-			if(handbookTable.Categories[i].Id === parentId)
+			if (handbookTable.Categories[i].Id === parentId)
 			{
 				traderSellCategory = handbookTable.Categories[i].Id;
 				altTraderSellCategory = handbookTable.Categories[i].ParentId;
@@ -176,15 +176,15 @@ class ItemInfo {
 			}
 		}
 
-		for(let i = 0; i < 8; i++)
+		for (let i = 0; i < 8; i++)
 		{
-			if(traderList[i].base.sell_category.includes(traderSellCategory) || traderList[i].base.sell_category.includes(altTraderSellCategory))
+			if (traderList[i].base.sell_category.includes(traderSellCategory) || traderList[i].base.sell_category.includes(altTraderSellCategory))
 			{
 				traderMulti = (100 - traderList[i].base.loyaltyLevels[0].buy_price_coef) / 100;
 				traderName = traderList[i].base.nickname;
 				return {
-				 multi: traderMulti,
-				 name: traderName,
+					multi: traderMulti,
+					name: traderName,
 				};
 			}
 		}
@@ -194,18 +194,18 @@ class ItemInfo {
 	static GetItemSlotDensity(itemID)
 	{
 		return itemTable[itemID]._props.Width * itemTable[itemID]._props.Height / itemTable[itemID]._props.StackMaxSize;
-	}	
+	}
 
 	static BuyableGenarator(itemID)
 	{
 		let barterString = "";
 		let rarityArray = [];
 		let tradesArray = [];
-		for(let trader = 0; trader < 7; trader++) // iterate excluding Fence sales.
+		for (let trader = 0; trader < 7; trader++) // iterate excluding Fence sales.
 		{
-			for(let barter of traderList[trader].assort.items) // iterate all seller barters 
+			for (let barter of traderList[trader].assort.items) // iterate all seller barters 
 			{
-				if(barter._tpl == itemID && barter.parentId === "hideout") // find itemid in barter results 
+				if (barter._tpl == itemID && barter.parentId === "hideout") // find itemid in barter results 
 				{
 					let barterID = barter._id;
 					let barterResources = traderList[trader].assort.barter_scheme[barterID][0];
@@ -219,35 +219,37 @@ class ItemInfo {
 						if (resource._tpl == "5449016a4bdc2d6f028b456f")
 						{
 							barterString += `${Math.round(resource.count)}₽ + `;
-						} 
+						}
 						else if (resource._tpl == "569668774bdc2da2298b4568")
 						{
-							barterString += `${Math.round(resource.count)}€ ≈ ${Math.round(179*resource.count)}₽ + `;
-						} 
+							barterString += `${Math.round(resource.count)}€ ≈ ${Math.round(179 * resource.count)}₽ + `;
+						}
 						else if (resource._tpl == "5696686a4bdc2da3298b456a")
 						{
-							barterString += `$${Math.round(resource.count)} ≈ ${Math.round(160*resource.count)}₽ + `;
+							barterString += `$${Math.round(resource.count)} ≈ ${Math.round(160 * resource.count)}₽ + `;
 						}
-						else 
+						else
 						{
-							totalBarterPrice += ItemInfo.GetFleaPrice(resource._tpl)*resource.count; 
+							totalBarterPrice += ItemInfo.GetFleaPrice(resource._tpl) * resource.count;
 							barterString += ItemInfo.GetItemShortName(resource._tpl);
-							barterString += ` ×${resource.count} + `; 
+							barterString += ` ×${resource.count} + `;
 							isBarter = true;
 						}
 					}
 
-					if (isBarter) {
-						rarityArray.push(barterLoyaltyLevel+4);
+					if (isBarter)
+					{
+						rarityArray.push(barterLoyaltyLevel + 4);
 						tradesArray.push(((traderName != "Peacekeeper") ? traderName.slice(0, 1) : "K") + barterLoyaltyLevel + "b");
-					} else {
+					} else
+					{
 						rarityArray.push(barterLoyaltyLevel);
 						tradesArray.push(((traderName != "Peacekeeper") ? traderName.slice(0, 1) : "K") + barterLoyaltyLevel);
 					}
 					if (totalBarterPrice != 0)
 					{
 						totalBarterPrice = ` | Σ ≈ ${Math.round(totalBarterPrice)}₽`;
-					} 
+					}
 					else 
 					{
 						totalBarterPrice = "";
@@ -261,51 +263,57 @@ class ItemInfo {
 			string: barterString,
 			rarity: rarityArray.sort(),
 			trades: tradesArray
-		}
+		};
 	}
 
 	static UsedForTradesGenarator(itemID, addExtendedString)
 	{
 		let baseBarterString = "";
 		let rarityArray = [];
-		for(let trader = 0; trader < 7; trader++) // iterate excluding Fence sales.
+		for (let trader = 0; trader < 7; trader++) // iterate excluding Fence sales.
 		{
-			for(let barterID in traderList[trader].assort.barter_scheme) // iterate all seller barters 
+			for (let barterID in traderList[trader].assort.barter_scheme) // iterate all seller barters 
 			{
-				for (let srcs in traderList[trader].assort.barter_scheme[barterID][0]) {
-					if(traderList[trader].assort.barter_scheme[barterID][0][srcs]._tpl == itemID) 
+				for (let srcs in traderList[trader].assort.barter_scheme[barterID][0])
+				{
+					if (traderList[trader].assort.barter_scheme[barterID][0][srcs]._tpl == itemID) 
 					{
 						let barterResources = traderList[trader].assort.barter_scheme[barterID][0];
 						let bartedForItem;
 						let totalBarterPrice = 0;
 
 						let barterLoyaltyLevel = traderList[trader].assort.loyal_level_items[barterID];
-						for(let originalBarter in traderList[trader].assort.items){
-							if(traderList[trader].assort.items[originalBarter]._id == barterID) {
-										bartedForItem = traderList[trader].assort.items[originalBarter]._tpl;
+						for (let originalBarter in traderList[trader].assort.items)
+						{
+							if (traderList[trader].assort.items[originalBarter]._id == barterID)
+							{
+								bartedForItem = traderList[trader].assort.items[originalBarter]._tpl;
 							}
 						}
 						rarityArray.push(barterLoyaltyLevel);
 						baseBarterString += `Traded ×${traderList[trader].assort.barter_scheme[barterID][0][srcs].count}`;
 						baseBarterString += ` @ ${traderList[trader].base.nickname} lv.${barterLoyaltyLevel} > ${ItemInfo.GetItemName(bartedForItem)}`;
 
-						let extendedBarterString = ` < … + `;
+						let extendedBarterString = " < … + ";
 						for (let barterResource in barterResources) 
+						{
+							totalBarterPrice += ItemInfo.GetFleaPrice(barterResources[barterResource]._tpl) * barterResources[barterResource].count;
+							if (barterResources[barterResource]._tpl != itemID)
 							{
-								totalBarterPrice += ItemInfo.GetFleaPrice(barterResources[barterResource]._tpl)*barterResources[barterResource].count;
-								if (barterResources[barterResource]._tpl != itemID){
-									extendedBarterString += ItemInfo.GetItemShortName(barterResources[barterResource]._tpl);
-									extendedBarterString += ` ×${barterResources[barterResource].count} + `;
-								}
+								extendedBarterString += ItemInfo.GetItemShortName(barterResources[barterResource]._tpl);
+								extendedBarterString += ` ×${barterResources[barterResource].count} + `;
 							}
-						if (totalBarterPrice != 0) {
-							totalBarterPrice = ` | Δ ≈ ${Math.round(ItemInfo.GetFleaPrice(bartedForItem)-totalBarterPrice)}₽`;
-						} else {
+						}
+						if (totalBarterPrice != 0)
+						{
+							totalBarterPrice = ` | Δ ≈ ${Math.round(ItemInfo.GetFleaPrice(bartedForItem) - totalBarterPrice)}₽`;
+						} else
+						{
 							totalBarterPrice = "";
 						}
 						extendedBarterString = extendedBarterString.slice(0, extendedBarterString.length - 3);
 						extendedBarterString += totalBarterPrice;
-						if (addExtendedString == false) {extendedBarterString = "";}
+						if (addExtendedString == false) { extendedBarterString = ""; }
 						baseBarterString += extendedBarterString + "\n";
 					}
 				}
@@ -315,7 +323,7 @@ class ItemInfo {
 		return {
 			string: baseBarterString,
 			rarity: rarityArray.sort(),
-		}
+		};
 	}
 
 	static CraftableGenarator(itemID)
@@ -334,11 +342,11 @@ class ItemInfo {
 
 				for (let i = recipe.requirements.length - 1; i >= 0; i--) // Itterate 
 				{
-					if (recipe.requirements[i].type === "Area" )
+					if (recipe.requirements[i].type === "Area")
 					{
 						let recipeArea = recipe.requirements[i]; // Find and save craft area object
-						recipeAreaString = ItemInfo.GetCraftingAreaName(recipeArea.areaType) + " lv." + recipeArea.requiredLevel
-						rarityArray.push(ItemInfo.GetCraftingRarity(recipeArea.areaType, recipeArea.requiredLevel))
+						recipeAreaString = ItemInfo.GetCraftingAreaName(recipeArea.areaType) + " lv." + recipeArea.requiredLevel;
+						rarityArray.push(ItemInfo.GetCraftingRarity(recipeArea.areaType, recipeArea.requiredLevel));
 					}
 					if (recipe.requirements[i].type === "Item")
 					{
@@ -346,16 +354,17 @@ class ItemInfo {
 						let craftComponentCount = recipe.requirements[i].count;
 						let craftComponentPrice = ItemInfo.GetFleaPrice(craftComponentId);
 
-						componentsString += ItemInfo.GetItemShortName(craftComponentId) + " ×"  + craftComponentCount + " + ";
-						totalRecipePrice += craftComponentPrice*craftComponentCount
+						componentsString += ItemInfo.GetItemShortName(craftComponentId) + " ×" + craftComponentCount + " + ";
+						totalRecipePrice += craftComponentPrice * craftComponentCount;
 					}
 				}
-				if (recipe.count > 1) {
+				if (recipe.count > 1)
+				{
 					recipeDivision = " per item";
 				}
 				componentsString = componentsString.slice(0, componentsString.length - 3);
-				craftableString += "Crafted " + "×" + recipe.count + " @ " + recipeAreaString + " < "
-				craftableString += componentsString + " | Σ" + recipeDivision + " ≈ " + Math.round(totalRecipePrice/recipe.count) + "₽" + "\n"
+				craftableString += `Crafted ×${recipe.count} @ ${recipeAreaString} < `;
+				craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${Math.round(totalRecipePrice / recipe.count)}₽\n`;
 
 				// ItemInfo.AddToItemDescription(itemID, componentsString + ", at total price per item: " + Math.round(totalRecipePrice/recipe.count) + "\n", "prepend");
 				// ItemInfo.AddToItemDescription(itemID, recipe.count + " can be crafted at " + recipeAreaString + " with:", "prepend");
@@ -380,8 +389,9 @@ class ItemInfo {
 			{
 				for (let a in hideoutAreas[area].stages[s].requirements)
 				{
-					if (hideoutAreas[area].stages[s].requirements[a].templateId == itemID) {
-						hideoutString += "Need ×" + hideoutAreas[area].stages[s].requirements[a].count + " > " + ItemInfo.GetCraftingAreaName(hideoutAreas[area].type) + " lv." + s + "\n";
+					if (hideoutAreas[area].stages[s].requirements[a].templateId == itemID)
+					{
+						hideoutString += `Need ×${hideoutAreas[area].stages[s].requirements[a].count} > ${ItemInfo.GetCraftingAreaName(hideoutAreas[area].type)} lv.${s}\n`;
 					}
 				}
 			}
@@ -394,7 +404,7 @@ class ItemInfo {
 	{
 		let usedForCraftingString = "";
 		let totalCraftingPrice = 0;
-		
+
 		for (let craftID in hideoutProduction)
 		{
 			for (let s in hideoutProduction[craftID].requirements)
@@ -406,23 +416,24 @@ class ItemInfo {
 					let totalRecipePrice = 0;
 					for (let i = hideoutProduction[craftID].requirements.length - 1; i >= 0; i--) // Itterate 
 					{
-						if (hideoutProduction[craftID].requirements[i].type == "Area" )
+						if (hideoutProduction[craftID].requirements[i].type == "Area")
 						{
-							recipeAreaString = ItemInfo.GetCraftingAreaName(hideoutProduction[craftID].requirements[i].areaType) + " lv." + hideoutProduction[craftID].requirements[i].requiredLevel
+							recipeAreaString = ItemInfo.GetCraftingAreaName(hideoutProduction[craftID].requirements[i].areaType) + " lv." + hideoutProduction[craftID].requirements[i].requiredLevel;
 						}
 						if (hideoutProduction[craftID].requirements[i].type == "Item")
 						{
 							let craftComponent = hideoutProduction[craftID].requirements[i];
-							if (craftComponent.templateId != itemID) {
-								usedForCraftingComponentsString += ItemInfo.GetItemShortName(craftComponent.templateId) + " ×"  + craftComponent.count + " + ";
+							if (craftComponent.templateId != itemID)
+							{
+								usedForCraftingComponentsString += ItemInfo.GetItemShortName(craftComponent.templateId) + " ×" + craftComponent.count + " + ";
 							}
-							totalRecipePrice += ItemInfo.GetFleaPrice(craftComponent.templateId)*craftComponent.count
+							totalRecipePrice += ItemInfo.GetFleaPrice(craftComponent.templateId) * craftComponent.count;
 						}
 					}
 					usedForCraftingComponentsString = usedForCraftingComponentsString.slice(0, usedForCraftingComponentsString.length - 3);
-					usedForCraftingComponentsString += " | Δ" + " ≈ " + Math.round(ItemInfo.GetFleaPrice(hideoutProduction[craftID].endProduct)-totalRecipePrice) + "₽";
-					usedForCraftingString += "Part ×" + hideoutProduction[craftID].requirements[s].count + " > " + ItemInfo.GetItemName(hideoutProduction[craftID].endProduct) + " ×" + hideoutProduction[craftID].count;
-					usedForCraftingString += " @ " + recipeAreaString +usedForCraftingComponentsString+ "\n";
+					usedForCraftingComponentsString += ` | Δ ≈ ${Math.round(ItemInfo.GetFleaPrice(hideoutProduction[craftID].endProduct) - totalRecipePrice)}₽`;
+					usedForCraftingString += `Part ×${hideoutProduction[craftID].requirements[s].count} > ${ItemInfo.GetItemName(hideoutProduction[craftID].endProduct)} ×${hideoutProduction[craftID].count}`;
+					usedForCraftingString += ` @ ${recipeAreaString + usedForCraftingComponentsString}\n`;
 				}
 			}
 		}
@@ -430,6 +441,23 @@ class ItemInfo {
 		return usedForCraftingString;
 	}
 
+	static getBaseCategory(itemID) // unused
+	{
+		let itemParent = itemTable[itemID]._parent;
+		if (itemParent != "54009119af1c881c07000029"
+			&& itemParent != "566162e44bdc2d3f298b4573"
+			&& itemParent != "5661632d4bdc2d903d8b456b"
+			&& itemParent != "5661632d4bdc2d903d8b456b"
+			&& itemParent != "566168634bdc2d144c8b456c"
+			&& itemParent != "543be5f84bdc2dd4348b456a"
+			&& itemParent != "57bef4c42459772e8d35a53b")
+		{
+			return getBaseCategory(itemParent);
+		} else
+		{
+			return itemID;
+		}
+	}
 
 	static UsedForQuestGenerator(itemID)
 	{
@@ -443,20 +471,20 @@ class ItemInfo {
 				{
 					// console.log(questConditions[i])
 					let trader = quests[questID].traderId;
-					let questLevel = "";
 					// for (let startConditions in quests[questID].conditions.AvailableForStart) {
 					// 	// console.log()
 					// 	if (quests[questID].conditions.AvailableForStart[startConditions]._parent == "Level") {
 					// 		questLevel = " lv." + questConditions[startConditions]._props.value;
 					// 	}
 					// }
-					questString += 'Found' + (function()
-					{
-						if (questConditions[i]._props.onlyFoundInRaid == true)
-						{
-							return " (✔) "
-						} else {return " ";}
-					})() + '×' + questConditions[i]._props.value + " > " + quests[questID].QuestName + questLevel + " @ " + DatabaseServer.tables.traders[trader].base.nickname +"\n";
+					// questString += 'Found' + (function ()
+					// {
+					// 	if (questConditions[i]._props.onlyFoundInRaid == true)
+					// 	{
+					// 		return " (✔) ";
+					// 	} else { return " "; }
+					// })() + '×' + questConditions[i]._props.value + " > " + quests[questID].QuestName + questLevel + " @ " + DatabaseServer.tables.traders[trader].base.nickname + "\n";
+					questString += `Found ${(questConditions[i]._props.onlyFoundInRaid) ? "(✔) " : ""}×${questConditions[i]._props.value} > ${quests[questID].QuestName} @ ${DatabaseServer.tables.traders[trader].base.nickname}\n`;
 				}
 			}
 		}
@@ -464,34 +492,34 @@ class ItemInfo {
 	}
 
 
-/* WIP idea for finding weapon components
-function findOriginalBarterItem(barterID){
-		if (traderList[trader].assort.items[barter].parentId != hideout) {
-			return findOriginalBarterItem(traderList[trader].assort.items[barter].parentId);
-		} else {
-			return traderList[trader].assort.items[barter]._id
+	/* WIP idea for finding weapon components
+	function findOriginalBarterItem(barterID){
+			if (traderList[trader].assort.items[barter].parentId != hideout) {
+				return findOriginalBarterItem(traderList[trader].assort.items[barter].parentId);
+			} else {
+				return traderList[trader].assort.items[barter]._id
+			}
 		}
-	}
-
-	static IsItemUsedForCrafts(id)
-	{
-		return;
-	}
-*/
+	
+		static IsItemUsedForCrafts(id)
+		{
+			return;
+		}
+	*/
 	static onLoadMod()
 	{
 		for (const itemID in itemTable) // Iterate all items
-		{	
-			var item = itemTable[itemID];
-			
+		{
+			let item = itemTable[itemID];
+
 			if (item._type === "Item" // Check if the item is a real item and not a "node" type.
-			 && item._id != "602543c13fee350cd564d032" // ID check is for "sorting table". Believe it or not, it is coded as an item...
-			 && item._parent != "566abbb64bdc2d144c8b457d" // Ignore "stash"/
-			 && item._props.QuestItem != true // Ignore quest items.
-			 && item._parent != "5448bf274bdc2dfc2f8b456a" // Ignore secure containers.
-			 && item._parent != "566965d44bdc2d814c8b4571" // Ignore loot containers.
-			 && item._parent != "55d720f24bdc2d88028b456d" // Ignore default inventory.
-			 && item._parent != "543be5dd4bdc2deb348b4569") // Ignore currencies.
+				&& item._id != "602543c13fee350cd564d032" // ID check is for "sorting table". Believe it or not, it is coded as an item...
+				&& item._parent != "566abbb64bdc2d144c8b457d" // Ignore "stash"/
+				&& item._props.QuestItem != true // Ignore quest items.
+				&& item._parent != "5448bf274bdc2dfc2f8b456a" // Ignore secure containers.
+				&& item._parent != "566965d44bdc2d814c8b4571" // Ignore loot containers.
+				&& item._parent != "55d720f24bdc2d88028b456d" // Ignore default inventory.
+				&& item._parent != "543be5dd4bdc2deb348b4569") // Ignore currencies.
 			{
 				// console.log(`${itemID}`);
 				let originalDescription = "";
@@ -499,9 +527,9 @@ function findOriginalBarterItem(barterID){
 				// Save original item description and catch an exception just in case something breaks.
 				try 
 				{
-					originalDescription = locales[userLocale].templates[itemID].Description
-				} 
-				catch(exception)
+					originalDescription = locales[userLocale].templates[itemID].Description;
+				}
+				catch (exception)
 				{
 					Logger.error(`Oops, ItemInfo mod here, item ${ItemInfo.GetItemName(itemID)} [${itemID}] tried to break the game by not having a proper description in locale table! Continuing like nothing happened. Sorry, not sorry.`);
 					continue;
@@ -509,12 +537,12 @@ function findOriginalBarterItem(barterID){
 
 				try 
 				{
-					var crashTest = clientItemsTable.data[itemID]._props
-					itemClient = clientItemsTable.data[itemID]
-				} 
-				catch(exception)
+					let crashTest = clientItemsTable.data[itemID]._props;
+					itemClient = clientItemsTable.data[itemID];
+				}
+				catch (exception)
 				{
-					Logger.error(`Oops, ItemInfo mod here, item ${ItemInfo.GetItemName(itemID)} [${itemID}] tried to break the game by not having a proper data in client item table! Continuing like nothing happened. Sorry, not sorry.`);
+					// Logger.error(`Oops, ItemInfo mod here, item ${ItemInfo.GetItemName(itemID)} [${itemID}] tried to break the game by not having a proper data in client item table! Continuing like nothing happened. Sorry, not sorry.`);
 					continue;
 				}
 
@@ -527,6 +555,7 @@ function findOriginalBarterItem(barterID){
 				let usedForHideoutString = "";
 				let usedForCraftingString = "";
 				let armorDurabilityString = "";
+				let spawnChanceString = "";
 				let tier = "";
 				let itemRarity = [];
 				// Calculate and store item prices
@@ -558,7 +587,7 @@ function findOriginalBarterItem(barterID){
 
 
 				// FEATURE: RARITY RECOLOR
-				
+
 
 
 				item._props.BackgroundColor = "grey";
@@ -567,7 +596,7 @@ function findOriginalBarterItem(barterID){
 
 
 
-				itemRarity = [BuyableGenarator.rarity[0]]
+				itemRarity = [BuyableGenarator.rarity[0]];
 
 				if (item._props.CanSellOnRagfair === false && item._id != "56d59d3ad2720bdb418b4577" && !itemRarity[0] > 0)
 				{
@@ -575,109 +604,119 @@ function findOriginalBarterItem(barterID){
 					itemRarity[0] = 9;
 				}
 
-				if (typeof itemRarity[0] == "undefined"){
-					try
-					{
-						var rarity = clientItemsTable.data[itemID]._props.Rarity;
-					}
-					catch(exception)
-					{
-						// Logger.error(`Oops, ItemInfo mod here, item:\n${ItemInfo.GetItemName(itemID)} [${itemID}]\ntried to break the game by not having a proper rarity in clientItems table! Continuing like nothing happened. Sorry, not sorry.\n`);
-						continue;
-					}
-					itemRarity[0] = rarity;
+				if (typeof itemRarity[0] == "undefined")
+				{
+					itemRarity[0] = itemClient._props.Rarity;
 				}
 
 
 
 				if (item._parent == "543be5cb4bdc2deb348b4568") // Ammo boxes special case
 				{
-					var count = item._props.StackSlots[0]._max_count;
-					var ammo = item._props.StackSlots[0]._props.filters[0].Filter[0];
-					var value = ItemInfo.GetItemPrice(ammo).price
-					traderPrice = value*count
-					if (typeof itemRarity[0] == "undefined"){
-						itemRarity = [ItemInfo.BuyableGenarator(ammo).rarity[0]]
+					let count = item._props.StackSlots[0]._max_count;
+					let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0];
+					let value = ItemInfo.GetItemPrice(ammo).price;
+					traderPrice = value * count;
+					if (typeof itemRarity[0] == "undefined")
+					{
+						itemRarity = [ItemInfo.BuyableGenarator(ammo).rarity[0]];
 					}
 				}
 
-				if (fleaPrice*RagfairConfig.dynamic.price.min < traderPrice) // Stop flea abuse
+				if (fleaPrice * RagfairConfig.dynamic.price.min < traderPrice) // Stop flea abuse
 				{
 					// console.log(`--------------------\n${ItemInfo.GetItemName(itemID)}\n${traderPrice-fleaPrice*RagfairConfig.dynamic.price.min}`)
-					let fleaPriceFix = Math.round(traderPrice*(1/RagfairConfig.dynamic.price.min+0.01));
+					let fleaPriceFix = Math.round(traderPrice * (1 / RagfairConfig.dynamic.price.min + 0.01));
 					fleaPrices[itemID] = fleaPriceFix;
 					fleaPrice = fleaPriceFix;
 				}
 
-				if(itemRarity.includes(9)){
+				if (itemRarity.includes(9))
+				{
 					tier = "OVERPOWERED";
 					item._props.BackgroundColor = "tracerRed";
 				}
-				if(itemRarity.includes(1) || itemRarity.includes("Common")){
+				if (itemRarity.includes(1) || itemRarity.includes("Common"))
+				{
 					tier = "COMMON";
 					item._props.BackgroundColor = "default";
-				} else if(itemRarity.includes(2) || itemRarity.includes("Rare")){
+				} else if (itemRarity.includes(2) || itemRarity.includes("Rare"))
+				{
 					tier = "RARE";
 					item._props.BackgroundColor = "blue";
-				} else if(itemRarity.includes(3) || itemRarity.includes("Superrare")){
+				} else if (itemRarity.includes(3) || itemRarity.includes("Superrare"))
+				{
 					tier = "EPIC";
 					item._props.BackgroundColor = "violet";
-				} else if(itemRarity.includes(4) || itemRarity.includes("Not_exist")){
+				} else if (itemRarity.includes(4) || itemRarity.includes("Not_exist"))
+				{
 					tier = "LEGENDARY";
 					item._props.BackgroundColor = "yellow";
-				} else if(itemRarity.includes(5)){
+				} else if (itemRarity.includes(5))
+				{
 					tier = "RARE";
 					item._props.BackgroundColor = "blue";
-				} else if(itemRarity.includes(6)){
+				} else if (itemRarity.includes(6))
+				{
 					tier = "EPIC";
 					item._props.BackgroundColor = "violet";
-				} else if(itemRarity.includes(7)){
+				} else if (itemRarity.includes(7))
+				{
 					tier = "LEGENDARY";
 					item._props.BackgroundColor = "Yellow";
-				} else if(itemRarity.includes(8)){
+				} else if (itemRarity.includes(8))
+				{
 					tier = "UBER";
 					item._props.BackgroundColor = "tracerYellow";
 				}
 
+				//				if(itemRarity2 == "Common"){
+				//					tier = "COMMON";
+				//					item._props.BackgroundColor = "default";
+				//				} else if(itemRarity2 == "Rare"){
+				//					tier = "RARE";
+				//					item._props.BackgroundColor = "blue";
+				//				} else if(itemRarity2 == "Superrare"){
+				//					tier = "EPIC";
+				//					item._props.BackgroundColor = "violet";
+				//				} else if(itemRarity2 == "Not_exist"){
+				//					tier = "LEGENDARY";
+				//					item._props.BackgroundColor = "yellow";
+				//				}
 
-
-
-//				if(itemRarity2 == "Common"){
-//					tier = "COMMON";
-//					item._props.BackgroundColor = "default";
-//				} else if(itemRarity2 == "Rare"){
-//					tier = "RARE";
-//					item._props.BackgroundColor = "blue";
-//				} else if(itemRarity2 == "Superrare"){
-//					tier = "EPIC";
-//					item._props.BackgroundColor = "violet";
-//				} else if(itemRarity2 == "Not_exist"){
-//					tier = "LEGENDARY";
-//					item._props.BackgroundColor = "yellow";
-//				}
-				
 				// ItemInfo.AddToItemShortName(itemID, "", "prepend");
-				if (tier.length > 0){
-					ItemInfo.AddToItemName(itemID, " | " + tier, "append");
+				if (tier.length > 0)
+				{
+					// ItemInfo.AddToItemName(itemID, " | " + tier, "append");
 					// ItemInfo.AddToItemShortName(itemID, `(${aamoDesc[0].slice(0, 1)})`, "append");
-					priceString += tier + " | "
+					priceString += tier + " | ";
 				}
-				
+
+				let spawn = itemClient._props.SpawnChance;
+				if (spawn > 0)
+				{
+					priceString += `Spawn chance: ${spawn}%\n`;
+					// ItemInfo.AddToItemName(itemID, ` ${spawn}% Value: ${Math.round(rarityValue)}`, "append");
+				}
+
+
 				if (BuyableGenarator.trades.length > 0)
 				{
 					// console.log(ItemInfo.GetItemName(itemID) + ": " + BuyableGenarator.trades.join(", "));
-					ItemInfo.AddToItemName(itemID, ": " + BuyableGenarator.trades.join(", "), "append");
+					ItemInfo.AddToItemName(itemID, " | " + BuyableGenarator.trades.join(", "), "append");
 				}
 
-				if (item._props.armorClass > 0){
-					// let ggg = item._props.ArmorMaterial
-					armorDurabilityString += `Effective durability: ${Math.round(item._props.MaxDurability/armors[item._props.ArmorMaterial])}\n`;
+				if (item._props.armorClass > 0)
+				{
+					let armor = armors[item._props.ArmorMaterial];
+					armorDurabilityString += `Effective durability: ${Math.round(item._props.MaxDurability / armor.Destructibility)} | Repairability: ${100 - armor.MaxRepairDegradation * 100}%-${100 - armor.MinRepairDegradation * 100}%\n`;
+					// console.log(`---\n${ItemInfo.GetItemName(itemID)}\n${armorDurabilityString}`);
 				}
 
 
 				// FEATURE: ADD PRICES TO DESCRIPTION
 
-				let itemvalue = ((traderPrice+fleaPrice)/2)/ItemInfo.GetItemSlotDensity(itemID); // Avarages traders sell price and flea price, and divides it by slot and stack sizes. This makes it so ammo is valued per stack and can be compared gains other items. Might break the desired calculation ratio if stacking mods are used.
+				let itemvalue = ((traderPrice + fleaPrice) / 2) / ItemInfo.GetItemSlotDensity(itemID); // Avarages traders sell price and flea price, and divides it by slot and stack sizes. This makes it so ammo is valued per stack and can be compared gains other items. Might break the desired calculation ratio if stacking mods are used.
 
 				priceString += `Flea price: ${fleaPrice} | ${traderName}'s valuation: ${traderPrice}₽\n\n`;
 
@@ -701,45 +740,69 @@ function findOriginalBarterItem(barterID){
 
 
 
-				if (BuyableGenarator.string.length > 1) {
+				if (BuyableGenarator.string.length > 1)
+				{
 					barterString = BuyableGenarator.string + "\n";
 				}
-				if (ItemInfo.CraftableGenarator(itemID).length > 1) {
+				if (ItemInfo.CraftableGenarator(itemID).length > 1)
+				{
 					craftingString = ItemInfo.CraftableGenarator(itemID) + "\n";
 				}
-				if (UsedForTradesGenarator.string.length > 1) {
+				if (UsedForTradesGenarator.string.length > 1)
+				{
 					usedForBarterString = UsedForTradesGenarator.string + "\n";
-				}				
-				if (ItemInfo.UsedForQuestGenerator(itemID).length > 1) {
+				}
+				if (ItemInfo.UsedForQuestGenerator(itemID).length > 1)
+				{
 					usedForQuestsString = ItemInfo.UsedForQuestGenerator(itemID) + "\n";
 					// item._props.BackgroundColor = "tracerGreen"
 					ItemInfo.AddToItemName(itemID, "★", "append");
 					ItemInfo.AddToItemShortName(itemID, "★", "prepend");
 					// console.log(ItemInfo.GetItemName(itemID) + " " + ItemInfo.UsedForQuestGenerator(itemID)) // List all quest items
 				}
-				if (ItemInfo.UsedForHideoutGenerator(itemID).length > 1) {
+				if (ItemInfo.UsedForHideoutGenerator(itemID).length > 1)
+				{
 					usedForHideoutString = ItemInfo.UsedForHideoutGenerator(itemID) + "\n";
 				}
-				if (ItemInfo.IsItemUsedForCrafting(itemID).length > 1) {
+				if (ItemInfo.IsItemUsedForCrafting(itemID).length > 1)
+				{
 					usedForCraftingString = ItemInfo.IsItemUsedForCrafting(itemID) + "\n";
 				}
-				descriptionString = priceString + armorDurabilityString + usedForQuestsString + usedForHideoutString + barterString + craftingString + usedForCraftingString + usedForBarterString;
+				descriptionString = priceString + spawnChanceString + armorDurabilityString + usedForQuestsString + usedForHideoutString + barterString + craftingString + usedForCraftingString + usedForBarterString;
 				ItemInfo.AddToItemDescription(itemID, descriptionString, "prepend");
-				
+
 				// if (item._parent == "543be5cb4bdc2deb348b4568") // Ammo boxes special case
 				// {
 				// 	console.log(`--------------------\n\n${ItemInfo.GetItemName(itemID)}\n${locales[userLocale].templates[itemID].ShortName}\n${descriptionString}`)
 				// }
-
+				// console.log(`---\n${ItemInfo.GetItemName(itemID)}\n${descriptionString}`);
+				// getBaseCategory(itemClient._parent)
 				// console.log(`---\n${itemID}`)
-				// console.log(`${ItemInfo.GetItemName(itemID)} \n${itemClient._props.SpawnChance}`)
+				// console.log(itemClient._id)
+				// console.log("---\n" + itemID)
+
+				// if (spawnDict[getBaseCategory(itemClient._parent)])
+				// {
+				// 	spawnDict[getBaseCategory(itemClient._parent)].value += itemClient._props.SpawnChance;
+				// 	spawnDict[getBaseCategory(itemClient._parent)].count += 1;
+				// } else
+				// {
+				// 	spawnDict[getBaseCategory(itemClient._parent)] = {};
+				// 	spawnDict[getBaseCategory(itemClient._parent)].value = itemClient._props.SpawnChance;
+				// 	spawnDict[getBaseCategory(itemClient._parent)].count = 1;
+				// }
 			}
 		}
 		// for (let i of DatabaseServer.tables.bots.types.bossbully.inventory.items.SecuredContainer){
 		// 	console.log(ItemInfo.GetItemName(i))
 		// }
+		// console.log(spawnDict)
 		// console.log(DatabaseServer.tables.bots.types.bossbully.inventory.items.Pockets)
-		Logger.info("ItemInfo loaded. Great success!")
+		// for (var catName in spawnDict) {
+		// console.log(`${catName}`)
+		// console.log(`---\n${DatabaseServer.tables.templates.items[catName]._name}\n${spawnDict[catName]}`)
+		// }
+		Logger.info("ItemInfo loaded. Great success!");
 	}
 }
 module.exports = ItemInfo;

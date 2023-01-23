@@ -1,24 +1,64 @@
-# ODT-ItemInfo
- ItemInfo mod for SPTarkov
 
-### Calculates flea price, selling value and best trader to sell item to.
+This project was created to automate most parts of building and setting up an environment.
 
-### Shows if item:
+## **NodeJS:**
 
-* Is used for quests (adds special mark for FIR items)
-* Is used for barters (provides delta for profit calculation)
-* Is buyable with money or barters (calculates resources total price)
-* Is used as part in crafts (provides delta for profit calculation)
-* Is craftable (calculates resources total price)
-* Is used for hideout construction
+The first step would be to install nodejs on your pc, the version you NEED is **16.17.1**
 
-### Shows prices and marks expensive and flea banned items with colors and stars in item name
+That version is the one that has been used to test the mod templates and build scripts.
 
-### Calculates and shows ammo penatration value in item name
+It can be downloaded from here: https://nodejs.org/dist/v16.17.1/node-v16.17.1-x64.msi
 
-## Demo
+A system reboot may be needed after install.
 
-![GasAn demo](https://user-images.githubusercontent.com/33424002/166860879-00e2794d-e3b0-4df1-937f-4599f3efec5c.jpg)
-![vod](https://user-images.githubusercontent.com/33424002/166861642-0bd1c86f-dbd1-4c8a-9b16-fc525e5017b4.jpg)
-![ammo](https://user-images.githubusercontent.com/33424002/166861591-6c647f15-4917-4723-9f6f-3f7fcfad4a70.jpg)
-![banned](https://user-images.githubusercontent.com/33424002/166861601-8c0eed53-c9a5-4672-8749-e3ed3c9e1974.jpg)
+## **IDE:**
+
+The second step is having an IDE ready. We've setup a VSCodium workspace file to help with this.
+
+You CAN use Visual Studio Code if you so desire, just keep in mind that our dev tests on the mod files was done using VSCodium.
+
+You can get VSCodium here: https://vscodium.com/#install
+
+## **Workspace:**
+
+Once you have NodeJS and VSCodium ready, open the mod.code-workspace file with VSCodium (File->Open Workspace from File...).
+
+Once the project loads into VSCodium you will be recommended to install the ESLint plugin. This is HIGHLY recommended.
+
+## **Environment Setup:**
+
+There is a task that will automatically setup your environment to use typescript.
+
+To run it, you just need to go to: 
+
+> Terminal->Run Task...->Show All Tasks...->npm: install
+
+After running this task, your environment will be ready to start coding.
+
+DO NOT remove the node_modules folder, this is an auto generated directory that has the required dependencies to be able to use typescript and more.
+
+## **IMPORTANT:**
+
+Before starting to work on your mod, we suggest you read about Dependency Injection and Inversion of Control as this is the adopted architecture SPT-AKI has adopted.
+
+It will be difficult to understand some of the problems you may be having if you dont understand the basics of it.
+
+A guide explaining all the essentials will be available on the hub on release for you to read about.
+
+## **Coding:**
+
+All your work should be centered around the mod.ts file as an entry point.
+You can ONLY change the following properties from the package.json file: `"name"`, `"version"`, `"license"`: `"MIT"`, `"author"`, `"akiVersion"`.
+
+If you have never used typescript before, you can read about it here: https://www.typescriptlang.org/docs/
+
+## **Distributing your mod:**
+
+The project has been set up with an automatic task that will copy and zip ALL required files for your mod to work on SPT-AKI.
+To run this task you just need to go to: 
+
+> Terminal->Run Task...->Show All Tasks...->npm: build:zip
+
+The output will be a mod.zip file that will appear on the root of the project.
+
+Always verify that all files were included into the zip file.
