@@ -5,6 +5,12 @@
 		},
 		{
 			"path": "../../../Aki_Data/Server"
+		},
+		{
+			"path": "../xODT-xxCustom"
+		},
+		{
+			"path": "../../../../../Users/ODT/Downloads/Server-development"
 		}
 	],
 	"extensions": {

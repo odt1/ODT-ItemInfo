@@ -1,0 +1,97 @@
+{
+	"PricesInfo": {
+		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to.",
+		"_example": "Flea price: 61703₽ | Ragman's valuation: 37386₽",
+		"enabled": true
+	},
+	"FleaAbusePatch": {
+		"_description": "Fixes prices for items you can buy on flea cheaper then sold to traders, sticks to lowest possible increase to make abuse unprofitable.",
+		"enabled": true
+	},
+	"RarityRecolor": {
+		"_description": "This BETA feature clears and changes background color on EVERY item in the game based on MMO style rarity tier-list with colors that make actual sense. Tiers are based on trader level you can purchase or barter the item. Barters are considered +1 rarity level. Banned on flea market items are given highest rarity - overpowered. The tier list: Common (grey background, bought with level 1 traders) > Rare (blue, level 2 trades for currency and level 1 barters) > Epic (purple, level 3 and level 2 barters) > Legendary (dim yellow, level 4 and level 3 barters) > Uber (bright yellow, level 4 barters only) > UNOBTAINIUM (super rare spawns) > OP (bright red, banned on flea market). Works for 95% of items well enough to be very much usable. Can add tier name to PricesInfo module. TODO: custom lists, more robust calculation, include crafted items, customisation.",
+		"enabled": true,
+		"addTierNameToPricesInfo": true
+	},
+	"MarkValueableItems": {
+		"_description": "Marks most valuable items by adding symbols ★ and ☆ to item names and inventory icons based on item per-slot value (configured below) when sold to traders OR fleamarket.",
+		"_example": "",
+		"enabled": true,
+		"addToName":true,	
+		"addToShortName":true,
+		"traderSlotValueThresholdBest": 20000,
+		"fleaSlotValueThresholdBest": 30000,
+		"traderSlotValueThresholdGood": 10000,
+		"fleaSlotValueThresholdGood": 15000
+	},
+	"BulletStatsInName": {
+		"_description": "Adds bullet stats to bullet name (damage / armor penetration). Calculates total damage for buckshot rounds. VERY usefull in raid, because bullet name is shown when check magazine action is used.",
+		"_example": "5.45x39mm PP gs (44/36)",
+		"enabled": true
+	},
+	"ArmorInfo": {
+		"_description": "Adds armor stats for armor level (usefull for Realism mod), effective durability calculation, material quality and per repair degradation.",
+		"_example": "Armor class: 6 | Effective durability: 111 (Max: 20 x Titan: 5.6) | Repair degradation: 6% - 10%",
+		"addArmorClassInfo": true, 
+		"enabled": true
+	},
+	"ContainerInfo": {
+		"_description": "Adds slot effeciency calculation for rigs, backpacks and containers (number of internal slots / item size)",
+		"_example": "Slot effeciency: ×12.25 (196/16)",
+		"enabled": true
+	},
+	"HeadsetInfo": {
+		"_description": "",
+		"_example": "",
+		"enabled": true
+	},
+	"ProductionInfo": {
+		"_description": "",
+		"_example": "Part ×2 > Gunpowder \"Eagle\"☆ ×2 @ Workbench lv.2 < … + ☆M18 ×1 | Δ ≈ 21191₽",
+		"enabled": true
+	},
+    "PurchaseInfo": {
+		"_description": "",
+		"_example": "",
+		"enabled": true
+	},
+    "QuestInfo": {
+		"_description": "",
+		"_example": "",
+		"enabled": true,
+		"inName": true
+	},
+    "HideoutInfo": {
+		"_description": "",
+		"_example": "",
+		"enabled": true
+	},
+    "CraftingMaterialInfo": {
+		"_description": "",
+		"_example": "",
+		"enabled": true
+	},
+    "BarterResourceInfo": {
+		"_description": "",
+		"_example": "",
+		"enabled": true
+	},
+	"SpawnInfo": {
+		"_description": "Shows spawn info based on handbook data. Mildly useful, not representative to real spawns, can be safely disabled.",
+		"_example": "",
+		"enabled": false
+	},
+	"dummy": {
+		"_description": "",
+		"enabled": true
+	},
+	"dummy": {
+		"_description": "",
+		"enabled": true
+	},
+	"dummy": {
+		"_description": "",
+		"enabled": true
+	},
+	"dummyend": true
+}

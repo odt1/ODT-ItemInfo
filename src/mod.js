@@ -4,13 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const translations_json_1 = __importDefault(require("./translations.json"));
+const config_json_1 = __importDefault(require("../config/config.json"));
+// Abandon hope, all ye who enter here...
 let database;
 let tables;
 let items;
 let handbook;
 let logger;
 let locales;
-let localesKeys;
 let clientItems;
 let fleaPrices;
 let hideoutProduction;
@@ -26,18 +27,18 @@ let peacekeeper;
 let skier;
 let fence;
 let traderList;
-const euroRatio = 118;
+const euroRatio = 118; // TODO: remove hardcode
 const dollarRatio = 114;
+const newLine = "\n";
 class ItemInfo {
     init(container) {
-        logger = container.resolve("WinstonLogger");
+        // logger = container.resolve<ILogger>("WinstonLogger") // meh...
         database = container.resolve("DatabaseServer");
         tables = database.getTables();
         items = tables.templates.items;
         handbook = tables.templates.handbook;
         locales = tables.locales.global;
-        localesKeys = Object.keys(tables.locales.global);
-        clientItems = tables.templates.clientItems;
+        clientItems = tables.templates.clientItems.data;
         fleaPrices = tables.templates.prices;
         hideoutProduction = tables.hideout.production;
         hideoutAreas = tables.hideout.areas;
@@ -55,22 +56,16 @@ class ItemInfo {
     }
     postDBLoad(container) {
         this.init(container);
-        // log(handbook.Categories)
-        // log(items[`5c0530ee86f774697952d952`])
-        // log(hideoutProduction)
-        // log(this.getItemName('5c0530ee86f774697952d952'))
-        // log(this.getItemBestPrice('5c0530ee86f774697952d952'))
-        // log(this.buyableGenarator2('5b44c8ea86f7742d1627baf1'))
-        // log(this.buyableStringGenarator(this.buyableGenarator2('5a7ae0c351dfba0017554310'), 'ru'))
-        // items['619cf0335771dd3c390269ae']._props.Grids[0]._props.filters[0].ExcludedFilter.map(i => log(this.getItemName(i)))
         for (const itemID in items) {
-            let item = items[itemID];
-            let itemInHandbook = this.getItemInHandbook(itemID);
+            const item = items[itemID];
+            const itemInHandbook = this.getItemInHandbook(itemID);
             if (item._type === "Item" && // Check if the item is a real item and not a "node" type.
                 itemInHandbook != undefined && // Ignore "useless" items
                 item._props.QuestItem != true && // Ignore quest items.
                 item._parent != "543be5dd4bdc2deb348b4569" // Ignore currencies.
             ) {
+                let name = this.getItemName(itemID); // for debug only
+                // boilerplate defaults
                 let descriptionString = "";
                 let priceString = "";
                 let barterString = "";
@@ -84,161 +79,210 @@ class ItemInfo {
                 let slotEffeciencyString = "";
                 let headsetDescription = "";
                 let tier = "";
-                let itemRarity = [];
-                // Calculate and store item prices
+                let itemRarity = 0;
+                let spawnString = "";
                 let fleaPrice = this.getFleaPrice(itemID);
-                let traderPrice = this.getItemBestPrice(itemID).price;
-                let traderName = this.getItemBestPrice(itemID).name;
-                let BuyableGenarator = this.buyableGenarator(itemID);
-                let UsedForTradesGenarator = this.usedForTradesGenarator(itemID);
-                // FEATURES START HERE:
-                // FEATURE: ADD BULLET PENETRATION LEVEL TO NAME
-                if (item._props.ammoType === "bullet" || item._props.ammoType === "buckshot") {
-                    let damageMult = 1;
-                    if (item._props.ammoType === "buckshot") {
-                        damageMult = item._props.buckshotBullets;
-                    }
-                    // this.addToShortName(itemID, ` (${this.calculateArmorLevel(itemID)})`, "append");
-                    this.addToName(itemID, ` (${item._props.Damage * damageMult}/${item._props.PenetrationPower})`, "append");
-                    let bulletEnergy = (item._props.BulletMassGram * item._props.InitialSpeed * item._props.InitialSpeed) / (1000 * 2);
-                    // log(`---`)
-                    // log(`${this.getItemName(itemID)} | Bullet energy: ${Math.round(bulletEnergy)} | Mass: ${item._props.BulletMassGram}g | Penetration: ${item._props.PenetrationPower}`)
-                }
-                // FEATURE: RARITY RECOLOR
-                item._props.BackgroundColor = "grey";
-                // FEATURE: MODIFY ITEMS BANNED ON FLEA MARKET
-                itemRarity = [BuyableGenarator.rarity[0]];
-                if (item._props.CanSellOnRagfair === false && item._id != "56d59d3ad2720bdb418b4577" && !itemRarity[0] > 0) {
+                let itemBestVendor = this.getItemBestTrader(itemID);
+                let traderPrice = Math.round(itemBestVendor.price);
+                let traderName = itemBestVendor.name;
+                let spawnChance = clientItems[itemID]?._props?.SpawnChance;
+                let slotDensity = this.getItemSlotDensity(itemID);
+                let itemBarters = this.bartersResolver(itemID);
+                let purchaseInfo = this.purchaseInfoGenerator(itemBarters);
+                let barterResourceInfo = this.barterResourceInfoGenerator(itemID);
+                let rarityArray = [];
+                rarityArray.push(purchaseInfo.rarity); // futureprofing, add other rarity calculations
+                itemRarity = Math.min(...rarityArray);
+                if (item._props.CanSellOnRagfair === false && item._id != "56d59d3ad2720bdb418b4577" && itemRarity == 0) {
                     fleaPrice = "BANNED";
-                    itemRarity[0] = 9;
+                    itemRarity = 9;
                 }
-                if (typeof itemRarity[0] == undefined) {
-                    itemRarity[0] = clientItems._props.Rarity;
+                let itemRarityFallback = "";
+                if (itemRarity == 0 && clientItems[itemID]?._props?.Rarity !== undefined) {
+                    itemRarityFallback = clientItems[itemID]._props.Rarity;
                 }
                 if (item._parent == "543be5cb4bdc2deb348b4568") {
                     // Ammo boxes special case
                     let count = item._props.StackSlots[0]._max_count;
                     let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0];
-                    let value = this.getItemBestPrice(ammo).price;
+                    let value = this.getItemBestTrader(ammo).price;
                     traderPrice = value * count;
-                    if (typeof itemRarity[0] == undefined) {
-                        itemRarity = [this.buyableGenarator(ammo).rarity[0]];
+                    if (itemRarity == 0) {
+                        itemRarity = this.purchaseInfoGenerator(this.bartersResolver(ammo)).rarity;
                     }
                 }
-                if (fleaPrice * 0.8 < traderPrice) {
-                    // Stop flea abuse
-                    // console.log(`--------------------\n${this.getItemName(itemID)}\n${traderPrice-fleaPrice*0.8}`)
-                    let fleaPriceFix = Math.round(traderPrice * (1 / 0.8 + 0.01));
-                    fleaPrices[itemID] = fleaPriceFix;
-                    fleaPrice = fleaPriceFix;
-                }
-                if (itemRarity.includes(9)) {
-                    tier = "OVERPOWERED";
-                    item._props.BackgroundColor = "tracerRed";
-                }
-                if (itemRarity.includes(1) || itemRarity.includes("Common")) {
-                    tier = "COMMON";
-                    item._props.BackgroundColor = "default";
-                }
-                else if (itemRarity.includes(2) || itemRarity.includes("Rare")) {
-                    tier = "RARE";
-                    item._props.BackgroundColor = "blue";
-                }
-                else if (itemRarity.includes(3) || itemRarity.includes("Superrare")) {
-                    tier = "EPIC";
-                    item._props.BackgroundColor = "violet";
-                }
-                else if (itemRarity.includes(4) || itemRarity.includes("Not_exist")) {
-                    tier = "LEGENDARY";
-                    item._props.BackgroundColor = "yellow";
-                }
-                else if (itemRarity.includes(5)) {
-                    tier = "RARE";
-                    item._props.BackgroundColor = "blue";
-                }
-                else if (itemRarity.includes(6)) {
-                    tier = "EPIC";
-                    item._props.BackgroundColor = "violet";
-                }
-                else if (itemRarity.includes(7)) {
-                    tier = "LEGENDARY";
-                    item._props.BackgroundColor = "Yellow";
-                }
-                else if (itemRarity.includes(8)) {
-                    tier = "UBER";
-                    item._props.BackgroundColor = "tracerYellow";
-                }
-                // this.AddToItemShortName(itemID, "", "prepend");
-                if (tier.length > 0) {
-                    // this.AddToItemName(itemID, " | " + tier, "append");
-                    // this.AddToItemShortName(itemID, `(${aamoDesc[0].slice(0, 1)})`, "append");
-                    priceString += tier + " | ";
-                }
-                // let spawn = clientItems._props?.SpawnChance; // GOOOOOOD
-                // if (spawn > 0)
-                // {
-                //     priceString += `Spawn chance: ${spawn}%\n`;
-                //     // this.AddToItemName(itemID, ` ${spawn}% Value: ${Math.round(rarityValue)}`, "append");
-                // }
-                if (BuyableGenarator.trades.length > 0) {
-                    // console.log(this.GetItemName(itemID) + ": " + BuyableGenarator.trades.join(", "));
-                    // this.addToName(itemID, " | " + BuyableGenarator.trades.join(", "), "append");
-                }
-                if (item._props.armorClass > 0) {
-                    let armor = armors[item._props.ArmorMaterial];
-                    armorDurabilityString += `Armor class: ${item._props.armorClass} | Effective durability: ${Math.round(item._props.MaxDurability / armor.Destructibility)} | Max: ${item._props.MaxDurability} | Repairability: ${100 - armor.MaxRepairDegradation * 100}%-${100 - armor.MinRepairDegradation * 100}%\n`;
-                }
-                if (item._props.Grids?.length > 0) {
-                    let totalSlots = 0;
-                    for (let grid in item._props.Grids) {
-                        totalSlots += item._props.Grids[grid]._props.cellsH * item._props.Grids[grid]._props.cellsV;
-                    }
-                    let slotEffeciency = this.roundWithPrecision(totalSlots / (item._props.Width * item._props.Height), 2);
-                    slotEffeciencyString += `Slot effeciency: ${slotEffeciency} (${totalSlots}/${item._props.Width * item._props.Height})\n`;
-                    // log(slotEffeciencyString)
-                }
-                let itemvalue = traderPrice / this.getItemSlotDensity(itemID);
-                let fleaValue = fleaPrice / this.getItemSlotDensity(itemID);
-                if (items[itemID]._parent != "5795f317245977243854e041") {
-                    if (itemvalue > 20000 || fleaValue > 30000) {
-                        this.addToShortName(itemID, "★", "prepend");
-                        this.addToName(itemID, "★", "append");
-                    }
-                    else if (itemvalue > 10000 || fleaValue > 15000) {
-                        this.addToShortName(itemID, "☆", "prepend");
-                        this.addToName(itemID, "☆", "append");
+                if (config_json_1.default.BulletStatsInName.enabled == true) {
+                    if (item._props.ammoType === "bullet" || item._props.ammoType === "buckshot") {
+                        let damageMult = 1;
+                        if (item._props.ammoType === "buckshot") {
+                            damageMult = item._props.buckshotBullets;
+                        }
+                        this.addToName(itemID, ` (${item._props.Damage * damageMult}/${item._props.PenetrationPower})`, "append");
                     }
                 }
-                priceString += `Flea price: ${fleaPrice} | ${traderName}'s valuation: ${traderPrice}₽\n\n`;
-                if (item._props.Distortion != undefined) {
-                    let gain = item._props.CompressorGain;
-                    let thresh = item._props.CompressorTreshold;
-                    headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compression: ×${Math.abs((gain * thresh) / 100)} | Resonance & Filter: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | Distortion: ${Math.round(item._props.Distortion * 100)}%\n\n`;
+                if (config_json_1.default.SpawnInfo.enabled) {
+                    if (spawnChance > 0) {
+                        spawnString += `Spawn chance: ${spawnChance}%` + newLine + newLine;
+                    }
                 }
-                if (BuyableGenarator.string.length > 1) {
-                    barterString = BuyableGenarator.string + "\n";
+                if (config_json_1.default.FleaAbusePatch.enabled) {
+                    if (fleaPrice * 0.8 < traderPrice) {
+                        // log(this.getItemName(itemID))
+                        let fleaPriceFix = Math.round(traderPrice * (1 / 0.8 + 0.01));
+                        fleaPrices[itemID] = fleaPriceFix;
+                        fleaPrice = fleaPriceFix;
+                    }
                 }
-                if (this.craftableGenarator(itemID).length > 1) {
-                    craftingString = this.craftableGenarator(itemID) + "\n";
+                if (config_json_1.default.RarityRecolor.enabled) {
+                    item._props.BackgroundColor = "grey";
+                    if (itemRarity == 9) {
+                        tier = "OVERPOWERED";
+                        item._props.BackgroundColor = "tracerRed";
+                    }
+                    else if (itemRarity == 1) {
+                        tier = "COMMON";
+                        item._props.BackgroundColor = "default";
+                    }
+                    else if (itemRarity == 2) {
+                        tier = "RARE";
+                        item._props.BackgroundColor = "blue";
+                    }
+                    else if (itemRarity == 3) {
+                        tier = "EPIC";
+                        item._props.BackgroundColor = "violet";
+                    }
+                    else if (itemRarity == 4) {
+                        tier = "LEGENDARY";
+                        item._props.BackgroundColor = "yellow";
+                    }
+                    else if (itemRarity == 5) {
+                        tier = "UBER";
+                        item._props.BackgroundColor = "tracerYellow";
+                    }
+                    else if (spawnChance < 2) {
+                        tier = "UNOBTAINIUM";
+                        item._props.BackgroundColor = "tracerGreen";
+                        // log(name)
+                    }
+                    else if (itemRarityFallback.includes("Common")) {
+                        tier = "COMMON";
+                        item._props.BackgroundColor = "default";
+                    }
+                    else if (itemRarityFallback.includes("Rare")) {
+                        tier = "RARE";
+                        item._props.BackgroundColor = "blue";
+                    }
+                    else if (itemRarityFallback.includes("Superrare")) {
+                        tier = "EPIC";
+                        item._props.BackgroundColor = "violet";
+                    }
+                    else if (itemRarityFallback == "Not_exist") {
+                        tier = "LEGENDARY";
+                        item._props.BackgroundColor = "yellow";
+                        // log(name)
+                    }
+                    else {
+                        tier = "UNKNOWN";
+                        item._props.BackgroundColor = "green";
+                    }
+                    if (config_json_1.default.RarityRecolor.addTierNameToPricesInfo) {
+                        if (tier.length > 0) {
+                            priceString += tier + " | ";
+                        }
+                    }
                 }
-                if (UsedForTradesGenarator.string.length > 1) {
-                    usedForBarterString = UsedForTradesGenarator.string + "\n";
+                if (config_json_1.default.ArmorInfo.enabled) {
+                    if (item._props.armorClass > 0) {
+                        let armor = armors[item._props.ArmorMaterial];
+                        // prettier-ignore
+                        armorDurabilityString += `${config_json_1.default.ArmorInfo.addArmorClassInfo ? "Armor class: " + item._props.armorClass + " | " : ""}Effective durability: ${Math.round(item._props.MaxDurability / armor.Destructibility)} (Max: ${item._props.MaxDurability} x ${item._props.ArmorMaterial}: ${roundWithPrecision(1 / armor.Destructibility, 1)}) | Repair degradation: ${Math.round(armor.MinRepairDegradation * 100)}% - ${Math.round(armor.MaxRepairDegradation * 100)}%` + newLine + newLine;
+                    }
                 }
-                if (this.usedForQuestGenerator(itemID).length > 1) {
-                    usedForQuestsString = this.usedForQuestGenerator(itemID) + "\n";
-                    // item._props.BackgroundColor = "tracerGreen"
-                    this.addToName(itemID, "✔", "append");
-                    this.addToShortName(itemID, "", "prepend");
-                    // console.log(this.GetItemName(itemID) + " " + this.UsedForQuestGenerator(itemID)) // List all quest items
+                if (config_json_1.default.ContainerInfo.enabled) {
+                    if (item._props.Grids?.length > 0) {
+                        let totalSlots = 0;
+                        for (const grid of item._props.Grids) {
+                            totalSlots += grid._props.cellsH * grid._props.cellsV;
+                        }
+                        let slotEffeciency = roundWithPrecision(totalSlots / (item._props.Width * item._props.Height), 2);
+                        slotEffeciencyString += `Slot effeciency: ×${slotEffeciency} (${totalSlots}/${item._props.Width * item._props.Height})` + newLine + newLine;
+                    }
                 }
-                if (this.usedForHideoutGenerator(itemID).length > 1) {
-                    usedForHideoutString = this.usedForHideoutGenerator(itemID) + "\n";
+                if (config_json_1.default.MarkValueableItems.enabled) {
+                    let itemvalue = traderPrice / slotDensity;
+                    let fleaValue = fleaPrice / slotDensity;
+                    if (items[itemID]._parent != "5795f317245977243854e041") {
+                        if (itemvalue > config_json_1.default.MarkValueableItems.traderSlotValueThresholdBest || fleaValue > config_json_1.default.MarkValueableItems.fleaSlotValueThresholdBest) {
+                            if (config_json_1.default.MarkValueableItems.addToShortName) {
+                                this.addToShortName(itemID, "★", "prepend");
+                            }
+                            if (config_json_1.default.MarkValueableItems.addToName) {
+                                this.addToName(itemID, "★", "append");
+                            }
+                        }
+                        else if (itemvalue > config_json_1.default.MarkValueableItems.traderSlotValueThresholdGood || fleaValue > config_json_1.default.MarkValueableItems.fleaSlotValueThresholdGood) {
+                            if (config_json_1.default.MarkValueableItems.addToShortName) {
+                                this.addToShortName(itemID, "☆", "prepend");
+                            }
+                            if (config_json_1.default.MarkValueableItems.addToName) {
+                                this.addToName(itemID, "☆", "append");
+                            }
+                        }
+                    }
                 }
-                if (this.isItemUsedForCrafting(itemID).length > 1) {
-                    usedForCraftingString = this.isItemUsedForCrafting(itemID) + "\n";
+                if (config_json_1.default.PricesInfo.enabled) {
+                    priceString += `Flea price: ${fleaPrice}₽ | ${traderName}'s valuation: ${traderPrice}₽` + newLine + newLine;
+                }
+                if (config_json_1.default.HeadsetInfo.enabled) {
+                    if (item._props.Distortion !== undefined) {
+                        let gain = item._props.CompressorGain;
+                        let thresh = item._props.CompressorTreshold;
+                        // prettier-ignore
+                        headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compressor: Gain ${gain}dB × Treshold ${thresh}dB ≈ Σ${Math.abs((gain * thresh) / 100)} | Resonance & Filter: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | Distortion: ${Math.round(item._props.Distortion * 100)}%` + newLine + newLine;
+                    }
+                }
+                if (config_json_1.default.PurchaseInfo.enabled) {
+                    if (purchaseInfo.barters.length > 1) {
+                        barterString = purchaseInfo.barters + newLine;
+                    }
+                }
+                if (config_json_1.default.ProductionInfo.enabled) {
+                    if (this.craftableGenarator(itemID).length > 1) {
+                        craftingString = this.craftableGenarator(itemID) + newLine;
+                    }
+                }
+                if (config_json_1.default.BarterResourceInfo.enabled) {
+                    if (this.barterResourceInfoGenerator(itemID).string.length > 1) {
+                        usedForBarterString = this.barterResourceInfoGenerator(itemID).string + newLine;
+                    }
+                }
+                if (config_json_1.default.QuestInfo.enabled) {
+                    const itemQuestInfo = this.QuestInfoGenerator(itemID);
+                    if (itemQuestInfo.length > 1) {
+                        usedForQuestsString = itemQuestInfo + newLine;
+                        // item._props.BackgroundColor = "tracerGreen"
+                        if (config_json_1.default.QuestInfo.inName) {
+                            this.addToName(itemID, "✔", "append");
+                            this.addToShortName(itemID, "", "prepend");
+                        }
+                        // console.log(this.GetItemName(itemID) + " " + this.UsedForQuestGenerator(itemID)) // List all quest items
+                    }
+                }
+                if (config_json_1.default.HideoutInfo.enabled) {
+                    const itemHideoutInfo = this.HideoutInfoGenerator(itemID);
+                    if (itemHideoutInfo.length > 1) {
+                        usedForHideoutString = itemHideoutInfo + newLine;
+                    }
+                }
+                if (config_json_1.default.CraftingMaterialInfo.enabled) {
+                    const itemCraftingMaterialInfo = this.CraftingMaterialInfoGenarator(itemID);
+                    if (itemCraftingMaterialInfo.length > 1) {
+                        usedForCraftingString = itemCraftingMaterialInfo + newLine;
+                    }
                 }
                 descriptionString =
                     priceString +
+                        spawnString +
                         spawnChanceString +
                         headsetDescription +
                         armorDurabilityString +
@@ -250,6 +294,12 @@ class ItemInfo {
                         usedForCraftingString +
                         usedForBarterString;
                 this.addToDescription(itemID, descriptionString, "prepend");
+                const debug = false;
+                if (debug) {
+                    log(this.getItemName(itemID));
+                    log(this.getItemDescription(itemID));
+                    log(`---`);
+                }
                 // getBaseCategory(itemClient._parent)
                 // console.log(`---\n${itemID}`)
                 // console.log(itemClient._id)
@@ -275,58 +325,75 @@ class ItemInfo {
         return locales[locale][`${itemID} ShortName`];
     }
     getItemDescription(itemID, locale = "en") {
-        return locales[locale][`${itemID} Name`];
+        return locales[locale][`${itemID} Description`];
     }
-    addToName(itemID, addToName, place, locale = "en") {
-        let originalName = locales[locale][`${itemID} Name`];
-        switch (place) {
-            case "prepend":
-                locales[locale][`${itemID} Name`] = addToName + originalName;
-                break;
-            case "append":
-                locales[locale][`${itemID} Name`] = originalName + addToName;
-                break;
+    addToName(itemID, addToName, place, lang = "") {
+        if (lang == "") {
+            // I'm actually really proud of this one! If no lang argument is passed, it defaults to recursion for all languages.
+            for (const locale in locales) {
+                this.addToName(itemID, addToName, place, locale);
+            }
+        }
+        else {
+            let originalName = locales[lang][`${itemID} Name`];
+            switch (place) {
+                case "prepend":
+                    locales[lang][`${itemID} Name`] = addToName + originalName;
+                    break;
+                case "append":
+                    locales[lang][`${itemID} Name`] = originalName + addToName;
+                    break;
+            }
         }
     }
-    addToShortName(itemID, addToShortName, place, locale = "en") {
-        let originalShortName = locales[locale][`${itemID} ShortName`];
-        switch (place) {
-            case "prepend":
-                locales[locale][`${itemID} ShortName`] = addToShortName + originalShortName;
-                break;
-            case "append":
-                locales[locale][`${itemID} ShortName`] = originalShortName + addToShortName;
-                break;
+    addToShortName(itemID, addToShortName, place, lang = "") {
+        if (lang == "") {
+            for (const locale in locales) {
+                this.addToShortName(itemID, addToShortName, place, locale);
+            }
+        }
+        else {
+            let originalShortName = locales[lang][`${itemID} ShortName`];
+            switch (place) {
+                case "prepend":
+                    locales[lang][`${itemID} ShortName`] = addToShortName + originalShortName;
+                    break;
+                case "append":
+                    locales[lang][`${itemID} ShortName`] = originalShortName + addToShortName;
+                    break;
+            }
         }
     }
-    addToDescription(itemID, addToDescription, place, locale = "en") {
-        let originalDescription = locales[locale][`${itemID} Description`];
-        switch (place) {
-            case "prepend":
-                locales[locale][`${itemID} Description`] = addToDescription + originalDescription;
-                break;
-            case "append":
-                locales[locale][`${itemID} Description`] = originalDescription + addToDescription;
-                break;
+    addToDescription(itemID, addToDescription, place, lang = "") {
+        if (lang == "") {
+            for (const locale in locales) {
+                this.addToDescription(itemID, addToDescription, place, locale);
+            }
+        }
+        else {
+            let originalDescription = locales[lang][`${itemID} Description`];
+            switch (place) {
+                case "prepend":
+                    locales[lang][`${itemID} Description`] = addToDescription + originalDescription;
+                    break;
+                case "append":
+                    locales[lang][`${itemID} Description`] = originalDescription + addToDescription;
+                    break;
+            }
         }
     }
     getItemSlotDensity(itemID) {
         return (items[itemID]._props.Width * items[itemID]._props.Height) / items[itemID]._props.StackMaxSize;
     }
-    calculateArmorLevel(penetrationValue) {
-        // calibrated for Realism mod
-        return penetrationValue > 79 ? 6 : penetrationValue > 69 ? 5 : penetrationValue > 59 ? 4 : penetrationValue > 49 ? 3 : penetrationValue > 29 ? 2 : penetrationValue > 0 ? 1 : 0;
-    }
     getItemInHandbook(itemID) {
         return handbook.Items.filter((i) => i.Id === itemID)[0]; // Outs: @Id, @ParentId, @Price
     }
-    getBestTrader(handbookParentId) {
+    resolveBestTrader(handbookParentId) {
         let traderSellCategory = "";
-        let traderMulti = 0.54;
+        let traderMulti = 0.54; // AVG fallback
         let altTraderSellCategory = "";
         let traderName = "";
         let handbookCategories = handbook.Categories.filter((i) => i.Id === handbookParentId)[0];
-        // log(handbookCategories)
         traderSellCategory = handbookCategories.Id;
         altTraderSellCategory = handbookCategories.ParentId;
         for (let i = 0; i < 8; i++) {
@@ -341,11 +408,11 @@ class ItemInfo {
         }
         return traderMulti;
     }
-    getItemBestPrice(itemID) {
+    getItemBestTrader(itemID) {
         let itemBasePrice = 1;
         let handbookItem = this.getItemInHandbook(itemID);
-        let bestTrader = this.getBestTrader(handbookItem.ParentId);
-        let result = parseInt(handbookItem.Price * bestTrader.multi);
+        let bestTrader = this.resolveBestTrader(handbookItem.ParentId);
+        let result = handbookItem.Price * bestTrader.multi;
         return {
             price: result,
             name: bestTrader.name,
@@ -356,46 +423,62 @@ class ItemInfo {
         if (typeof fleaPrices[itemID] != "undefined") {
             return fleaPrices[itemID];
         }
-        return this.getItemBestPrice(itemID).price;
+        else {
+            return this.getItemBestTrader(itemID).price;
+        }
     }
-    buyableGenarator2(itemID) {
+    bartersResolver(itemID) {
         let itemBarters = [];
         for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
         ) {
-            for (let barter of traderList[trader].assort.items) {
+            for (const barter of traderList[trader].assort.items) {
                 // iterate all seller barters
                 if (barter._tpl == itemID && barter.parentId === "hideout") {
-                    // find itemid in barter results
-                    let barterID = barter._id;
-                    let barterResources = traderList[trader].assort.barter_scheme[barterID][0];
-                    let barterLoyaltyLevel = traderList[trader].assort.loyal_level_items[barterID];
-                    let traderID = traderList[trader].base._id;
+                    const barterResources = traderList[trader].assort.barter_scheme[barter._id][0];
+                    const barterLoyaltyLevel = traderList[trader].assort.loyal_level_items[barter._id];
+                    const traderID = traderList[trader].base._id;
                     itemBarters.push({ traderID, barterLoyaltyLevel, barterResources });
-                }
+                } /* else if (barter._tpl == itemID && barter.parentId != "hideout") {
+                    let rec = (b) => {
+                        let x = traderList[trader].assort.items.filter((x) => x._id == b)
+
+                        if (x.length > 0) {
+                            if (x[0].parentId != "hideout") {
+                                rec(x[0].parentId)
+                            } else {
+                                this.bartersResolver(x[0]._tpl) // I need help resolving this recursion for items in weapon presets, it seem to work, but not really. feel dumb
+                            }
+                        }
+                    }
+                    // log(barter)
+                    rec(barter.parentId)
+                }*/
             }
         }
         return itemBarters;
     }
-    buyableStringGenarator(itemBarters, locale = "en") {
+    purchaseInfoGenerator(itemBarters, locale = "en") {
         let barterString = "";
         let rarityArray = [];
-        for (let index = 0; index < itemBarters.length; index++) {
-            const barter = itemBarters[index];
+        let prices = [];
+        for (const barter of itemBarters) {
             let totalBarterPrice = 0;
             let totalBarterPriceString = "";
-            log(barter.traderID);
             let traderName = locales[locale][`${barter.traderID} Nickname`];
             barterString += `${translations_json_1.default[locale].Bought} ${translations_json_1.default[locale].at} ${traderName} ${translations_json_1.default[locale].lv}${barter.barterLoyaltyLevel} < `;
             let isBarter = false;
             for (let resource of barter.barterResources) {
                 if (resource._tpl == "5449016a4bdc2d6f028b456f") {
-                    barterString += `${Math.round(resource.count)}₽ + `;
+                    let rubles = resource.count;
+                    barterString += `${Math.round(rubles)}₽ + `;
                 }
                 else if (resource._tpl == "569668774bdc2da2298b4568") {
-                    barterString += `${Math.round(resource.count)}€ ≈ ${Math.round(euroRatio * resource.count)}₽ + `;
+                    let euro = resource.count;
+                    barterString += `${Math.round(euro)}€ ≈ ${Math.round(euroRatio * euro)}₽ + `;
                 }
                 else if (resource._tpl == "5696686a4bdc2da3298b456a") {
-                    barterString += `$${Math.round(resource.count)} ≈ ${Math.round(dollarRatio * resource.count)}₽ + `;
+                    let dollars = resource.count;
+                    barterString += `$${Math.round(dollars)} ≈ ${Math.round(dollarRatio * dollars)}₽ + `;
                 }
                 else {
                     totalBarterPrice += this.getFleaPrice(resource._tpl) * resource.count;
@@ -405,7 +488,7 @@ class ItemInfo {
                 }
             }
             if (isBarter) {
-                rarityArray.push(barter.barterLoyaltyLevel + 4);
+                rarityArray.push(barter.barterLoyaltyLevel + 1);
             }
             else {
                 rarityArray.push(barter.barterLoyaltyLevel);
@@ -416,69 +499,12 @@ class ItemInfo {
             barterString = barterString.slice(0, barterString.length - 3) + totalBarterPriceString + "\n";
         }
         return {
+            prices: prices,
             barters: barterString,
-            rarity: Math.min(...rarityArray),
+            rarity: rarityArray.length == 0 ? (rarityArray = 0) : Math.min(...rarityArray),
         };
     }
-    buyableGenarator(itemID) {
-        let barterString = "";
-        let rarityArray = [];
-        let tradesArray = [];
-        for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
-        ) {
-            for (let barter of traderList[trader].assort.items) {
-                // iterate all seller barters
-                if (barter._tpl == itemID && barter.parentId === "hideout") {
-                    // find itemid in barter results
-                    let barterID = barter._id;
-                    let barterResources = traderList[trader].assort.barter_scheme[barterID][0];
-                    let barterLoyaltyLevel = traderList[trader].assort.loyal_level_items[barterID];
-                    let traderName = traderList[trader].base.nickname;
-                    let totalBarterPrice = 0;
-                    barterString += `Bought @ ${traderName} lv.${barterLoyaltyLevel} < `;
-                    let isBarter = false;
-                    for (let resource of barterResources) {
-                        if (resource._tpl == "5449016a4bdc2d6f028b456f") {
-                            barterString += `${Math.round(resource.count)}₽ + `;
-                        }
-                        else if (resource._tpl == "569668774bdc2da2298b4568") {
-                            barterString += `${Math.round(resource.count)}€ ≈ ${Math.round(euroRatio * resource.count)}₽ + `;
-                        }
-                        else if (resource._tpl == "5696686a4bdc2da3298b456a") {
-                            barterString += `$${Math.round(resource.count)} ≈ ${Math.round(dollarRatio * resource.count)}₽ + `;
-                        }
-                        else {
-                            totalBarterPrice += this.getFleaPrice(resource._tpl) * resource.count;
-                            barterString += this.getItemShortName(resource._tpl);
-                            barterString += ` ×${resource.count} + `;
-                            isBarter = true;
-                        }
-                    }
-                    if (isBarter) {
-                        rarityArray.push(barterLoyaltyLevel + 4);
-                        tradesArray.push((traderName != "Peacekeeper" ? traderName.slice(0, 1) : "K") + barterLoyaltyLevel + "b");
-                    }
-                    else {
-                        rarityArray.push(barterLoyaltyLevel);
-                        tradesArray.push((traderName != "Peacekeeper" ? traderName.slice(0, 1) : "K") + barterLoyaltyLevel);
-                    }
-                    if (totalBarterPrice != 0) {
-                        totalBarterPrice = ` | Σ ≈ ${Math.round(totalBarterPrice)}₽`;
-                    }
-                    else {
-                        totalBarterPrice = "";
-                    }
-                    barterString = barterString.slice(0, barterString.length - 3) + totalBarterPrice + "\n";
-                }
-            }
-        }
-        return {
-            string: barterString,
-            rarity: rarityArray.sort(),
-            trades: tradesArray,
-        };
-    }
-    usedForTradesGenarator(itemID, addExtendedString = true) {
+    barterResourceInfoGenerator(itemID, addExtendedString = true) {
         let baseBarterString = "";
         let rarityArray = [];
         for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
@@ -496,7 +522,7 @@ class ItemInfo {
                                 bartedForItem = traderList[trader].assort.items[originalBarter]._tpl;
                             }
                         }
-                        rarityArray.push(barterLoyaltyLevel);
+                        rarityArray.push(barterLoyaltyLevel + 1);
                         baseBarterString += `Traded ×${traderList[trader].assort.barter_scheme[barterID][0][srcs].count}`;
                         baseBarterString += ` @ ${traderList[trader].base.nickname} lv.${barterLoyaltyLevel} > ${this.getItemName(bartedForItem)}`;
                         let extendedBarterString = " < … + ";
@@ -526,7 +552,7 @@ class ItemInfo {
         // console.log(baseBarterString);
         return {
             string: baseBarterString,
-            rarity: rarityArray.sort(),
+            rarity: rarityArray.length == 0 ? (rarityArray = 0) : Math.min(...rarityArray),
         };
     }
     getCraftingAreaName(areaType, locale = "en") {
@@ -543,6 +569,11 @@ class ItemInfo {
             }
         }
     }
+    //	getBestPrice(itemID){
+    //		let prices = []
+    //		prices.push(this.getFleaPrice(itemID))
+    //		return Math.min(...prices)
+    //	}
     craftableGenarator(itemID) {
         let craftableString = "";
         let rarityArray = [];
@@ -582,8 +613,6 @@ class ItemInfo {
                 componentsString = componentsString.slice(0, componentsString.length - 3);
                 craftableString += `Crafted ×${recipe.count} @ ${recipeAreaString} < `;
                 craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${Math.round(totalRecipePrice / recipe.count)}₽\n`;
-                // this.AddToItemDescription(itemID, componentsString + ", at total price per item: " + Math.round(totalRecipePrice/recipe.count) + "\n", "prepend");
-                // this.AddToItemDescription(itemID, recipe.count + " can be crafted at " + recipeAreaString + " with:", "prepend");
                 // if (fleaPrice > totalRecipePrice/recipe.count) {
                 // 	let profit = Math.round(fleaPrice-(totalRecipePrice/recipe.count))
                 // 	console.log("Hava Nagila! Profitable craft at " + profit + " profit detected! " + this.GetItemName(id) + " can be crafted at " + recipeAreaString)
@@ -592,7 +621,7 @@ class ItemInfo {
         }
         return craftableString;
     }
-    usedForHideoutGenerator(itemID) {
+    HideoutInfoGenerator(itemID) {
         let hideoutString = "";
         for (let area in hideoutAreas) {
             for (let s in hideoutAreas[area].stages) {
@@ -606,7 +635,7 @@ class ItemInfo {
         // console.log(hideoutString)
         return hideoutString;
     }
-    isItemUsedForCrafting(itemID) {
+    CraftingMaterialInfoGenarator(itemID) {
         let usedForCraftingString = "";
         let totalCraftingPrice = 0;
         for (let craftID in hideoutProduction) {
@@ -618,6 +647,7 @@ class ItemInfo {
                     for (let i = hideoutProduction[craftID].requirements.length - 1; i >= 0; i-- // Itterate
                     ) {
                         if (hideoutProduction[craftID].requirements[i].type == "Area") {
+                            // prettier-ignore
                             recipeAreaString = this.getCraftingAreaName(hideoutProduction[craftID].requirements[i].areaType) + " lv." + hideoutProduction[craftID].requirements[i].requiredLevel;
                         }
                         if (hideoutProduction[craftID].requirements[i].type == "Item") {
@@ -637,7 +667,9 @@ class ItemInfo {
                         }
                     }
                     usedForCraftingComponentsString = usedForCraftingComponentsString.slice(0, usedForCraftingComponentsString.length - 3);
+                    // prettier-ignore
                     usedForCraftingComponentsString += ` | Δ ≈ ${Math.round(this.getFleaPrice(hideoutProduction[craftID].endProduct) * hideoutProduction[craftID].count - totalRecipePrice)}₽`;
+                    // prettier-ignore
                     usedForCraftingString += `${hideoutProduction[craftID].requirements[s].type == "Tool" ? "Tool" : "Part ×" + hideoutProduction[craftID].requirements[s].count} > ${this.getItemName(hideoutProduction[craftID].endProduct)} ×${hideoutProduction[craftID].count}`;
                     usedForCraftingString += ` @ ${recipeAreaString + usedForCraftingComponentsString}\n`;
                 }
@@ -647,25 +679,27 @@ class ItemInfo {
         // log (usedForCraftingString)
         return usedForCraftingString;
     }
-    usedForQuestGenerator(itemID) {
+    QuestInfoGenerator(itemID) {
         let questString = "";
         for (let questID in quests) {
             let questConditions = quests[questID].conditions.AvailableForFinish;
             for (let i in questConditions) {
                 if (questConditions[i]._parent == "HandoverItem" && questConditions[i]._props.target[0] == itemID) {
                     let trader = quests[questID].traderId;
+                    // prettier-ignore
                     questString += `Found ${questConditions[i]._props.onlyFoundInRaid ? "(✔) " : ""}×${questConditions[i]._props.value} > ${quests[questID].QuestName} @ ${tables.traders[trader].base.nickname}\n`;
                 }
             }
         }
         return questString;
     }
-    roundWithPrecision(num, precision) {
-        var multiplier = Math.pow(10, precision);
-        return Math.round(num * multiplier) / multiplier;
-    }
+}
+function roundWithPrecision(num, precision) {
+    var multiplier = Math.pow(10, precision);
+    return Math.round(num * multiplier) / multiplier;
 }
 const log = (i) => {
+    // for debug
     console.log(i);
 };
 module.exports = { mod: new ItemInfo() };
