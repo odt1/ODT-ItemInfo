@@ -1,5 +1,6 @@
 # ODT-ItemInfo
-Massive QOL Item Info mod for SPTarkov
+Massive QOL Item Info mod for SPTarkov.
+English only (for now).
 
 
 # Features: 
