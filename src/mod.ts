@@ -459,8 +459,8 @@ class ItemInfo implements IPostDBLoadMod {
 
 		let handbookCategories = handbook.Categories.filter((i) => i.Id === handbookParentId)[0]
 
-		traderSellCategory = handbookCategories.Id
-		altTraderSellCategory = handbookCategories.ParentId
+		traderSellCategory = handbookCategories?.Id // "?" check is for shitty custom items
+		altTraderSellCategory = handbookCategories?.ParentId
 
 		for (let i = 0; i < 8; i++) {
 			if (traderList[i].base.sell_category.includes(traderSellCategory) || traderList[i].base.sell_category.includes(altTraderSellCategory)) {
@@ -477,8 +477,9 @@ class ItemInfo implements IPostDBLoadMod {
 
 	getItemBestTrader(itemID) {
 		let itemBasePrice = 1
-
+		
 		let handbookItem = this.getItemInHandbook(itemID)
+		// log(handbookItem)
 		let bestTrader = this.resolveBestTrader(handbookItem.ParentId)
 		let result = handbookItem.Price * bestTrader.multi
 		return {

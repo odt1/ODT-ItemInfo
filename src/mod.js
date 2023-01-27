@@ -57,7 +57,7 @@ class ItemInfo {
     }
     postDBLoad(container) {
         this.init(container);
-        const descriptionGen = true;
+        const descriptionGen = false;
         if (descriptionGen) {
             for (const conf in config_json_1.default) {
                 log("## " + conf);
@@ -69,7 +69,7 @@ class ItemInfo {
         for (const itemID in items) {
             const item = items[itemID];
             const itemInHandbook = this.getItemInHandbook(itemID);
-            item._props.ExaminedByDefault = true; // DEBUG!!!!
+            //item._props.ExaminedByDefault = false // DEBUG!!!!
             if (item._type === "Item" && // Check if the item is a real item and not a "node" type.
                 itemInHandbook != undefined && // Ignore "useless" items
                 item._props.QuestItem != true && // Ignore quest items.
@@ -422,8 +422,8 @@ class ItemInfo {
         let altTraderSellCategory = "";
         let traderName = "";
         let handbookCategories = handbook.Categories.filter((i) => i.Id === handbookParentId)[0];
-        traderSellCategory = handbookCategories.Id;
-        altTraderSellCategory = handbookCategories.ParentId;
+        traderSellCategory = handbookCategories?.Id; // "?" check is for shitty custom items
+        altTraderSellCategory = handbookCategories?.ParentId;
         for (let i = 0; i < 8; i++) {
             if (traderList[i].base.sell_category.includes(traderSellCategory) || traderList[i].base.sell_category.includes(altTraderSellCategory)) {
                 traderMulti = (100 - traderList[i].base.loyaltyLevels[0].buy_price_coef) / 100;
@@ -439,6 +439,7 @@ class ItemInfo {
     getItemBestTrader(itemID) {
         let itemBasePrice = 1;
         let handbookItem = this.getItemInHandbook(itemID);
+        // log(handbookItem)
         let bestTrader = this.resolveBestTrader(handbookItem.ParentId);
         let result = handbookItem.Price * bestTrader.multi;
         return {
