@@ -27,6 +27,7 @@ let peacekeeper;
 let skier;
 let fence;
 let traderList;
+// ^ PLS, somebody explain to me (I'm NOT a programmer btw) how not to use a bajillion "this.*" for EVERY variable in a class to write PROPER (sic) code. This can't be sane, I just refuse. 
 const euroRatio = 118; // TODO: remove hardcode
 const dollarRatio = 114;
 const newLine = "\n";
@@ -59,6 +60,7 @@ class ItemInfo {
         for (const itemID in items) {
             const item = items[itemID];
             const itemInHandbook = this.getItemInHandbook(itemID);
+            item._props.ExaminedByDefault = true; // DEBUG!!!!
             if (item._type === "Item" && // Check if the item is a real item and not a "node" type.
                 itemInHandbook != undefined && // Ignore "useless" items
                 item._props.QuestItem != true && // Ignore quest items.
@@ -69,7 +71,7 @@ class ItemInfo {
                 let descriptionString = "";
                 let priceString = "";
                 let barterString = "";
-                let craftingString = "";
+                let productionString = "";
                 let usedForBarterString = "";
                 let usedForQuestsString = "";
                 let usedForHideoutString = "";
@@ -88,14 +90,14 @@ class ItemInfo {
                 let spawnChance = clientItems[itemID]?._props?.SpawnChance;
                 let slotDensity = this.getItemSlotDensity(itemID);
                 let itemBarters = this.bartersResolver(itemID);
-                let purchaseInfo = this.purchaseInfoGenerator(itemBarters);
+                let barterInfo = this.barterInfoGenerator(itemBarters);
                 let barterResourceInfo = this.barterResourceInfoGenerator(itemID);
                 let rarityArray = [];
-                rarityArray.push(purchaseInfo.rarity); // futureprofing, add other rarity calculations
+                rarityArray.push(barterInfo.rarity); // futureprofing, add other rarity calculations
                 itemRarity = Math.min(...rarityArray);
                 if (item._props.CanSellOnRagfair === false && item._id != "56d59d3ad2720bdb418b4577" && itemRarity == 0) {
                     fleaPrice = "BANNED";
-                    itemRarity = 9;
+                    itemRarity = 7;
                 }
                 let itemRarityFallback = "";
                 if (itemRarity == 0 && clientItems[itemID]?._props?.Rarity !== undefined) {
@@ -108,7 +110,7 @@ class ItemInfo {
                     let value = this.getItemBestTrader(ammo).price;
                     traderPrice = value * count;
                     if (itemRarity == 0) {
-                        itemRarity = this.purchaseInfoGenerator(this.bartersResolver(ammo)).rarity;
+                        itemRarity = this.barterInfoGenerator(this.bartersResolver(ammo)).rarity;
                     }
                 }
                 if (config_json_1.default.BulletStatsInName.enabled == true) {
@@ -127,7 +129,8 @@ class ItemInfo {
                 }
                 if (config_json_1.default.FleaAbusePatch.enabled) {
                     if (fleaPrice * 0.8 < traderPrice) {
-                        // log(this.getItemName(itemID))
+                        // TODO: get flea min price (default 0.8) from actual config
+                        // log(name)
                         let fleaPriceFix = Math.round(traderPrice * (1 / 0.8 + 0.01));
                         fleaPrices[itemID] = fleaPriceFix;
                         fleaPrice = fleaPriceFix;
@@ -135,7 +138,12 @@ class ItemInfo {
                 }
                 if (config_json_1.default.RarityRecolor.enabled) {
                     item._props.BackgroundColor = "grey";
-                    if (itemRarity == 9) {
+                    for (const customItem in config_json_1.default.RarityRecolor.customRarity) {
+                        if (customItem == itemID) {
+                            itemRarity = config_json_1.default.RarityRecolor.customRarity[customItem];
+                        }
+                    }
+                    if (itemRarity == 7) {
                         tier = "OVERPOWERED";
                         item._props.BackgroundColor = "tracerRed";
                     }
@@ -159,10 +167,16 @@ class ItemInfo {
                         tier = "UBER";
                         item._props.BackgroundColor = "tracerYellow";
                     }
-                    else if (spawnChance < 2) {
+                    else if (spawnChance < 2 || itemRarity == 6) {
+                        // 6 is for custom rules only
                         tier = "UNOBTAINIUM";
                         item._props.BackgroundColor = "tracerGreen";
                         // log(name)
+                    }
+                    else if (itemRarity == 8) {
+                        // 8 is for custom dim red background
+                        tier = "CUSTOM";
+                        item._props.BackgroundColor = "red";
                     }
                     else if (itemRarityFallback.includes("Common")) {
                         tier = "COMMON";
@@ -182,6 +196,7 @@ class ItemInfo {
                         // log(name)
                     }
                     else {
+                        // everything else that falls in here
                         tier = "UNKNOWN";
                         item._props.BackgroundColor = "green";
                     }
@@ -238,22 +253,28 @@ class ItemInfo {
                         let gain = item._props.CompressorGain;
                         let thresh = item._props.CompressorTreshold;
                         // prettier-ignore
-                        headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compressor: Gain ${gain}dB × Treshold ${thresh}dB ≈ Σ${Math.abs((gain * thresh) / 100)} | Resonance & Filter: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | Distortion: ${Math.round(item._props.Distortion * 100)}%` + newLine + newLine;
+                        headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compressor: Gain ${gain}dB × Treshold ${thresh}dB ≈ ×${Math.abs((gain * thresh) / 100)} Boost | Resonance & Filter: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | Distortion: ${Math.round(item._props.Distortion * 100)}%` + newLine + newLine;
+                        // log(name)
+                        // log(headsetDescription)
                     }
                 }
-                if (config_json_1.default.PurchaseInfo.enabled) {
-                    if (purchaseInfo.barters.length > 1) {
-                        barterString = purchaseInfo.barters + newLine;
+                if (config_json_1.default.BarterInfo.enabled) {
+                    if (barterInfo.barters.length > 1) {
+                        barterString = barterInfo.barters + newLine;
+                        // log(barterString)
                     }
                 }
                 if (config_json_1.default.ProductionInfo.enabled) {
-                    if (this.craftableGenarator(itemID).length > 1) {
-                        craftingString = this.craftableGenarator(itemID) + newLine;
+                    if (this.productionGenarator(itemID).length > 1) {
+                        productionString = this.productionGenarator(itemID) + newLine;
+                        // log(productionString)
                     }
                 }
                 if (config_json_1.default.BarterResourceInfo.enabled) {
-                    if (this.barterResourceInfoGenerator(itemID).string.length > 1) {
-                        usedForBarterString = this.barterResourceInfoGenerator(itemID).string + newLine;
+                    if (barterResourceInfo.string.length > 1) {
+                        usedForBarterString = barterResourceInfo.string + newLine;
+                        // log(name)
+                        // log(usedForBarterString)
                     }
                 }
                 if (config_json_1.default.QuestInfo.enabled) {
@@ -261,23 +282,28 @@ class ItemInfo {
                     if (itemQuestInfo.length > 1) {
                         usedForQuestsString = itemQuestInfo + newLine;
                         // item._props.BackgroundColor = "tracerGreen"
-                        if (config_json_1.default.QuestInfo.inName) {
+                        if (config_json_1.default.QuestInfo.FIRinName && itemQuestInfo.includes("✔")) {
                             this.addToName(itemID, "✔", "append");
-                            this.addToShortName(itemID, "", "prepend");
+                            this.addToShortName(itemID, "", "prepend"); // ✔ is not shown in inventory icon font :(
                         }
-                        // console.log(this.GetItemName(itemID) + " " + this.UsedForQuestGenerator(itemID)) // List all quest items
+                        // log(this.getItemName(itemID))
+                        // log(usedForQuestsString)
                     }
                 }
                 if (config_json_1.default.HideoutInfo.enabled) {
                     const itemHideoutInfo = this.HideoutInfoGenerator(itemID);
                     if (itemHideoutInfo.length > 1) {
                         usedForHideoutString = itemHideoutInfo + newLine;
+                        // log(name)
+                        // log(usedForHideoutString)
                     }
                 }
                 if (config_json_1.default.CraftingMaterialInfo.enabled) {
                     const itemCraftingMaterialInfo = this.CraftingMaterialInfoGenarator(itemID);
                     if (itemCraftingMaterialInfo.length > 1) {
                         usedForCraftingString = itemCraftingMaterialInfo + newLine;
+                        // log(name)
+                        // log(usedForCraftingString)
                     }
                 }
                 descriptionString =
@@ -290,7 +316,7 @@ class ItemInfo {
                         usedForQuestsString +
                         usedForHideoutString +
                         barterString +
-                        craftingString +
+                        productionString +
                         usedForCraftingString +
                         usedForBarterString;
                 this.addToDescription(itemID, descriptionString, "prepend");
@@ -300,21 +326,7 @@ class ItemInfo {
                     log(this.getItemDescription(itemID));
                     log(`---`);
                 }
-                // getBaseCategory(itemClient._parent)
-                // console.log(`---\n${itemID}`)
-                // console.log(itemClient._id)
-                // console.log("---\n" + itemID)
                 // this.addToName(itemID, "✅✓✔☑🗸⍻√❎❌✖✗✘☒", "append");
-                // if (spawnDict[getBaseCategory(itemClient._parent)])
-                // {
-                // 	spawnDict[getBaseCategory(itemClient._parent)].value += itemClient._props.SpawnChance;
-                // 	spawnDict[getBaseCategory(itemClient._parent)].count += 1;
-                // } else
-                // {
-                // 	spawnDict[getBaseCategory(itemClient._parent)] = {};
-                // 	spawnDict[getBaseCategory(itemClient._parent)].value = itemClient._props.SpawnChance;
-                // 	spawnDict[getBaseCategory(itemClient._parent)].count = 1;
-                // }
             }
         }
     }
@@ -389,6 +401,7 @@ class ItemInfo {
         return handbook.Items.filter((i) => i.Id === itemID)[0]; // Outs: @Id, @ParentId, @Price
     }
     resolveBestTrader(handbookParentId) {
+        // I stole this code from someone looong ago, can't remember where, PM me to give proper credit
         let traderSellCategory = "";
         let traderMulti = 0.54; // AVG fallback
         let altTraderSellCategory = "";
@@ -432,7 +445,6 @@ class ItemInfo {
         for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
         ) {
             for (const barter of traderList[trader].assort.items) {
-                // iterate all seller barters
                 if (barter._tpl == itemID && barter.parentId === "hideout") {
                     const barterResources = traderList[trader].assort.barter_scheme[barter._id][0];
                     const barterLoyaltyLevel = traderList[trader].assort.loyal_level_items[barter._id];
@@ -446,7 +458,7 @@ class ItemInfo {
                             if (x[0].parentId != "hideout") {
                                 rec(x[0].parentId)
                             } else {
-                                this.bartersResolver(x[0]._tpl) // I need help resolving this recursion for items in weapon presets, it seem to work, but not really. feel dumb
+                                this.bartersResolver(x[0]._tpl) // I need help resolving this recursion for unbuyable items in weapon presets, it seems to work, but not really. feel dumb
                             }
                         }
                     }
@@ -457,7 +469,7 @@ class ItemInfo {
         }
         return itemBarters;
     }
-    purchaseInfoGenerator(itemBarters, locale = "en") {
+    barterInfoGenerator(itemBarters, locale = "en") {
         let barterString = "";
         let rarityArray = [];
         let prices = [];
@@ -501,10 +513,11 @@ class ItemInfo {
         return {
             prices: prices,
             barters: barterString,
-            rarity: rarityArray.length == 0 ? (rarityArray = 0) : Math.min(...rarityArray),
+            rarity: rarityArray.length == 0 ? 0 : Math.min(...rarityArray),
         };
     }
     barterResourceInfoGenerator(itemID, addExtendedString = true) {
+        // Refactor this abomination pls
         let baseBarterString = "";
         let rarityArray = [];
         for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
@@ -549,10 +562,9 @@ class ItemInfo {
                 }
             }
         }
-        // console.log(baseBarterString);
         return {
             string: baseBarterString,
-            rarity: rarityArray.length == 0 ? (rarityArray = 0) : Math.min(...rarityArray),
+            rarity: rarityArray.length == 0 ? 0 : Math.min(...rarityArray),
         };
     }
     getCraftingAreaName(areaType, locale = "en") {
@@ -569,12 +581,7 @@ class ItemInfo {
             }
         }
     }
-    //	getBestPrice(itemID){
-    //		let prices = []
-    //		prices.push(this.getFleaPrice(itemID))
-    //		return Math.min(...prices)
-    //	}
-    craftableGenarator(itemID) {
+    productionGenarator(itemID) {
         let craftableString = "";
         let rarityArray = [];
         for (let recipeId in hideoutProduction) {
@@ -600,12 +607,14 @@ class ItemInfo {
                         totalRecipePrice += craftComponentPrice * craftComponentCount;
                     }
                     if (recipe.requirements[i].type === "Resource") {
+                        // superwater calculation
                         let craftComponentId = recipe.requirements[i].templateId;
                         let resourceProportion = recipe.requirements[i].resource / items[recipe.requirements[i].templateId]._props.Resource;
                         let craftComponentPrice = this.getFleaPrice(craftComponentId);
                         componentsString += this.getItemShortName(craftComponentId) + " ×" + Math.round(resourceProportion * 100) + "%" + " + ";
                         totalRecipePrice += Math.round(craftComponentPrice * resourceProportion);
-                    }
+                        log(componentsString);
+                    } // add case for Bitcoin farm calculation.
                 }
                 if (recipe.count > 1) {
                     recipeDivision = " per item";
@@ -622,6 +631,8 @@ class ItemInfo {
         return craftableString;
     }
     HideoutInfoGenerator(itemID) {
+        // make it like this
+        // const r = data.filter(d => d.courses.every(c => courses.includes(c.id)));
         let hideoutString = "";
         for (let area in hideoutAreas) {
             for (let s in hideoutAreas[area].stages) {
@@ -699,7 +710,7 @@ function roundWithPrecision(num, precision) {
     return Math.round(num * multiplier) / multiplier;
 }
 const log = (i) => {
-    // for debug
+    // for my sanity and convenience
     console.log(i);
 };
 module.exports = { mod: new ItemInfo() };

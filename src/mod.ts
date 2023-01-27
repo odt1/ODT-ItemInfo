@@ -31,6 +31,8 @@ let skier
 let fence
 let traderList
 
+// ^ PLS, somebody explain to me (I'm NOT a programmer btw) how not to use a bajillion "this.*" for EVERY variable in a class to write PROPER (sic) code. This can't be sane, I just refuse.
+
 const euroRatio = 118 // TODO: remove hardcode
 const dollarRatio = 114
 
@@ -68,7 +70,7 @@ class ItemInfo implements IPostDBLoadMod {
 		for (const itemID in items) {
 			const item = items[itemID]
 			const itemInHandbook = this.getItemInHandbook(itemID)
-
+			item._props.ExaminedByDefault = true // DEBUG!!!!
 			if (
 				item._type === "Item" && // Check if the item is a real item and not a "node" type.
 				itemInHandbook != undefined && // Ignore "useless" items
@@ -80,7 +82,7 @@ class ItemInfo implements IPostDBLoadMod {
 				let descriptionString = ""
 				let priceString = ""
 				let barterString = ""
-				let craftingString = ""
+				let productionString = ""
 				let usedForBarterString = ""
 				let usedForQuestsString = ""
 				let usedForHideoutString = ""
@@ -103,15 +105,15 @@ class ItemInfo implements IPostDBLoadMod {
 				let slotDensity = this.getItemSlotDensity(itemID)
 
 				let itemBarters = this.bartersResolver(itemID)
-				let purchaseInfo = this.purchaseInfoGenerator(itemBarters)
+				let barterInfo = this.barterInfoGenerator(itemBarters)
 				let barterResourceInfo = this.barterResourceInfoGenerator(itemID)
 				let rarityArray = []
-				rarityArray.push(purchaseInfo.rarity) // futureprofing, add other rarity calculations
+				rarityArray.push(barterInfo.rarity) // futureprofing, add other rarity calculations
 				itemRarity = Math.min(...rarityArray)
 
 				if (item._props.CanSellOnRagfair === false && item._id != "56d59d3ad2720bdb418b4577" && itemRarity == 0) {
 					fleaPrice = "BANNED"
-					itemRarity = 9
+					itemRarity = 7
 				}
 
 				let itemRarityFallback = ""
@@ -127,7 +129,7 @@ class ItemInfo implements IPostDBLoadMod {
 					let value = this.getItemBestTrader(ammo).price
 					traderPrice = value * count
 					if (itemRarity == 0) {
-						itemRarity = this.purchaseInfoGenerator(this.bartersResolver(ammo)).rarity
+						itemRarity = this.barterInfoGenerator(this.bartersResolver(ammo)).rarity
 					}
 				}
 
@@ -149,7 +151,8 @@ class ItemInfo implements IPostDBLoadMod {
 
 				if (config.FleaAbusePatch.enabled) {
 					if (fleaPrice * 0.8 < traderPrice) {
-						// log(this.getItemName(itemID))
+						// TODO: get flea min price (default 0.8) from actual config
+						// log(name)
 						let fleaPriceFix = Math.round(traderPrice * (1 / 0.8 + 0.01))
 						fleaPrices[itemID] = fleaPriceFix
 						fleaPrice = fleaPriceFix
@@ -158,7 +161,14 @@ class ItemInfo implements IPostDBLoadMod {
 
 				if (config.RarityRecolor.enabled) {
 					item._props.BackgroundColor = "grey"
-					if (itemRarity == 9) {
+
+					for (const customItem in config.RarityRecolor.customRarity) {
+						if (customItem == itemID) {
+							itemRarity = config.RarityRecolor.customRarity[customItem]
+						}
+					}
+
+					if (itemRarity == 7) {
 						tier = "OVERPOWERED"
 						item._props.BackgroundColor = "tracerRed"
 					} else if (itemRarity == 1) {
@@ -176,10 +186,15 @@ class ItemInfo implements IPostDBLoadMod {
 					} else if (itemRarity == 5) {
 						tier = "UBER"
 						item._props.BackgroundColor = "tracerYellow"
-					} else if (spawnChance < 2) {
+					} else if (spawnChance < 2 || itemRarity == 6) {
+						// 6 is for custom rules only
 						tier = "UNOBTAINIUM"
 						item._props.BackgroundColor = "tracerGreen"
 						// log(name)
+					} else if (itemRarity == 8) {
+						// 8 is for custom dim red background
+						tier = "CUSTOM"
+						item._props.BackgroundColor = "red"
 					} else if (itemRarityFallback.includes("Common")) {
 						tier = "COMMON"
 						item._props.BackgroundColor = "default"
@@ -194,6 +209,7 @@ class ItemInfo implements IPostDBLoadMod {
 						item._props.BackgroundColor = "yellow"
 						// log(name)
 					} else {
+						// everything else that falls in here
 						tier = "UNKNOWN"
 						item._props.BackgroundColor = "green"
 					}
@@ -257,25 +273,31 @@ class ItemInfo implements IPostDBLoadMod {
 						let gain = item._props.CompressorGain
 						let thresh = item._props.CompressorTreshold
 						// prettier-ignore
-						headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compressor: Gain ${gain}dB × Treshold ${thresh}dB ≈ Σ${Math.abs((gain * thresh) / 100)} | Resonance & Filter: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | Distortion: ${Math.round(item._props.Distortion * 100)}%` + newLine + newLine
+						headsetDescription = `Ambient Volume: ${item._props.AmbientVolume}dB | Compressor: Gain ${gain}dB × Treshold ${thresh}dB ≈ ×${Math.abs((gain * thresh) / 100)} Boost | Resonance & Filter: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | Distortion: ${Math.round(item._props.Distortion * 100)}%` + newLine + newLine
+						// log(name)
+						// log(headsetDescription)
 					}
 				}
 
-				if (config.PurchaseInfo.enabled) {
-					if (purchaseInfo.barters.length > 1) {
-						barterString = purchaseInfo.barters + newLine
+				if (config.BarterInfo.enabled) {
+					if (barterInfo.barters.length > 1) {
+						barterString = barterInfo.barters + newLine
+						// log(barterString)
 					}
 				}
 
 				if (config.ProductionInfo.enabled) {
-					if (this.craftableGenarator(itemID).length > 1) {
-						craftingString = this.craftableGenarator(itemID) + newLine
+					if (this.productionGenarator(itemID).length > 1) {
+						productionString = this.productionGenarator(itemID) + newLine
+						// log(productionString)
 					}
 				}
 
 				if (config.BarterResourceInfo.enabled) {
-					if (this.barterResourceInfoGenerator(itemID).string.length > 1) {
-						usedForBarterString = this.barterResourceInfoGenerator(itemID).string + newLine
+					if (barterResourceInfo.string.length > 1) {
+						usedForBarterString = barterResourceInfo.string + newLine
+						// log(name)
+						// log(usedForBarterString)
 					}
 				}
 
@@ -284,11 +306,12 @@ class ItemInfo implements IPostDBLoadMod {
 					if (itemQuestInfo.length > 1) {
 						usedForQuestsString = itemQuestInfo + newLine
 						// item._props.BackgroundColor = "tracerGreen"
-						if (config.QuestInfo.inName) {
+						if (config.QuestInfo.FIRinName && itemQuestInfo.includes("✔")) {
 							this.addToName(itemID, "✔", "append")
-							this.addToShortName(itemID, "", "prepend")
+							this.addToShortName(itemID, "", "prepend") // ✔ is not shown in inventory icon font :(
 						}
-						// console.log(this.GetItemName(itemID) + " " + this.UsedForQuestGenerator(itemID)) // List all quest items
+						// log(this.getItemName(itemID))
+						// log(usedForQuestsString)
 					}
 				}
 
@@ -296,6 +319,8 @@ class ItemInfo implements IPostDBLoadMod {
 					const itemHideoutInfo = this.HideoutInfoGenerator(itemID)
 					if (itemHideoutInfo.length > 1) {
 						usedForHideoutString = itemHideoutInfo + newLine
+						// log(name)
+						// log(usedForHideoutString)
 					}
 				}
 
@@ -303,6 +328,8 @@ class ItemInfo implements IPostDBLoadMod {
 					const itemCraftingMaterialInfo = this.CraftingMaterialInfoGenarator(itemID)
 					if (itemCraftingMaterialInfo.length > 1) {
 						usedForCraftingString = itemCraftingMaterialInfo + newLine
+						// log(name)
+						// log(usedForCraftingString)
 					}
 				}
 
@@ -316,7 +343,7 @@ class ItemInfo implements IPostDBLoadMod {
 					usedForQuestsString +
 					usedForHideoutString +
 					barterString +
-					craftingString +
+					productionString +
 					usedForCraftingString +
 					usedForBarterString
 
@@ -329,21 +356,7 @@ class ItemInfo implements IPostDBLoadMod {
 					log(`---`)
 				}
 
-				// getBaseCategory(itemClient._parent)
-				// console.log(`---\n${itemID}`)
-				// console.log(itemClient._id)
-				// console.log("---\n" + itemID)
 				// this.addToName(itemID, "✅✓✔☑🗸⍻√❎❌✖✗✘☒", "append");
-				// if (spawnDict[getBaseCategory(itemClient._parent)])
-				// {
-				// 	spawnDict[getBaseCategory(itemClient._parent)].value += itemClient._props.SpawnChance;
-				// 	spawnDict[getBaseCategory(itemClient._parent)].count += 1;
-				// } else
-				// {
-				// 	spawnDict[getBaseCategory(itemClient._parent)] = {};
-				// 	spawnDict[getBaseCategory(itemClient._parent)].value = itemClient._props.SpawnChance;
-				// 	spawnDict[getBaseCategory(itemClient._parent)].count = 1;
-				// }
 			}
 		}
 	}
@@ -424,6 +437,7 @@ class ItemInfo implements IPostDBLoadMod {
 	}
 
 	resolveBestTrader(handbookParentId) {
+		// I stole this code from someone looong ago, can't remember where, PM me to give proper credit
 		let traderSellCategory = ""
 		let traderMulti = 0.54 // AVG fallback
 		let altTraderSellCategory = ""
@@ -477,7 +491,6 @@ class ItemInfo implements IPostDBLoadMod {
 			trader++ // iterate excluding Fence sales.
 		) {
 			for (const barter of traderList[trader].assort.items) {
-				// iterate all seller barters
 				if (barter._tpl == itemID && barter.parentId === "hideout") {
 					const barterResources = traderList[trader].assort.barter_scheme[barter._id][0]
 					const barterLoyaltyLevel = traderList[trader].assort.loyal_level_items[barter._id]
@@ -491,7 +504,7 @@ class ItemInfo implements IPostDBLoadMod {
 							if (x[0].parentId != "hideout") {
 								rec(x[0].parentId)
 							} else {
-								this.bartersResolver(x[0]._tpl) // I need help resolving this recursion for items in weapon presets, it seem to work, but not really. feel dumb
+								this.bartersResolver(x[0]._tpl) // I need help resolving this recursion for unbuyable items in weapon presets, it seems to work, but not really. feel dumb
 							}
 						}
 					}
@@ -503,7 +516,7 @@ class ItemInfo implements IPostDBLoadMod {
 		return itemBarters
 	}
 
-	purchaseInfoGenerator(itemBarters, locale = "en") {
+	barterInfoGenerator(itemBarters, locale = "en") {
 		let barterString = ""
 		let rarityArray = []
 		let prices = []
@@ -543,12 +556,12 @@ class ItemInfo implements IPostDBLoadMod {
 		return {
 			prices: prices, //TODO
 			barters: barterString,
-			rarity: rarityArray.length == 0 ? (rarityArray = 0) : Math.min(...rarityArray),
+			rarity: rarityArray.length == 0 ? 0 : Math.min(...rarityArray),
 		}
 	}
 
 	barterResourceInfoGenerator(itemID, addExtendedString = true) {
-		// Refactor this pls
+		// Refactor this abomination pls
 		let baseBarterString = ""
 		let rarityArray = []
 		for (
@@ -599,7 +612,7 @@ class ItemInfo implements IPostDBLoadMod {
 		}
 		return {
 			string: baseBarterString,
-			rarity: rarityArray.length == 0 ? (rarityArray = 0) : Math.min(...rarityArray),
+			rarity: rarityArray.length == 0 ? 0 : Math.min(...rarityArray),
 		}
 	}
 
@@ -618,7 +631,7 @@ class ItemInfo implements IPostDBLoadMod {
 		}
 	}
 
-	craftableGenarator(itemID) {
+	productionGenarator(itemID) {
 		let craftableString = ""
 		let rarityArray = []
 		for (let recipeId in hideoutProduction) {
@@ -649,13 +662,14 @@ class ItemInfo implements IPostDBLoadMod {
 						totalRecipePrice += craftComponentPrice * craftComponentCount
 					}
 					if (recipe.requirements[i].type === "Resource") {
+						// superwater calculation
 						let craftComponentId = recipe.requirements[i].templateId
 						let resourceProportion = recipe.requirements[i].resource / items[recipe.requirements[i].templateId]._props.Resource
 						let craftComponentPrice = this.getFleaPrice(craftComponentId)
 
 						componentsString += this.getItemShortName(craftComponentId) + " ×" + Math.round(resourceProportion * 100) + "%" + " + "
 						totalRecipePrice += Math.round(craftComponentPrice * resourceProportion)
-					}
+					} // add case for Bitcoin farm calculation.
 				}
 				if (recipe.count > 1) {
 					recipeDivision = " per item"
@@ -762,7 +776,7 @@ function roundWithPrecision(num, precision) {
 }
 
 const log = (i) => {
-	// for debug
+	// for my sanity and convenience
 	console.log(i)
 }
 
