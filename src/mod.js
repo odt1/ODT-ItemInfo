@@ -27,7 +27,7 @@ let peacekeeper;
 let skier;
 let fence;
 let traderList;
-// ^ PLS, somebody explain to me (I'm NOT a programmer btw) how not to use a bajillion "this.*" for EVERY variable in a class to write PROPER (sic) code. This can't be sane, I just refuse. 
+// ^ PLS, somebody explain to me (I'm NOT a programmer btw) how not to use a bajillion "this.*" for EVERY variable in a class to write PROPER (sic) code. This can't be sane, I just refuse.
 const euroRatio = 118; // TODO: remove hardcode
 const dollarRatio = 114;
 const newLine = "\n";
@@ -57,6 +57,15 @@ class ItemInfo {
     }
     postDBLoad(container) {
         this.init(container);
+        const descriptionGen = true;
+        if (descriptionGen) {
+            for (const conf in config_json_1.default) {
+                log("## " + conf);
+                log("" + config_json_1.default[conf]._description);
+                log("> " + config_json_1.default[conf]._example);
+                log(newLine);
+            }
+        }
         for (const itemID in items) {
             const item = items[itemID];
             const itemInHandbook = this.getItemInHandbook(itemID);
@@ -211,6 +220,8 @@ class ItemInfo {
                         let armor = armors[item._props.ArmorMaterial];
                         // prettier-ignore
                         armorDurabilityString += `${config_json_1.default.ArmorInfo.addArmorClassInfo ? "Armor class: " + item._props.armorClass + " | " : ""}Effective durability: ${Math.round(item._props.MaxDurability / armor.Destructibility)} (Max: ${item._props.MaxDurability} x ${item._props.ArmorMaterial}: ${roundWithPrecision(1 / armor.Destructibility, 1)}) | Repair degradation: ${Math.round(armor.MinRepairDegradation * 100)}% - ${Math.round(armor.MaxRepairDegradation * 100)}%` + newLine + newLine;
+                        // log(name)
+                        // log(armorDurabilityString)
                     }
                 }
                 if (config_json_1.default.ContainerInfo.enabled) {
@@ -221,6 +232,8 @@ class ItemInfo {
                         }
                         let slotEffeciency = roundWithPrecision(totalSlots / (item._props.Width * item._props.Height), 2);
                         slotEffeciencyString += `Slot effeciency: ×${slotEffeciency} (${totalSlots}/${item._props.Width * item._props.Height})` + newLine + newLine;
+                        // log(name)
+                        // log(slotEffeciencyString)
                     }
                 }
                 if (config_json_1.default.MarkValueableItems.enabled) {
@@ -261,12 +274,14 @@ class ItemInfo {
                 if (config_json_1.default.BarterInfo.enabled) {
                     if (barterInfo.barters.length > 1) {
                         barterString = barterInfo.barters + newLine;
+                        // log(name)
                         // log(barterString)
                     }
                 }
                 if (config_json_1.default.ProductionInfo.enabled) {
                     if (this.productionGenarator(itemID).length > 1) {
                         productionString = this.productionGenarator(itemID) + newLine;
+                        // log(name)
                         // log(productionString)
                     }
                 }
@@ -613,7 +628,6 @@ class ItemInfo {
                         let craftComponentPrice = this.getFleaPrice(craftComponentId);
                         componentsString += this.getItemShortName(craftComponentId) + " ×" + Math.round(resourceProportion * 100) + "%" + " + ";
                         totalRecipePrice += Math.round(craftComponentPrice * resourceProportion);
-                        log(componentsString);
                     } // add case for Bitcoin farm calculation.
                 }
                 if (recipe.count > 1) {

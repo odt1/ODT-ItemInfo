@@ -43,51 +43,49 @@
 	},
 	"ArmorInfo": {
 		"_description": "Adds armor stats for armor level (usefull for Realism mod), effective durability calculation, material quality and per repair degradation.",
-		"_example": "Armor class: 6 | Effective durability: 111 (Max: 20 x Titan: 5.6) | Repair degradation: 6% - 10%",
+		"_example": "[BNTI Zhuk-6a body armor] Armor class: 6 | Effective durability: 94 (Max: 75 x Ceramic: 1.3) | Repair degradation: 17% - 22%",
 		"addArmorClassInfo": true,
 		"enabled": true
 	},
 	"ContainerInfo": {
 		"_description": "Adds slot effeciency calculation for rigs, backpacks and containers (number of internal slots / item size)",
-		"_example": "Slot effeciency: ×12.25 (196/16)",
+		"_example": "[WARTECH TV-110 plate carrier rig] Slot effeciency: ×1.92 (23/12)",
 		"enabled": true
 	},
 	"HeadsetInfo": {
 		"_description": "Adds headset actual audio stats with pseudo compression boost calculation. In theory, more compression  and lower ambient volume = better (BSG headset rarity tiering supports this theory), but it seems for me, in practice, it's not always the case in-game. Higher resonance means harsher sound and boost at filter frequency.",
-		"_example": "Ambient Volume: -5dB | Compressor: Gain 10dB × Treshold -25dB ≈ ×2.5 Boost | Resonance & Filter: 2.47@245Hz | Distortion: 28%",
+		"_example": "[Peltor ComTac 2 headset] Ambient Volume: -5dB | Compressor: Gain 10dB × Treshold -25dB ≈ ×2.5 Boost | Resonance & Filter: 2.47@245Hz | Distortion: 28%",
 		"enabled": true
 	},
 	"ProductionInfo": {
 		"_description": "If item can be crafted, adds information on resources and total crafting sum per item based on flea prices.",
-		"_example": "Crafted ×200 @ Workbench lv.3 < ☆Nails ×4 + ★Thermite ×1 + Kite ×4 + ☆Eagle ×3 | Σ per item ≈ 1782₽",
+		"_example": "[9x19mm AP 6.3] Crafted ×150 @ Workbench lv.2 < ☆Hawk ×2 + ☆Pst ×400 | Σ per item ≈ 1686₽",
 		"enabled": true
 	},
 	"CraftingMaterialInfo": {
 		"_description": "Shows if item is used in crafts along with other materials and profit delta based on flea prices only (this messes up calculation on some crafts that can be done insanely cheap using trader materials or items obtained from other crafts). This is a guideline for crafting profits, not a rule.",
-		"_example for SSD drive": "Part ×1 > Secure Flash drive ×3 @ Intelligence Center lv.2 < … + ★GPX ×1 + ☆GPhone ×1 | Δ ≈ 16234₽",
+		"_example": "[SSD drive] Part ×1 > Secure Flash drive ×3 @ Intelligence Center lv.2 < … + ★GPX ×1 + ☆GPhone ×1 | Δ ≈ 16234₽",
 		"enabled": true
 	},
 	"BarterInfo": {
 		"_description": "Adds information about how you can buy the item from traders, their levels, price or resources (barter resources short names are used and total sum is based on AVG flea prices)",
-		"_example1": "Bought @ Mechanic lv.1 < 19579₽",
-		"_example2": "Bought @ Prapor lv.3 < ☆MTape ×5 + T-Plug ×5 + USB-A ×5 | Σ ≈ 208705₽",
-		"_example3": "Bought @ Peacekeeper lv.4 < $66 ≈ 7545₽",
+		"_example": "[T H I C C item case] Bought @ Therapist lv.4 < ★Defibrillator ×15 + ★LEDX ×15 + Ibuprofen ×15 + ★Toothpaste ×15 | Σ ≈ 12877545₽",
 		"enabled": true
 	},
 	"QuestInfo": {
 		"_description": "Adds information if the item needs to be handed in for a quest. Marks find in raid quest condition with a checkmark with an option to add this checkmark to an item name.",
-		"_example for CMS surgical kit": "Found (✔) ×2 > Ambulance @ Jaeger",
+		"_example": "[CMS surgical kit] Found (✔) ×2 > Ambulance @ Jaeger",
 		"enabled": true,
 		"FIRinName": true
 	},
 	"HideoutInfo": {
 		"_description": "Shows if item is needed for hideout construcion.",
-		"_example for Secure Flash drive": "Need ×3 > Intelligence Center lv.2",
+		"_example": "[Secure Flash drive] Need ×3 > Intelligence Center lv.2",
 		"enabled": true
 	},
 	"BarterResourceInfo": {
 		"_description": "Shows info if an item can be traded for something with traders along with other resources. Calculates total sum of all resourses (based on flea prices) and delta between buying the final item directly on flea or from trader. Positive delta = profit, negative = don't bother, buy it directly if you can.",
-		"_example for Ibuprofen painkillers": "Traded ×15 @ Therapist lv.4 > T H I C C item case < … + ★Defibrillator ×15 + ★LEDX ×15 + ★Toothpaste ×15 | Δ ≈ -9777545₽",
+		"_example": "[Ibuprofen painkillers] Traded ×15 @ Therapist lv.4 > T H I C C item case < … + ★Defibrillator ×15 + ★LEDX ×15 + ★Toothpaste ×15 | Δ ≈ -9777545₽",
 		"enabled": true
 	},
 	"SpawnInfo": {

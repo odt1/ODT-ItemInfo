@@ -66,7 +66,15 @@ class ItemInfo implements IPostDBLoadMod {
 
 	public postDBLoad(container: DependencyContainer) {
 		this.init(container)
-
+		const descriptionGen = false
+		if (descriptionGen) {
+			for (const conf in config) {
+				log("## " + conf)
+				log("" + config[conf]._description)
+				log("> " + config[conf]._example)
+				log(newLine)
+			}
+		}
 		for (const itemID in items) {
 			const item = items[itemID]
 			const itemInHandbook = this.getItemInHandbook(itemID)
@@ -226,6 +234,8 @@ class ItemInfo implements IPostDBLoadMod {
 						let armor = armors[item._props.ArmorMaterial]
 						// prettier-ignore
 						armorDurabilityString += `${config.ArmorInfo.addArmorClassInfo ? "Armor class: " + item._props.armorClass + " | " : ""}Effective durability: ${Math.round(item._props.MaxDurability / armor.Destructibility)} (Max: ${item._props.MaxDurability} x ${item._props.ArmorMaterial}: ${roundWithPrecision(1 / armor.Destructibility, 1)}) | Repair degradation: ${Math.round(armor.MinRepairDegradation * 100)}% - ${Math.round(armor.MaxRepairDegradation * 100)}%` + newLine + newLine
+						// log(name)
+						// log(armorDurabilityString)
 					}
 				}
 
@@ -239,6 +249,8 @@ class ItemInfo implements IPostDBLoadMod {
 
 						let slotEffeciency = roundWithPrecision(totalSlots / (item._props.Width * item._props.Height), 2)
 						slotEffeciencyString += `Slot effeciency: ×${slotEffeciency} (${totalSlots}/${item._props.Width * item._props.Height})` + newLine + newLine
+						// log(name)
+						// log(slotEffeciencyString)
 					}
 				}
 
@@ -282,6 +294,7 @@ class ItemInfo implements IPostDBLoadMod {
 				if (config.BarterInfo.enabled) {
 					if (barterInfo.barters.length > 1) {
 						barterString = barterInfo.barters + newLine
+						// log(name)
 						// log(barterString)
 					}
 				}
@@ -289,6 +302,7 @@ class ItemInfo implements IPostDBLoadMod {
 				if (config.ProductionInfo.enabled) {
 					if (this.productionGenarator(itemID).length > 1) {
 						productionString = this.productionGenarator(itemID) + newLine
+						// log(name)
 						// log(productionString)
 					}
 				}
