@@ -78,7 +78,7 @@ class ItemInfo implements IPostDBLoadMod {
 		for (const itemID in items) {
 			const item = items[itemID]
 			const itemInHandbook = this.getItemInHandbook(itemID)
-			item._props.ExaminedByDefault = false // DEBUG!!!!
+			//item._props.ExaminedByDefault = false // DEBUG!!!!
 			if (
 				item._type === "Item" && // Check if the item is a real item and not a "node" type.
 				itemInHandbook != undefined && // Ignore "useless" items
