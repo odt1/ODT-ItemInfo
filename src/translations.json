@@ -1,49 +1,139 @@
 {
-    "en": {
-        "Bought": "Bought",
-        "lv": "lv.",
-        "at": "@"
-    },
-    "cz": {
-
-    },
-    "pl": {
-
-    },
-    "po": {
-
-    },
-    "ch": {
-
-    },
-    "ru": {
-
-    },
-    "es": {
-
-    },
-    "es-mx": {
-
-    },
-    "ge": {
-
-    },
-    "sk": {
-
-    },
-    "tu": {
- 
-    },
-    "it": {
-
-    },
-    "jp": {
-
-    },
-    "fr": {
-
-    },
-    "hu": {
-
-    }
+	"debug": {
+		"enabled": false,
+		"languageToDebug": "es-mx"
+	},
+	"en": {
+		"Bought": "Bought",
+		"lv": "lv.",
+		"at": "@",
+		"Traded": "Traded",
+		"Armorclass": "Armor class",
+		"Effectivedurability": "Effective durability",
+		"Max": "Max.",
+		"Repairdegradation": "Repair degradation",
+		"Slotefficiency": "Slot efficiency",
+		"Fleaprice": "Flea price",
+		"Valuation1": "",
+		"Valuation2": "'s valuation",
+		"Found": "Found",
+		"Tool": "Tool",
+		"Part": "Part",
+		"Need": "Need",
+		"Crafted": "Crafted",
+		"Spawnchance": "Spawn chance",
+		"peritem": "per item",
+		"AmbientVolume": "Ambient Volume",
+		"Compressor": "Compressor",
+		"Gain": "Gain",
+		"Treshold": "Treshold",
+		"Boost": "Boost",
+		"ResonanceFilter": "Resonance & Filter",
+		"Distortion": "Distortion",
+		"COMMON": "Common",
+		"RARE": "Rare",
+		"EPIC": "Epic",
+		"LEGENDARY": "Legendary",
+		"UBER": "Uber",
+		"UNOBTAINIUM": "Extraordinary",
+		"OVERPOWERED": "Overpowered",
+		"CUSTOM": "Custom",
+		"UNKNOWN": "Unknown",
+		"BANNED": "BANNED"
+	},
+	"ru": {
+		"Bought": "Продает",
+		"lv": "ур.",
+		"Traded": "Меняет",
+		"Fleaprice": "Цена на барахолке",
+		"Valuation1": "Продать ",
+		"Valuation2": "у",
+		"Found": "Требуется",
+		"Crafted": "Изготовляется",
+		"peritem": "за предмет",
+		"Need": "Необходим",
+		"Part": "Часть",
+		"Tool": "Инструмент",
+		"Armorclass": "Класс брони",
+		"Spawnchance": "Шанс спауна",
+		"Effectivedurability": "Фактическая прочность",
+		"Max": "Макс.",
+		"Repairdegradation": "Деградация при ремонте",
+		"Slotefficiency": "Эффективность слотов",
+		"AmbientVolume": "Громкость окружения",
+		"Compressor": "Компрессор",
+		"Gain": "Громкость",
+		"Treshold": "Порог",
+		"Boost": "Усиление",
+		"ResonanceFilter": "Резонанс & Фильтр",
+		"Distortion": "Дисторшн",
+		"COMMON": "Обычный",
+		"RARE": "Редкий",
+		"EPIC": "Эпичный",
+		"LEGENDARY": "Легендарный",
+		"UBER": "Убер",
+		"UNOBTAINIUM": "Редчайший",
+		"OVERPOWERED": "Запредельный",
+		"CUSTOM": "Настраиваемый",
+		"UNKNOWN": "Неизвестный",
+		"BANNED": "ЗАПРЕЩЁН",
+		"": "",
+		"": ""
+	},
+	"ch": {
+		"": "",
+		"": ""
+	},
+	"cz": {
+		"": "",
+		"": ""
+	},
+	"es-mx": {
+		"": "",
+		"": ""
+	},
+	"es": {
+		"": "",
+		"": ""
+	},
+	"fr": {
+		"": "",
+		"": ""
+	},
+	"ge": {
+		"": "",
+		"": ""
+	},
+	"hu": {
+		"": "",
+		"": ""
+	},
+	"it": {
+		"": "",
+		"": ""
+	},
+	"jp": {
+		"": "",
+		"": ""
+	},
+	"kr": {
+		"": "",
+		"": ""
+	},
+	"pl": {
+		"": "",
+		"": ""
+	},
+	"po": {
+		"": "",
+		"": ""
+	},
+	"sk": {
+		"": "",
+		"": ""
+	},
+	"tu": {
+		"": "",
+		"": ""
+	}
 }

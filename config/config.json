@@ -1,8 +1,12 @@
 {
+	"_SELECT YOUR LANGUAGE IN UserLocale CONFIGURATION BELOW. USE ONE OF THESE LANGUAGE CODES": "ch, cz, en, es-mx, es, fr, ge, hu, it, jp, kr, pl, po, ru, sk, tu",
+	"UserLocale": "en",
+	"HideLanguageAlert": false,
 	"PricesInfo": {
-		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to.",
+		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to. Separate option to hide flea price info.",
 		"_example": "Flea price: 61703₽ | Ragman's valuation: 37386₽",
-		"enabled": true
+		"enabled": true,
+		"addFleaPrice": true
 	},
 	"FleaAbusePatch": {
 		"_description": "Fixes prices for items you can buy on flea cheaper then sold to traders, sticks to lowest possible increase to make abuse unprofitable.",
@@ -26,7 +30,7 @@
 		}
 	},
 	"MarkValueableItems": {
-		"_description": "Marks most valuable items by adding symbols ★ and ☆ to item names and inventory icons based on item per-slot value (configured below) when sold to traders OR fleamarket AVG price.",
+		"_description": "Marks most valuable items by adding symbols ★ and ☆ to item names and inventory icons based on item per-slot value (configured below) when sold to traders OR fleamarket AVG price. Defaults: ☆ - good items - item value per slot is more then 10k when sold to vendors, or more then 15k on flea market. ★ best items - item value per slot is more then 20k to vendors, or more then 30k on flea market. Use really high values if you want to disable certain type of highlights, eg flea ones. Option to *always* mark banned items with a ★.",
 		"_example": "",
 		"enabled": true,
 		"addToName": true,
@@ -34,7 +38,8 @@
 		"traderSlotValueThresholdBest": 20000,
 		"fleaSlotValueThresholdBest": 30000,
 		"traderSlotValueThresholdGood": 10000,
-		"fleaSlotValueThresholdGood": 15000
+		"fleaSlotValueThresholdGood": 15000,
+		"alwaysMarkBannedItems": true
 	},
 	"BulletStatsInName": {
 		"_description": "Adds bullet stats to bullet name (damage / armor penetration). Calculates total damage for buckshot rounds. VERY usefull in raid, because bullet name is shown when check magazine action is used.",
@@ -48,8 +53,8 @@
 		"enabled": true
 	},
 	"ContainerInfo": {
-		"_description": "Adds slot effeciency calculation for rigs, backpacks and containers (number of internal slots / item size)",
-		"_example": "[WARTECH TV-110 plate carrier rig] Slot effeciency: ×1.92 (23/12)",
+		"_description": "Adds slot efficiency calculation for rigs, backpacks and containers (number of internal slots / item size).",
+		"_example": "[WARTECH TV-110 plate carrier rig] Slot efficiency: ×1.92 (23/12)",
 		"enabled": true
 	},
 	"HeadsetInfo": {
@@ -68,7 +73,7 @@
 		"enabled": true
 	},
 	"BarterInfo": {
-		"_description": "Adds information about how you can buy the item from traders, their levels, price or resources (barter resources short names are used and total sum is based on AVG flea prices)",
+		"_description": "Adds information about how you can buy the item from traders, their levels, price or resources (barter resources short names are used and total sum is based on AVG flea prices).",
 		"_example": "[T H I C C item case] Bought @ Therapist lv.4 < ★Defibrillator ×15 + ★LEDX ×15 + Ibuprofen ×15 + ★Toothpaste ×15 | Σ ≈ 12877545₽",
 		"enabled": true
 	},
@@ -93,9 +98,10 @@
 		"_example": "",
 		"enabled": false
 	},
-	"dummy": {
-		"_description": "",
-		"enabled": true
+	"delay": {
+		"_description": "Delay loading the mod for compatibility reasons (mods that add items in a weird way, or mods that take too long to load like Lua's Flea Market Price Updater).",
+		"enabled": true,
+		"seconds": 5
 	},
 	"dummy": {
 		"_description": "",

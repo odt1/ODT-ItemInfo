@@ -1,0 +1,11 @@
+{
+	"COMMON": "default",
+	"RARE": "blue",
+	"EPIC": "violet",
+	"LEGENDARY": "yellow",
+	"UBER": "tracerYellow",
+	"UNOBTAINIUM": "tracerGreen",
+	"OVERPOWERED": "tracerRed",
+	"CUSTOM": "red",
+	"UNKNOWN": "green"
+}
