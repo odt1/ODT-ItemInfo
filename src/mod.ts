@@ -89,7 +89,7 @@ class ItemInfo implements IPostDBLoadMod {
 		let userLocale = config.UserLocale
 		if (!config.HideLanguageAlert) {
 			logger.log(
-				`[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nHide this message in config.json`,
+				`[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean are fully translated.\nHide this message in config.json`,
 				LogTextColor.BLACK,
 				LogBackgroundColor.WHITE
 			)
