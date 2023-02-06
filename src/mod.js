@@ -23,6 +23,7 @@ let hideoutAreas;
 let quests;
 let armors;
 let ragfairConfig;
+let hideoutConfig;
 let therapist;
 let ragman;
 let jaeger;
@@ -209,6 +210,7 @@ class ItemInfo {
         database = container.resolve("DatabaseServer");
         const configServer = container.resolve("ConfigServer");
         ragfairConfig = configServer.getConfig(ConfigTypes_1.ConfigTypes.RAGFAIR);
+        hideoutConfig = configServer.getConfig(ConfigTypes_1.ConfigTypes.HIDEOUT);
         logger.info("[Item Info] Database data is loaded, working...");
         tables = database.getTables();
         items = tables.templates.items;
@@ -330,10 +332,10 @@ class ItemInfo {
                 itemRarity = Math.min(...rarityArray);
                 let isBanned = false;
                 if (config_json_1.default.useBSGStaticFleaBanlist) {
-                    BSGblacklist.includes(itemID) ? isBanned = true : isBanned = false;
+                    BSGblacklist.includes(itemID) ? (isBanned = true) : (isBanned = false);
                 }
                 else {
-                    item._props.CanSellOnRagfair ? isBanned = false : isBanned = true;
+                    item._props.CanSellOnRagfair ? (isBanned = false) : (isBanned = true);
                 }
                 if (isBanned == true && itemRarity == 0) {
                     fleaPrice = i18n.BANNED;
@@ -368,7 +370,8 @@ class ItemInfo {
                     }
                 }
                 if (config_json_1.default.FleaAbusePatch.enabled) {
-                    if (fleaPrice * ragfairConfig.dynamic.price.min < traderPrice) {
+                    if (fleaPrice * ragfairConfig.dynamic.price.min < traderPrice && isBanned == false) {
+                        // Ignore banned items for compatibility with Softcore mod.
                         // log(name)
                         let fleaPriceFix = Math.round(traderPrice * (1 / ragfairConfig.dynamic.price.min + 0.01));
                         fleaPrices[itemID] = fleaPriceFix;
@@ -498,7 +501,7 @@ class ItemInfo {
                 }
                 if (config_json_1.default.PricesInfo.enabled) {
                     // prettier-ignore
-                    priceString += (config_json_1.default.PricesInfo.addFleaPrice ? i18n.Fleaprice + ": " + fleaPrice + (fleaPrice > 0 ? "₽" : "") + " | " : "") + i18n.Valuation1 + traderName + i18n.Valuation2 + ": " + traderPrice + "₽" + newLine + newLine;
+                    priceString += (config_json_1.default.PricesInfo.addFleaPrice ? i18n.Fleaprice + ": " + this.formatPrice(fleaPrice) + (fleaPrice > 0 ? "₽" : "") + " | " : "") + i18n.Valuation1 + traderName + i18n.Valuation2 + ": " + this.formatPrice(traderPrice) + "₽" + newLine + newLine;
                     // log(priceString)
                 }
                 if (config_json_1.default.HeadsetInfo.enabled) {
@@ -588,7 +591,14 @@ class ItemInfo {
         }
         logger.success("[Item Info] Finished processing items, enjoy!");
         if (translations_json_1.default.debug.enabled) {
-            let debugItemIDlist = ["590a3efd86f77437d351a25b", "5c0e722886f7740458316a57", "5645bcc04bdc2d363b8b4572", "590c621186f774138d11ea29"];
+            let debugItemIDlist = [
+                "590a3efd86f77437d351a25b",
+                "5c0e722886f7740458316a57",
+                "5645bcc04bdc2d363b8b4572",
+                "590c621186f774138d11ea29",
+                "59faff1d86f7746c51718c9c",
+                "5c0e625a86f7742d77340f62",
+            ];
             for (const debugItemID of debugItemIDlist) {
                 logger.info(`---`);
                 logger.info(newLine);
@@ -621,6 +631,14 @@ class ItemInfo {
         }
         else {
             return locales["en"][`${itemID} Description`];
+        }
+    }
+    formatPrice(price) {
+        if (typeof price == "number" && config_json_1.default.FormatPrice == true) {
+            return Intl.NumberFormat("en-US").format(price);
+        }
+        else {
+            return price;
         }
     }
     addToName(itemID, addToName, place, lang = "") {
@@ -776,15 +794,15 @@ class ItemInfo {
             for (let resource of barter.barterResources) {
                 if (resource._tpl == "5449016a4bdc2d6f028b456f") {
                     let rubles = resource.count;
-                    barterString += `${Math.round(rubles)}₽ + `;
+                    barterString += `${this.formatPrice(Math.round(rubles))}₽ + `;
                 }
                 else if (resource._tpl == "569668774bdc2da2298b4568") {
                     let euro = resource.count;
-                    barterString += `${Math.round(euro)}€ ≈ ${Math.round(euroRatio * euro)}₽ + `;
+                    barterString += `${this.formatPrice(Math.round(euro))}€ ≈ ${this.formatPrice(Math.round(euroRatio * euro))}₽ + `;
                 }
                 else if (resource._tpl == "5696686a4bdc2da3298b456a") {
                     let dollars = resource.count;
-                    barterString += `$${Math.round(dollars)} ≈ ${Math.round(dollarRatio * dollars)}₽ + `;
+                    barterString += `$${this.formatPrice(Math.round(dollars))} ≈ ${this.formatPrice(Math.round(dollarRatio * dollars))}₽ + `;
                 }
                 else {
                     totalBarterPrice += this.getFleaPrice(resource._tpl) * resource.count;
@@ -800,7 +818,7 @@ class ItemInfo {
                 rarityArray.push(barter.barterLoyaltyLevel);
             }
             if (totalBarterPrice != 0) {
-                totalBarterPriceString = ` | Σ ≈ ${Math.round(totalBarterPrice)}₽`;
+                totalBarterPriceString = ` | Σ ≈ ${this.formatPrice(Math.round(totalBarterPrice))}₽`;
             }
             barterString = barterString.slice(0, barterString.length - 3) + totalBarterPriceString + "\n";
         }
@@ -841,7 +859,7 @@ class ItemInfo {
                             }
                         }
                         if (totalBarterPrice != 0) {
-                            totalBarterPrice = ` | Δ ≈ ${Math.round(this.getFleaPrice(bartedForItem) - totalBarterPrice)}₽`;
+                            totalBarterPrice = ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(bartedForItem) - totalBarterPrice))}₽`;
                         }
                         else {
                             totalBarterPrice = "";
@@ -892,7 +910,7 @@ class ItemInfo {
                         let craftComponentCount = recipe.requirements[i].count;
                         let craftComponentPrice = this.getFleaPrice(craftComponentId);
                         componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + craftComponentCount + " + ";
-                        totalRecipePrice += (craftComponentPrice * craftComponentCount);
+                        totalRecipePrice += craftComponentPrice * craftComponentCount;
                     }
                     if (recipe.requirements[i].type === "Resource") {
                         // superwater calculation
@@ -901,14 +919,37 @@ class ItemInfo {
                         let craftComponentPrice = this.getFleaPrice(craftComponentId);
                         componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + Math.round(resourceProportion * 100) + "%" + " + ";
                         totalRecipePrice += Math.round(craftComponentPrice * resourceProportion);
-                    } // add case for Bitcoin farm calculation.
+                    }
                 }
                 if (recipe.count > 1) {
                     recipeDivision = " " + translations_json_1.default[locale].peritem;
                 }
                 componentsString = componentsString.slice(0, componentsString.length - 3);
-                craftableString += `${translations_json_1.default[locale].Crafted} ×${recipe.count} @ ${recipeAreaString} < `;
-                craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${Math.round(totalRecipePrice / recipe.count)}₽\n`;
+                if (recipe.endProduct == "59faff1d86f7746c51718c9c") {
+                    craftableString += `${translations_json_1.default[locale].Crafted} @ ${recipeAreaString}`;
+                    const time = recipe.productionTime;
+                    // prettier-ignore
+                    craftableString += ` | 1× GPU: ${convertTime(gpuTime(1), locale)}, 10× GPU: ${convertTime(gpuTime(10), locale)}, 25× GPU: ${convertTime(gpuTime(25), locale)}, 50× GPU: ${convertTime(gpuTime(50), locale)}`;
+                    // 					log(`
+                    // // Base time (x${roundWithPrecision(145000/time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(hideoutConfig.gpuBoostRate/0.015, 2)}
+                    // // 2× GPU: ${convertTime(gpuTime(2))} x${roundWithPrecision(time/gpuTime(2), 2)}
+                    // // 10× GPU: ${convertTime(gpuTime(10))} x${roundWithPrecision(time/gpuTime(10), 2)}
+                    // // 25× GPU: ${convertTime(gpuTime(25))} x${roundWithPrecision(time/gpuTime(25), 2)}
+                    // // 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time/gpuTime(50), 2)}`)
+                }
+                else {
+                    craftableString += `${translations_json_1.default[locale].Crafted} ×${recipe.count} @ ${recipeAreaString} < `;
+                    craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽ | ${convertTime(recipe.productionTime, locale)}\n`;
+                }
+                function convertTime(time, locale = "en") {
+                    const hours = Math.trunc(time / 60 / 60);
+                    const minutes = Math.round((time - hours * 60 * 60) / 60);
+                    return `${hours}${locales[locale].HOURS} ${minutes}${locales[locale].Min}`;
+                }
+                function gpuTime(gpus) {
+                    const time = hideoutProduction.find(x => x.endProduct == "59faff1d86f7746c51718c9c").productionTime;
+                    return time / (1 + (gpus - 1) * hideoutConfig.gpuBoostRate);
+                }
                 // if (fleaPrice > totalRecipePrice/recipe.count) {
                 // 	let profit = Math.round(fleaPrice-(totalRecipePrice/recipe.count))
                 // 	console.log("Hava Nagila! Profitable craft at " + profit + " profit detected! " + this.GetItemName(id) + " can be crafted at " + recipeAreaString)
@@ -967,7 +1008,7 @@ class ItemInfo {
                     }
                     usedForCraftingComponentsString = usedForCraftingComponentsString.slice(0, usedForCraftingComponentsString.length - 3);
                     // prettier-ignore
-                    usedForCraftingComponentsString += ` | Δ ≈ ${Math.round(this.getFleaPrice(hideoutProduction[craftID].endProduct) * hideoutProduction[craftID].count - totalRecipePrice)}₽`;
+                    usedForCraftingComponentsString += ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(hideoutProduction[craftID].endProduct) * hideoutProduction[craftID].count - totalRecipePrice))}₽`;
                     // prettier-ignore
                     usedForCraftingString += `${hideoutProduction[craftID].requirements[s].type == "Tool" ? translations_json_1.default[locale].Tool : translations_json_1.default[locale].Part + " ×" + hideoutProduction[craftID].requirements[s].count} > ${this.getItemName(hideoutProduction[craftID].endProduct, locale)} ×${hideoutProduction[craftID].count}`;
                     usedForCraftingString += ` @ ${recipeAreaString + usedForCraftingComponentsString}\n`;

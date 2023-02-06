@@ -1,7 +1,8 @@
 {
 	"_SELECT YOUR LANGUAGE IN UserLocale CONFIGURATION BELOW. USE ONE OF THESE LANGUAGE CODES": "ch, cz, en, es-mx, es, fr, ge, hu, it, jp, kr, pl, po, ru, sk, tu",
-	"UserLocale": "en",
-	"HideLanguageAlert": false,
+	"UserLocale": "ru",
+	"HideLanguageAlert": true,
+	"FormatPrice": true,
 	"PricesInfo": {
 		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to. Separate option to hide flea price info.",
 		"_example": "Flea price: 61703₽ | Ragman's valuation: 37386₽",
