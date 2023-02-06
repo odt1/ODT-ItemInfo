@@ -998,7 +998,6 @@ class ItemInfo implements IPostDBLoadMod {
 				componentsString = componentsString.slice(0, componentsString.length - 3)
 				if (recipe.endProduct == "59faff1d86f7746c51718c9c") {
 					craftableString += `${translations[locale].Crafted} @ ${recipeAreaString}`
-					const time = recipe.productionTime
 					// prettier-ignore
 					craftableString += ` | 1× GPU: ${convertTime(gpuTime(1), locale)}, 10× GPU: ${convertTime(gpuTime(10), locale)}, 25× GPU: ${convertTime(gpuTime(25), locale)}, 50× GPU: ${convertTime(gpuTime(50), locale)}`
 
@@ -1010,7 +1009,7 @@ class ItemInfo implements IPostDBLoadMod {
 // // 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time/gpuTime(50), 2)}`)
 				} else {
 					craftableString += `${translations[locale].Crafted} ×${recipe.count} @ ${recipeAreaString} < `
-					craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽ | ${convertTime(recipe.productionTime, locale)}\n`
+					craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽\n`
 				}
 
 				function convertTime(time, locale = "en") {
