@@ -770,7 +770,9 @@ class ItemInfo {
                             if (x[0].parentId != "hideout") {
                                 rec(x[0].parentId)
                             } else {
-                                this.bartersResolver(x[0]._tpl) // I need help resolving this recursion for unbuyable items in weapon presets, it seems to work, but not really. feel dumb
+                                this.bartersResolver(x[0]._tpl)
+                                // look into calculateItemWorth
+                                // I need help resolving this recursion for unbuyable items in weapon presets, it seems to work, but not really. feel dumb
                             }
                         }
                     }
@@ -930,16 +932,16 @@ class ItemInfo {
                     const time = recipe.productionTime;
                     // prettier-ignore
                     craftableString += ` | 1× GPU: ${convertTime(gpuTime(1), locale)}, 10× GPU: ${convertTime(gpuTime(10), locale)}, 25× GPU: ${convertTime(gpuTime(25), locale)}, 50× GPU: ${convertTime(gpuTime(50), locale)}`;
-                    // 					log(`
-                    // // Base time (x${roundWithPrecision(145000/time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(hideoutConfig.gpuBoostRate/0.015, 2)}
-                    // // 2× GPU: ${convertTime(gpuTime(2))} x${roundWithPrecision(time/gpuTime(2), 2)}
-                    // // 10× GPU: ${convertTime(gpuTime(10))} x${roundWithPrecision(time/gpuTime(10), 2)}
-                    // // 25× GPU: ${convertTime(gpuTime(25))} x${roundWithPrecision(time/gpuTime(25), 2)}
-                    // // 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time/gpuTime(50), 2)}`)
+                    log(`
+// Base time (x${roundWithPrecision(145000 / time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(tables.hideout.settings.gpuBoostRate / 0.041225, 2)}
+// 2× GPU: ${convertTime(gpuTime(2))} x${roundWithPrecision(time / gpuTime(2), 2)}
+// 10× GPU: ${convertTime(gpuTime(10))} x${roundWithPrecision(time / gpuTime(10), 2)}
+// 25× GPU: ${convertTime(gpuTime(25))} x${roundWithPrecision(time / gpuTime(25), 2)}
+// 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time / gpuTime(50), 2)}`);
                 }
                 else {
                     craftableString += `${translations_json_1.default[locale].Crafted} ×${recipe.count} @ ${recipeAreaString} < `;
-                    craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽ | ${convertTime(recipe.productionTime, locale)}\n`;
+                    craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽\n`;
                 }
                 function convertTime(time, locale = "en") {
                     const hours = Math.trunc(time / 60 / 60);
@@ -948,7 +950,7 @@ class ItemInfo {
                 }
                 function gpuTime(gpus) {
                     const time = hideoutProduction.find(x => x.endProduct == "59faff1d86f7746c51718c9c").productionTime;
-                    return time / (1 + (gpus - 1) * hideoutConfig.gpuBoostRate);
+                    return time / (1 + (gpus - 1) * tables.hideout.settings.gpuBoostRate);
                 }
                 // if (fleaPrice > totalRecipePrice/recipe.count) {
                 // 	let profit = Math.round(fleaPrice-(totalRecipePrice/recipe.count))
