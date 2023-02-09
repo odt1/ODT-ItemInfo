@@ -1,6 +1,6 @@
 {
 	"_SELECT YOUR LANGUAGE IN UserLocale CONFIGURATION BELOW. USE ONE OF THESE LANGUAGE CODES": "ch, cz, en, es-mx, es, fr, ge, hu, it, jp, kr, pl, po, ru, sk, tu",
-	"UserLocale": "ru",
+	"UserLocale": "en",
 	"HideLanguageAlert": false,
 	"FormatPrice": true,
 	"PricesInfo": {
