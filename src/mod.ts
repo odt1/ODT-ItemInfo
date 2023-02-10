@@ -423,7 +423,7 @@ class ItemInfo implements IPostDBLoadMod {
 					}
 				}
 
-				if (config.RarityRecolor.enabled) {
+				if (config.RarityRecolor.enabled && !config.RarityRecolorBlacklist.includes(item._parent)) {
 					item._props.BackgroundColor = "grey"
 
 					for (const customItem in config.RarityRecolor.customRarity) {

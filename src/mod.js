@@ -380,7 +380,7 @@ class ItemInfo {
                         fleaPrice = fleaPriceFix;
                     }
                 }
-                if (config_json_1.default.RarityRecolor.enabled) {
+                if (config_json_1.default.RarityRecolor.enabled && !config_json_1.default.RarityRecolorBlacklist.includes(item._parent)) {
                     item._props.BackgroundColor = "grey";
                     for (const customItem in config_json_1.default.RarityRecolor.customRarity) {
                         if (customItem == itemID) {
@@ -449,6 +449,9 @@ class ItemInfo {
                             priceString += tier + " | ";
                         }
                     }
+                }
+                else {
+                    log(name);
                 }
                 if (config_json_1.default.ArmorInfo.enabled) {
                     if (item._props.armorClass > 0) {
@@ -743,7 +746,7 @@ class ItemInfo {
         };
     }
     getFleaPrice(itemID) {
-        if (typeof fleaPrices[itemID] != "undefined") {
+        if (typeof fleaPrices[itemID] != "undefined") { // Forgot quotes, typeof returns string..
             return fleaPrices[itemID];
         }
         else {
@@ -751,7 +754,7 @@ class ItemInfo {
         }
     }
     getBestPrice(itemID) {
-        if (typeof fleaPrices[itemID] != undefined) {
+        if (typeof fleaPrices[itemID] != "undefined") {
             return fleaPrices[itemID];
         }
         else {
