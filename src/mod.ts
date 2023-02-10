@@ -372,9 +372,12 @@ class ItemInfo implements IPostDBLoadMod {
 					item._props.CanSellOnRagfair ? (isBanned = false) : (isBanned = true)
 				}
 
-				if (isBanned == true && itemRarity == 0) {
+				if (isBanned == true) {
 					fleaPrice = i18n.BANNED
-					itemRarity = 7
+
+					if (itemRarity == 0) {
+						itemRarity = 7
+					}
 				}
 
 				let itemRarityFallback = ""
@@ -509,8 +512,13 @@ class ItemInfo implements IPostDBLoadMod {
 				if (config.MarkValueableItems.enabled) {
 					let itemvalue = traderPrice / slotDensity
 					let fleaValue
-					if (isBanned == true && config.MarkValueableItems.alwaysMarkBannedItems) {
-						fleaValue = config.MarkValueableItems.fleaSlotValueThresholdBest + 1 // always mark flea banned items as best.
+					if (isBanned == true) {
+						// For banned items, recalculate flea price.
+						fleaValue = this.getFleaPrice(itemID) / slotDensity
+
+						if (config.MarkValueableItems.alwaysMarkBannedItems) {
+							fleaValue = config.MarkValueableItems.fleaSlotValueThresholdBest + 1 // always mark flea banned items as best.
+						}
 					} else {
 						fleaValue = fleaPrice / slotDensity
 					}
@@ -794,7 +802,7 @@ class ItemInfo implements IPostDBLoadMod {
 	}
 
 	getFleaPrice(itemID) {
-		if (typeof fleaPrices[itemID] != undefined) {
+		if (typeof fleaPrices[itemID] != "undefined") { // Forgot quotes, typeof returns string..
 			return fleaPrices[itemID]
 		} else {
 			return this.getItemInHandbook(itemID).Price
@@ -1004,12 +1012,12 @@ class ItemInfo implements IPostDBLoadMod {
 					// prettier-ignore
 					craftableString += ` | 1× GPU: ${convertTime(gpuTime(1), locale)}, 10× GPU: ${convertTime(gpuTime(10), locale)}, 25× GPU: ${convertTime(gpuTime(25), locale)}, 50× GPU: ${convertTime(gpuTime(50), locale)}`
 
-// 					log(`
-// // Base time (x${roundWithPrecision(145000/time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(tables.hideout.settings.gpuBoostRate/0.041225, 2)}
-// // 2× GPU: ${convertTime(gpuTime(2))} x${roundWithPrecision(time/gpuTime(2), 2)}
-// // 10× GPU: ${convertTime(gpuTime(10))} x${roundWithPrecision(time/gpuTime(10), 2)}
-// // 25× GPU: ${convertTime(gpuTime(25))} x${roundWithPrecision(time/gpuTime(25), 2)}
-// // 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time/gpuTime(50), 2)}`)
+					// 					log(`
+					// // Base time (x${roundWithPrecision(145000/time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(tables.hideout.settings.gpuBoostRate/0.041225, 2)}
+					// // 2× GPU: ${convertTime(gpuTime(2))} x${roundWithPrecision(time/gpuTime(2), 2)}
+					// // 10× GPU: ${convertTime(gpuTime(10))} x${roundWithPrecision(time/gpuTime(10), 2)}
+					// // 25× GPU: ${convertTime(gpuTime(25))} x${roundWithPrecision(time/gpuTime(25), 2)}
+					// // 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time/gpuTime(50), 2)}`)
 				} else {
 					craftableString += `${translations[locale].Crafted} ×${recipe.count} @ ${recipeAreaString} < `
 					craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽\n`
@@ -1022,7 +1030,7 @@ class ItemInfo implements IPostDBLoadMod {
 				}
 
 				function gpuTime(gpus) {
-					const time = hideoutProduction.find(x => x.endProduct == "59faff1d86f7746c51718c9c").productionTime
+					const time = hideoutProduction.find((x) => x.endProduct == "59faff1d86f7746c51718c9c").productionTime
 					return time / (1 + (gpus - 1) * tables.hideout.settings.gpuBoostRate)
 				}
 				// if (fleaPrice > totalRecipePrice/recipe.count) {

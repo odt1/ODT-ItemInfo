@@ -337,9 +337,11 @@ class ItemInfo {
                 else {
                     item._props.CanSellOnRagfair ? (isBanned = false) : (isBanned = true);
                 }
-                if (isBanned == true && itemRarity == 0) {
+                if (isBanned == true) {
                     fleaPrice = i18n.BANNED;
-                    itemRarity = 7;
+                    if (itemRarity == 0) {
+                        itemRarity = 7;
+                    }
                 }
                 let itemRarityFallback = "";
                 if (itemRarity == 0 && clientItems[itemID]?._props?.Rarity !== undefined) {
@@ -473,8 +475,12 @@ class ItemInfo {
                 if (config_json_1.default.MarkValueableItems.enabled) {
                     let itemvalue = traderPrice / slotDensity;
                     let fleaValue;
-                    if (isBanned == true && config_json_1.default.MarkValueableItems.alwaysMarkBannedItems) {
-                        fleaValue = config_json_1.default.MarkValueableItems.fleaSlotValueThresholdBest + 1; // always mark flea banned items as best.
+                    if (isBanned == true) {
+                        // For banned items, recalculate flea price.
+                        fleaValue = this.getFleaPrice(itemID) / slotDensity;
+                        if (config_json_1.default.MarkValueableItems.alwaysMarkBannedItems) {
+                            fleaValue = config_json_1.default.MarkValueableItems.fleaSlotValueThresholdBest + 1; // always mark flea banned items as best.
+                        }
                     }
                     else {
                         fleaValue = fleaPrice / slotDensity;
@@ -737,7 +743,7 @@ class ItemInfo {
         };
     }
     getFleaPrice(itemID) {
-        if (typeof fleaPrices[itemID] != undefined) {
+        if (typeof fleaPrices[itemID] != "undefined") {
             return fleaPrices[itemID];
         }
         else {
@@ -745,7 +751,7 @@ class ItemInfo {
         }
     }
     getBestPrice(itemID) {
-        if (typeof fleaPrices[itemID] != "undefined") {
+        if (typeof fleaPrices[itemID] != undefined) {
             return fleaPrices[itemID];
         }
         else {
@@ -932,12 +938,12 @@ class ItemInfo {
                     const time = recipe.productionTime;
                     // prettier-ignore
                     craftableString += ` | 1× GPU: ${convertTime(gpuTime(1), locale)}, 10× GPU: ${convertTime(gpuTime(10), locale)}, 25× GPU: ${convertTime(gpuTime(25), locale)}, 50× GPU: ${convertTime(gpuTime(50), locale)}`;
-                    log(`
-// Base time (x${roundWithPrecision(145000 / time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(tables.hideout.settings.gpuBoostRate / 0.041225, 2)}
-// 2× GPU: ${convertTime(gpuTime(2))} x${roundWithPrecision(time / gpuTime(2), 2)}
-// 10× GPU: ${convertTime(gpuTime(10))} x${roundWithPrecision(time / gpuTime(10), 2)}
-// 25× GPU: ${convertTime(gpuTime(25))} x${roundWithPrecision(time / gpuTime(25), 2)}
-// 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time / gpuTime(50), 2)}`);
+                    // 					log(`
+                    // // Base time (x${roundWithPrecision(145000/time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(tables.hideout.settings.gpuBoostRate/0.041225, 2)}
+                    // // 2× GPU: ${convertTime(gpuTime(2))} x${roundWithPrecision(time/gpuTime(2), 2)}
+                    // // 10× GPU: ${convertTime(gpuTime(10))} x${roundWithPrecision(time/gpuTime(10), 2)}
+                    // // 25× GPU: ${convertTime(gpuTime(25))} x${roundWithPrecision(time/gpuTime(25), 2)}
+                    // // 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time/gpuTime(50), 2)}`)
                 }
                 else {
                     craftableString += `${translations_json_1.default[locale].Crafted} ×${recipe.count} @ ${recipeAreaString} < `;
@@ -949,7 +955,7 @@ class ItemInfo {
                     return `${hours}${locales[locale].HOURS} ${minutes}${locales[locale].Min}`;
                 }
                 function gpuTime(gpus) {
-                    const time = hideoutProduction.find(x => x.endProduct == "59faff1d86f7746c51718c9c").productionTime;
+                    const time = hideoutProduction.find((x) => x.endProduct == "59faff1d86f7746c51718c9c").productionTime;
                     return time / (1 + (gpus - 1) * tables.hideout.settings.gpuBoostRate);
                 }
                 // if (fleaPrice > totalRecipePrice/recipe.count) {
