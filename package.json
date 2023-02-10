@@ -1,6 +1,6 @@
 {
     "name": "ItemInfo",
-    "version": "2.3.1",
+    "version": "2.4.0",
     "main": "src/mod.js",
     "license": "MIT",
     "author": "x-ODT",

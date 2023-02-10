@@ -344,8 +344,15 @@ class ItemInfo {
                     }
                 }
                 let itemRarityFallback = "";
-                if (itemRarity == 0 && clientItems[itemID]?._props?.Rarity !== undefined) {
-                    itemRarityFallback = clientItems[itemID]._props.Rarity;
+                if (itemRarity == 0) {
+                    try {
+                        itemRarityFallback = clientItems[itemID]._props.Rarity;
+                    }
+                    catch (error) {
+                        // meh..
+                        itemRarityFallback = "UNKNOWN";
+                    }
+                    log(name + " " + fleaPrice + " " + itemRarityFallback);
                 }
                 if (item._parent == "543be5cb4bdc2deb348b4568") {
                     // Ammo boxes special case
@@ -449,9 +456,6 @@ class ItemInfo {
                             priceString += tier + " | ";
                         }
                     }
-                }
-                else {
-                    log(name);
                 }
                 if (config_json_1.default.ArmorInfo.enabled) {
                     if (item._props.armorClass > 0) {
@@ -619,27 +623,36 @@ class ItemInfo {
         }
     }
     getItemName(itemID, locale = "en") {
-        if (locales[locale][`${itemID} Name`] != undefined) {
+        if (typeof locales[locale][`${itemID} Name`] != "undefined") {
             return locales[locale][`${itemID} Name`];
         }
-        else {
+        else if (typeof locales["en"][`${itemID} Name`] != "undefined") {
             return locales["en"][`${itemID} Name`];
+        }
+        else {
+            return items[itemID]._props.Name; // If THIS fails, the modmaker REALLY fucked up
         }
     }
     getItemShortName(itemID, locale = "en") {
-        if (locales[locale][`${itemID} ShortName`] != undefined) {
+        if (typeof locales[locale][`${itemID} ShortName`] != "undefined") {
             return locales[locale][`${itemID} ShortName`];
         }
-        else {
+        else if (typeof locales["en"][`${itemID} ShortName`] != "undefined") {
             return locales["en"][`${itemID} ShortName`];
+        }
+        else {
+            return items[itemID]._props.ShortName;
         }
     }
     getItemDescription(itemID, locale = "en") {
-        if (locales[locale][`${itemID} Description`] != undefined) {
+        if (typeof locales[locale][`${itemID} Description`] != "undefined") {
             return locales[locale][`${itemID} Description`];
         }
-        else {
+        else if (typeof locales["en"][`${itemID} Description`] != "undefined") {
             return locales["en"][`${itemID} Description`];
+        }
+        else {
+            return items[itemID]._props.Description;
         }
     }
     formatPrice(price) {
@@ -746,7 +759,8 @@ class ItemInfo {
         };
     }
     getFleaPrice(itemID) {
-        if (typeof fleaPrices[itemID] != "undefined") { // Forgot quotes, typeof returns string..
+        if (typeof fleaPrices[itemID] != "undefined") {
+            // Forgot quotes, typeof returns string..
             return fleaPrices[itemID];
         }
         else {

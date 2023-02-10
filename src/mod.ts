@@ -381,8 +381,12 @@ class ItemInfo implements IPostDBLoadMod {
 				}
 
 				let itemRarityFallback = ""
-				if (itemRarity == 0 && clientItems[itemID]?._props?.Rarity !== undefined) {
-					itemRarityFallback = clientItems[itemID]._props.Rarity
+				if (itemRarity == 0) {
+					try {
+						itemRarityFallback = clientItems[itemID]._props.Rarity
+					} catch (error) {
+						// meh..
+					}
 				}
 
 				if (item._parent == "543be5cb4bdc2deb348b4568") {
@@ -667,26 +671,32 @@ class ItemInfo implements IPostDBLoadMod {
 	}
 
 	getItemName(itemID, locale = "en") {
-		if (locales[locale][`${itemID} Name`] != undefined) {
+		if (typeof locales[locale][`${itemID} Name`] != "undefined") {
 			return locales[locale][`${itemID} Name`]
-		} else {
+		} else if (typeof locales["en"][`${itemID} Name`] != "undefined") {
 			return locales["en"][`${itemID} Name`]
+		} else {
+			return items[itemID]._props.Name // If THIS fails, the modmaker REALLY fucked up
 		}
 	}
 
 	getItemShortName(itemID, locale = "en") {
-		if (locales[locale][`${itemID} ShortName`] != undefined) {
+		if (typeof locales[locale][`${itemID} ShortName`] != "undefined") {
 			return locales[locale][`${itemID} ShortName`]
-		} else {
+		} else if (typeof locales["en"][`${itemID} ShortName`] != "undefined") {
 			return locales["en"][`${itemID} ShortName`]
+		} else {
+			return items[itemID]._props.ShortName
 		}
 	}
 
 	getItemDescription(itemID, locale = "en") {
-		if (locales[locale][`${itemID} Description`] != undefined) {
+		if (typeof locales[locale][`${itemID} Description`] != "undefined") {
 			return locales[locale][`${itemID} Description`]
-		} else {
+		} else if (typeof locales["en"][`${itemID} Description`] != "undefined") {
 			return locales["en"][`${itemID} Description`]
+		} else {
+			return items[itemID]._props.Description
 		}
 	}
 
