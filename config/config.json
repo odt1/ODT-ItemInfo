@@ -30,6 +30,20 @@
 			"": ""
 		}
 	},
+	"RarityRecolorBlacklist": [
+		"Put base classes IDs below to selectevely disable recoloring for whole item class (They are item._parent IDs, use https://db.sp-tarkov.com/search to find them.), e.g. if you prefer other mods recolors like BetterKeys. Example IDs - Mechanical keys: 5c99f98d86f7745c314214b3, Keycards: 5c164d2286f774194c5e69fa",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		""
+	],
 	"MarkValueableItems": {
 		"_description": "Marks most valuable items by adding symbols ★ and ☆ to item names and inventory icons based on item per-slot value (configured below) when sold to traders OR fleamarket AVG price. Defaults: ☆ - good items - item value per slot is more then 10k when sold to vendors, or more then 15k on flea market. ★ best items - item value per slot is more then 20k to vendors, or more then 30k on flea market. Use really high values if you want to disable certain type of highlights, eg flea ones. Option to *always* mark banned items with a ★.",
 		"_example": "",

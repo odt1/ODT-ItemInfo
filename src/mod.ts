@@ -802,7 +802,8 @@ class ItemInfo implements IPostDBLoadMod {
 	}
 
 	getFleaPrice(itemID) {
-		if (typeof fleaPrices[itemID] != "undefined") { // Forgot quotes, typeof returns string..
+		if (typeof fleaPrices[itemID] != "undefined") {
+			// Forgot quotes, typeof returns string..
 			return fleaPrices[itemID]
 		} else {
 			return this.getItemInHandbook(itemID).Price
