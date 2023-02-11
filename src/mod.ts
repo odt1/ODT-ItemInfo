@@ -787,7 +787,7 @@ class ItemInfo implements IPostDBLoadMod {
 		traderSellCategory = handbookCategories?.Id // "?" check is for shitty custom items
 		altTraderSellCategory = handbookCategories?.ParentId
 
-		for (let i = 0; i < 8; i++) {
+		for (let i = 0; i < 7; i++) {
 			if (traderList[i].base.sell_category.includes(traderSellCategory) || traderList[i].base.sell_category.includes(altTraderSellCategory)) {
 				traderMulti = (100 - traderList[i].base.loyaltyLevels[0].buy_price_coef) / 100
 				//traderName = traderList[i].base.nickname

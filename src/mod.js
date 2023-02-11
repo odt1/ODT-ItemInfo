@@ -249,7 +249,7 @@ class ItemInfo {
     ItemInfoMain() {
         let userLocale = config_json_1.default.UserLocale;
         if (!config_json_1.default.HideLanguageAlert) {
-            logger.log(`[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean are fully translated.\nHide this message in config.json`, LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.WHITE);
+            logger.log(`[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean, French and Chinese are fully translated.\nHide this message in config.json`, LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.WHITE);
             logger.log(`[Item Info] Your selected language is "${userLocale}". \nYou can now customise it in Item Info config.json file. \nLooking for translators, PM me! \nTranslation debug mode is availiable in translations.json`, LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.GREEN);
         }
         if (translations_json_1.default.debug.enabled) {
@@ -421,50 +421,34 @@ class ItemInfo {
                         // can get 6 from custom rules only
                         tier = i18n.UNOBTAINIUM;
                         item._props.BackgroundColor = tiers_json_1.default.UNOBTAINIUM;
-                        // log(name)
                     }
                     else if (itemRarity == 8) {
                         // 8 is for custom dim red background
                         tier = i18n.CUSTOM;
                         item._props.BackgroundColor = tiers_json_1.default.CUSTOM;
                     }
-                    else {
-                        let multi = 1;
-                        if (itemRarityFallback == "Common") {
-                            multi = 1;
-                        }
-                        if (itemRarityFallback == "Rare") {
-                            multi = 2;
-                        }
-                        if (itemRarityFallback == "Superrare") {
-                            multi = 3;
-                        }
-                        if (itemRarityFallback == "Not_exist") {
-                            multi = 4;
-                        }
-                        if (itemRarityFallback == "UNKNOWN") {
-                            multi = 1;
-                        }
-                        log(`${Math.round(itemInHandbook.Price / (item._props.Width * item._props.Height) * multi)}	${name}	${spawnChance}	${itemInHandbook.Price}	${itemRarityFallback}	// ${itemID}`);
+                    else if (itemRarityFallback.includes("Common")) {
+                        tier = i18n.COMMON;
+                        item._props.BackgroundColor = tiers_json_1.default.COMMON;
                     }
-                    // else if (itemRarityFallback.includes("Common") || itemInHandbook.Price < 10000) {
-                    // 	tier = i18n.COMMON
-                    // 	item._props.BackgroundColor = tiers.COMMON
-                    // } else if (itemRarityFallback.includes("Rare") || itemInHandbook.Price < 20000) {
-                    // 	tier = i18n.RARE
-                    // 	item._props.BackgroundColor = tiers.RARE
-                    // } else if (itemRarityFallback.includes("Superrare") || itemInHandbook.Price < 30000) {
-                    // 	tier = i18n.EPIC
-                    // 	item._props.BackgroundColor = tiers.EPIC
-                    // } else if (itemRarityFallback == "Not_exist") {
-                    // 	tier = i18n.LEGENDARY
-                    // 	item._props.BackgroundColor = tiers.LEGENDARY
-                    // 	// log(name)
-                    // } else {
-                    // 	// everything else that falls in here
-                    // 	tier = i18n.UNKNOWN
-                    // 	item._props.BackgroundColor = tiers.UNKNOWN
-                    // }
+                    else if (itemRarityFallback.includes("Rare")) {
+                        tier = i18n.RARE;
+                        item._props.BackgroundColor = tiers_json_1.default.RARE;
+                    }
+                    else if (itemRarityFallback.includes("Superrare")) {
+                        tier = i18n.EPIC;
+                        item._props.BackgroundColor = tiers_json_1.default.EPIC;
+                    }
+                    else if (itemRarityFallback == "Not_exist") {
+                        tier = i18n.LEGENDARY;
+                        item._props.BackgroundColor = tiers_json_1.default.LEGENDARY;
+                        // log(name)
+                    }
+                    else {
+                        // everything else that falls in here
+                        tier = i18n.UNKNOWN;
+                        item._props.BackgroundColor = tiers_json_1.default.UNKNOWN;
+                    }
                     if (config_json_1.default.RarityRecolor.addTierNameToPricesInfo) {
                         if (tier.length > 0) {
                             priceString += tier + " | ";
@@ -752,7 +736,7 @@ class ItemInfo {
         let handbookCategories = handbook.Categories.filter((i) => i.Id === handbookParentId)[0];
         traderSellCategory = handbookCategories?.Id; // "?" check is for shitty custom items
         altTraderSellCategory = handbookCategories?.ParentId;
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 7; i++) {
             if (traderList[i].base.sell_category.includes(traderSellCategory) || traderList[i].base.sell_category.includes(altTraderSellCategory)) {
                 traderMulti = (100 - traderList[i].base.loyaltyLevels[0].buy_price_coef) / 100;
                 //traderName = traderList[i].base.nickname
@@ -802,7 +786,7 @@ class ItemInfo {
             const barters = traderBarters
                 .map((barter) => recursion(barter)) // find and get list of "parent items" for a passed component
                 .map((barter) => ({
-                // reset parentItem for actual parent items because of recursion function. 
+                // reset parentItem for actual parent items because of recursion function.
                 // can be done in a more elegant way, but i'm too tired after a night of debugging. who cares anyway, it works.
                 parentItem: barter.originalItemID ? (barter.originalItemID == itemID ? null : barter.originalItemID) : null,
                 barterResources: trader.assort.barter_scheme[barter._id][0],
@@ -817,7 +801,7 @@ class ItemInfo {
                 else {
                     let parentBarter;
                     try {
-                        // spent literary 12 hours debugging this feature... KMP. 
+                        // spent literary 12 hours debugging this feature... KMP.
                         // all because of one item, SWORD International Mk-18 not having proper .parentId is assort table. who would have thought. thx Nikita
                         parentBarter = allTraderBarters.find((x) => x._id == barter.parentId);
                         parentBarter.originalItemID = parentBarter._tpl;
