@@ -230,7 +230,7 @@ class ItemInfo {
         peacekeeper = tables.traders["5935c25fb3acc3127c3d8cd9"];
         skier = tables.traders["58330581ace78e27b8b10cee"];
         fence = tables.traders["579dc571d53a0658a154fbec"];
-        traderList = [therapist, ragman, jaeger, mechanic, prapor, peacekeeper, skier, fence];
+        traderList = [therapist, ragman, jaeger, mechanic, prapor, peacekeeper, skier];
     }
     postDBLoad(container) {
         logger = container.resolve("WinstonLogger");
@@ -352,7 +352,6 @@ class ItemInfo {
                         // meh..
                         itemRarityFallback = "UNKNOWN";
                     }
-                    log(name + " " + fleaPrice + " " + itemRarityFallback);
                 }
                 if (item._parent == "543be5cb4bdc2deb348b4568") {
                     // Ammo boxes special case
@@ -429,28 +428,43 @@ class ItemInfo {
                         tier = i18n.CUSTOM;
                         item._props.BackgroundColor = tiers_json_1.default.CUSTOM;
                     }
-                    else if (itemRarityFallback.includes("Common")) {
-                        tier = i18n.COMMON;
-                        item._props.BackgroundColor = tiers_json_1.default.COMMON;
-                    }
-                    else if (itemRarityFallback.includes("Rare")) {
-                        tier = i18n.RARE;
-                        item._props.BackgroundColor = tiers_json_1.default.RARE;
-                    }
-                    else if (itemRarityFallback.includes("Superrare")) {
-                        tier = i18n.EPIC;
-                        item._props.BackgroundColor = tiers_json_1.default.EPIC;
-                    }
-                    else if (itemRarityFallback == "Not_exist") {
-                        tier = i18n.LEGENDARY;
-                        item._props.BackgroundColor = tiers_json_1.default.LEGENDARY;
-                        // log(name)
-                    }
                     else {
-                        // everything else that falls in here
-                        tier = i18n.UNKNOWN;
-                        item._props.BackgroundColor = tiers_json_1.default.UNKNOWN;
+                        let multi = 1;
+                        if (itemRarityFallback == "Common") {
+                            multi = 1;
+                        }
+                        if (itemRarityFallback == "Rare") {
+                            multi = 2;
+                        }
+                        if (itemRarityFallback == "Superrare") {
+                            multi = 3;
+                        }
+                        if (itemRarityFallback == "Not_exist") {
+                            multi = 4;
+                        }
+                        if (itemRarityFallback == "UNKNOWN") {
+                            multi = 1;
+                        }
+                        log(`${Math.round(itemInHandbook.Price / (item._props.Width * item._props.Height) * multi)}	${name}	${spawnChance}	${itemInHandbook.Price}	${itemRarityFallback}	// ${itemID}`);
                     }
+                    // else if (itemRarityFallback.includes("Common") || itemInHandbook.Price < 10000) {
+                    // 	tier = i18n.COMMON
+                    // 	item._props.BackgroundColor = tiers.COMMON
+                    // } else if (itemRarityFallback.includes("Rare") || itemInHandbook.Price < 20000) {
+                    // 	tier = i18n.RARE
+                    // 	item._props.BackgroundColor = tiers.RARE
+                    // } else if (itemRarityFallback.includes("Superrare") || itemInHandbook.Price < 30000) {
+                    // 	tier = i18n.EPIC
+                    // 	item._props.BackgroundColor = tiers.EPIC
+                    // } else if (itemRarityFallback == "Not_exist") {
+                    // 	tier = i18n.LEGENDARY
+                    // 	item._props.BackgroundColor = tiers.LEGENDARY
+                    // 	// log(name)
+                    // } else {
+                    // 	// everything else that falls in here
+                    // 	tier = i18n.UNKNOWN
+                    // 	item._props.BackgroundColor = tiers.UNKNOWN
+                    // }
                     if (config_json_1.default.RarityRecolor.addTierNameToPricesInfo) {
                         if (tier.length > 0) {
                             priceString += tier + " | ";
@@ -722,7 +736,12 @@ class ItemInfo {
         return (items[itemID]._props.Width * items[itemID]._props.Height) / items[itemID]._props.StackMaxSize;
     }
     getItemInHandbook(itemID) {
-        return handbook.Items.filter((i) => i.Id === itemID)[0]; // Outs: @Id, @ParentId, @Price
+        try {
+            return handbook.Items.find((i) => i.Id === itemID); // Outs: @Id, @ParentId, @Price
+        }
+        catch (error) {
+            log(error);
+        }
     }
     resolveBestTrader(handbookParentId, locale = "en") {
         // I stole this code from someone looong ago, can't remember where, PM me to give proper credit
@@ -777,34 +796,40 @@ class ItemInfo {
     }
     bartersResolver(itemID) {
         let itemBarters = [];
-        for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
-        ) {
-            for (const barter of traderList[trader].assort.items) {
-                if (barter._tpl == itemID && barter.parentId === "hideout") {
-                    const barterResources = traderList[trader].assort.barter_scheme[barter._id][0];
-                    const barterLoyaltyLevel = traderList[trader].assort.loyal_level_items[barter._id];
-                    const traderID = traderList[trader].base._id;
-                    itemBarters.push({ traderID, barterLoyaltyLevel, barterResources });
-                } /* else if (barter._tpl == itemID && barter.parentId != "hideout") {
-                    let rec = (b) => {
-                        let x = traderList[trader].assort.items.filter((x) => x._id == b)
-
-                        if (x.length > 0) {
-                            if (x[0].parentId != "hideout") {
-                                rec(x[0].parentId)
-                            } else {
-                                this.bartersResolver(x[0]._tpl)
-                                // look into calculateItemWorth
-                                // I need help resolving this recursion for unbuyable items in weapon presets, it seems to work, but not really. feel dumb
-                            }
-                        }
+        traderList.forEach((trader) => {
+            const allTraderBarters = trader.assort.items;
+            const traderBarters = allTraderBarters.filter((x) => x._tpl == itemID);
+            const barters = traderBarters
+                .map((barter) => recursion(barter)) // find and get list of "parent items" for a passed component
+                .map((barter) => ({
+                // reset parentItem for actual parent items because of recursion function. 
+                // can be done in a more elegant way, but i'm too tired after a night of debugging. who cares anyway, it works.
+                parentItem: barter.originalItemID ? (barter.originalItemID == itemID ? null : barter.originalItemID) : null,
+                barterResources: trader.assort.barter_scheme[barter._id][0],
+                barterLoyaltyLevel: trader.assort.loyal_level_items[barter._id],
+                traderID: trader.base._id,
+            }));
+            itemBarters.push(barters);
+            function recursion(barter) {
+                if (barter.parentId == "hideout") {
+                    return barter;
+                }
+                else {
+                    let parentBarter;
+                    try {
+                        // spent literary 12 hours debugging this feature... KMP. 
+                        // all because of one item, SWORD International Mk-18 not having proper .parentId is assort table. who would have thought. thx Nikita
+                        parentBarter = allTraderBarters.find((x) => x._id == barter.parentId);
+                        parentBarter.originalItemID = parentBarter._tpl;
                     }
-                    // log(barter)
-                    rec(barter.parentId)
-                }*/
+                    catch (error) {
+                        return barter; // FML
+                    }
+                    return recursion(parentBarter);
+                }
             }
-        }
-        return itemBarters;
+        });
+        return itemBarters.flat();
     }
     barterInfoGenerator(itemBarters, locale = "en") {
         let barterString = "";
@@ -814,7 +839,11 @@ class ItemInfo {
             let totalBarterPrice = 0;
             let totalBarterPriceString = "";
             let traderName = locales[locale][`${barter.traderID} Nickname`];
-            barterString += `${translations_json_1.default[locale].Bought} ${translations_json_1.default[locale].at} ${traderName} ${translations_json_1.default[locale].lv}${barter.barterLoyaltyLevel} < `;
+            let partOf = "";
+            if (barter.parentItem != null) {
+                partOf = ` ∈ ${this.getItemShortName(barter.parentItem, locale)}`;
+            }
+            barterString += `${translations_json_1.default[locale].Bought}${partOf} ${translations_json_1.default[locale].at} ${traderName} ${translations_json_1.default[locale].lv}${barter.barterLoyaltyLevel} < `;
             let isBarter = false;
             for (let resource of barter.barterResources) {
                 if (resource._tpl == "5449016a4bdc2d6f028b456f") {

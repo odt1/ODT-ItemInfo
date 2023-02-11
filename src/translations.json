@@ -39,7 +39,8 @@
 		"OVERPOWERED": "Overpowered",
 		"CUSTOM": "Custom",
 		"UNKNOWN": "Unknown",
-		"BANNED": "BANNED"
+		"BANNED": "BANNED",
+		"AsPartOf": "as part of"
 	},
 	"ru": {
 		"Bought": "Продает",
@@ -76,7 +77,8 @@
 		"OVERPOWERED": "Запредельный",
 		"CUSTOM": "Настраиваемый",
 		"UNKNOWN": "Неизвестный",
-		"BANNED": "ЗАПРЕЩЁН"
+		"BANNED": "ЗАПРЕЩЁН",
+		"AsPartOf": "как часть"
 	},
 	"ch": {
 		"_translation credit - long120611": "https://hub.sp-tarkov.com/user/5970-long120611/",
@@ -114,7 +116,8 @@
 		"OVERPOWERED": "超越",
 		"CUSTOM": "自定义",
 		"UNKNOWN": "未知",
-		"BANNED": "禁用"
+		"BANNED": "禁用",
+		"AsPartOf": "作為一部分"
 	},
 	"cz": {
 		"": "",
@@ -157,7 +160,8 @@
 		"OVERPOWERED": "Overpowered",
 		"CUSTOM": "Personalizado",
 		"UNKNOWN": "Desconocido",
-		"BANNED": "PROHIBIDO"
+		"BANNED": "PROHIBIDO",
+		"AsPartOf": "como parte de"
 	},
 	"es": {
 		"_translation credit - HyperNeonX": "https://hub.sp-tarkov.com/user/23099-hyperneonx/",
@@ -196,7 +200,8 @@
 		"OVERPOWERED": "Overpowered",
 		"CUSTOM": "Personalizado",
 		"UNKNOWN": "Desconocido",
-		"BANNED": "PROHIBIDO"
+		"BANNED": "PROHIBIDO",
+		"AsPartOf": "como parte de"
 	},
 	"fr": {
 		"_translation credit - Sk1zo.G4m3r": "https://hub.sp-tarkov.com/user/29556-sk1zo-g4m3r/",
@@ -235,7 +240,8 @@
 		"OVERPOWERED": "Maîtrise.",
 		"CUSTOM": "Personnalisé",
 		"UNKNOWN": "Inconnue",
-		"BANNED": "INTERDIT"
+		"BANNED": "INTERDIT",
+		"AsPartOf": "dans le cadre de"
 	},
 	"ge": {
 		"": "",
@@ -290,7 +296,8 @@
 		"OVERPOWERED": "압도적",
 		"CUSTOM": "사용자 정의",
 		"UNKNOWN": "알 수 없음",
-		"BANNED": "금지됨"
+		"BANNED": "금지됨",
+		"AsPartOf": "의 일부로"
 	},
 	"pl": {
 		"": "",

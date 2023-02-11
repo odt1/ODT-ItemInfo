@@ -241,7 +241,7 @@ class ItemInfo implements IPostDBLoadMod {
 		peacekeeper = tables.traders["5935c25fb3acc3127c3d8cd9"]
 		skier = tables.traders["58330581ace78e27b8b10cee"]
 		fence = tables.traders["579dc571d53a0658a154fbec"]
-		traderList = [therapist, ragman, jaeger, mechanic, prapor, peacekeeper, skier, fence]
+		traderList = [therapist, ragman, jaeger, mechanic, prapor, peacekeeper, skier]
 	}
 
 	public postDBLoad(container: DependencyContainer) {
@@ -266,7 +266,7 @@ class ItemInfo implements IPostDBLoadMod {
 		let userLocale = config.UserLocale
 		if (!config.HideLanguageAlert) {
 			logger.log(
-				`[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean are fully translated.\nHide this message in config.json`,
+				`[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean, French and Chinese are fully translated.\nHide this message in config.json`,
 				LogTextColor.BLACK,
 				LogBackgroundColor.WHITE
 			)
@@ -386,6 +386,7 @@ class ItemInfo implements IPostDBLoadMod {
 						itemRarityFallback = clientItems[itemID]._props.Rarity
 					} catch (error) {
 						// meh..
+						itemRarityFallback = "UNKNOWN"
 					}
 				}
 
@@ -458,7 +459,6 @@ class ItemInfo implements IPostDBLoadMod {
 						// can get 6 from custom rules only
 						tier = i18n.UNOBTAINIUM
 						item._props.BackgroundColor = tiers.UNOBTAINIUM
-						// log(name)
 					} else if (itemRarity == 8) {
 						// 8 is for custom dim red background
 						tier = i18n.CUSTOM
@@ -768,7 +768,11 @@ class ItemInfo implements IPostDBLoadMod {
 	}
 
 	getItemInHandbook(itemID) {
-		return handbook.Items.filter((i) => i.Id === itemID)[0] // Outs: @Id, @ParentId, @Price
+		try {
+			return handbook.Items.find((i) => i.Id === itemID) // Outs: @Id, @ParentId, @Price
+		} catch (error) {
+			log(error)
+		}
 	}
 
 	resolveBestTrader(handbookParentId, locale = "en") {
@@ -830,38 +834,41 @@ class ItemInfo implements IPostDBLoadMod {
 
 	bartersResolver(itemID) {
 		let itemBarters = []
+		traderList.forEach((trader) => {
+			const allTraderBarters = trader.assort.items
+			const traderBarters = allTraderBarters.filter((x) => x._tpl == itemID)
 
-		for (
-			let trader = 0;
-			trader < 7;
-			trader++ // iterate excluding Fence sales.
-		) {
-			for (const barter of traderList[trader].assort.items) {
-				if (barter._tpl == itemID && barter.parentId === "hideout") {
-					const barterResources = traderList[trader].assort.barter_scheme[barter._id][0]
-					const barterLoyaltyLevel = traderList[trader].assort.loyal_level_items[barter._id]
-					const traderID = traderList[trader].base._id
-					itemBarters.push({ traderID, barterLoyaltyLevel, barterResources })
-				} /* else if (barter._tpl == itemID && barter.parentId != "hideout") {
-					let rec = (b) => {
-						let x = traderList[trader].assort.items.filter((x) => x._id == b)
+			const barters = traderBarters
+				.map((barter) => recursion(barter)) // find and get list of "parent items" for a passed component
+				.map((barter) => ({
+					// reset parentItem for actual parent items because of recursion function.
+					// can be done in a more elegant way, but i'm too tired after a night of debugging. who cares anyway, it works.
+					parentItem: barter.originalItemID ? (barter.originalItemID == itemID ? null : barter.originalItemID) : null,
+					barterResources: trader.assort.barter_scheme[barter._id][0],
+					barterLoyaltyLevel: trader.assort.loyal_level_items[barter._id],
+					traderID: trader.base._id,
+				}))
 
-						if (x.length > 0) {
-							if (x[0].parentId != "hideout") {
-								rec(x[0].parentId)
-							} else {
-								this.bartersResolver(x[0]._tpl)
-								// look into calculateItemWorth
-								// I need help resolving this recursion for unbuyable items in weapon presets, it seems to work, but not really. feel dumb
-							}
-						}
+			itemBarters.push(barters)
+
+			function recursion(barter) {
+				if (barter.parentId == "hideout") {
+					return barter
+				} else {
+					let parentBarter
+					try {
+						// spent literary 12 hours debugging this feature... KMP.
+						// all because of one item, SWORD International Mk-18 not having proper .parentId is assort table. who would have thought. thx Nikita
+						parentBarter = allTraderBarters.find((x) => x._id == barter.parentId)
+						parentBarter.originalItemID = parentBarter._tpl
+					} catch (error) {
+						return barter // FML
 					}
-					// log(barter)
-					rec(barter.parentId) 
-				}*/
+					return recursion(parentBarter)
+				}
 			}
-		}
-		return itemBarters
+		})
+		return itemBarters.flat()
 	}
 
 	barterInfoGenerator(itemBarters, locale = "en") {
@@ -872,7 +879,11 @@ class ItemInfo implements IPostDBLoadMod {
 			let totalBarterPrice = 0
 			let totalBarterPriceString = ""
 			let traderName = locales[locale][`${barter.traderID} Nickname`]
-			barterString += `${translations[locale].Bought} ${translations[locale].at} ${traderName} ${translations[locale].lv}${barter.barterLoyaltyLevel} < `
+			let partOf = ""
+			if (barter.parentItem != null) {
+				partOf = ` ∈ ${this.getItemShortName(barter.parentItem, locale)}`
+			}
+			barterString += `${translations[locale].Bought}${partOf} ${translations[locale].at} ${traderName} ${translations[locale].lv}${barter.barterLoyaltyLevel} < `
 			let isBarter = false
 			for (let resource of barter.barterResources) {
 				if (resource._tpl == "5449016a4bdc2d6f028b456f") {
