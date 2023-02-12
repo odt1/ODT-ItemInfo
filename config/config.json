@@ -18,7 +18,7 @@
 		"enabled": true,
 		"addTierNameToPricesInfo": true,
 		"experimetalValueBasedRecolor": true,
-		"_description_experimetalValueBasedRecolor": "SPT AKI 3.5 removed clientitems file I used for determining  rarities, this is experimental quickfix option that colors items based on their slot value. Might actually be an even better option then before...",
+		"_description_experimetalValueBasedRecolor": "SPT AKI 3.5 removed clientitems file I used for determining rarities, this is experimental quickfix option that colors items based on their slot value. Might actually be an even better option then before...",
 		"customRarity": {
 			"Use https://db.sp-tarkov.com/search to find itemID you are interested in.": "Custom rarity values: COMMON 1, RARE 2, EPIC 3, LEGENDARY 4, UBER 5, UNOBTAINIUM 6, OVERPOWERED 7, CUSTOM 8 (dim red BG)",
 			"add itemID here": "add rarity here",

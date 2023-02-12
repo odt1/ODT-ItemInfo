@@ -246,7 +246,6 @@ class ItemInfo implements IPostDBLoadMod {
 		prapor = tables.traders["54cb50c76803fa8b248b4571"]
 		peacekeeper = tables.traders["5935c25fb3acc3127c3d8cd9"]
 		skier = tables.traders["58330581ace78e27b8b10cee"]
-		fence = tables.traders["579dc571d53a0658a154fbec"]
 		traderList = [therapist, ragman, jaeger, mechanic, prapor, peacekeeper, skier]
 	}
 

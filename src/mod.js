@@ -30,7 +30,6 @@ let mechanic;
 let prapor;
 let peacekeeper;
 let skier;
-let fence;
 let traderList;
 // ^ PLS, somebody explain to me (I'm NOT a programmer btw) how not to use a bajillion "this.*" for EVERY variable in a class to write PROPER (sic) code. This can't be sane, I just refuse.
 const euroRatio = 118; // TODO: remove hardcode
