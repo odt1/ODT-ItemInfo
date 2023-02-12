@@ -35,7 +35,6 @@ let mechanic
 let prapor
 let peacekeeper
 let skier
-let fence
 let traderList
 
 // ^ PLS, somebody explain to me (I'm NOT a programmer btw) how not to use a bajillion "this.*" for EVERY variable in a class to write PROPER (sic) code. This can't be sane, I just refuse.
@@ -338,11 +337,8 @@ class ItemInfo implements IPostDBLoadMod {
 				item._parent != "543be5dd4bdc2deb348b4569" // Ignore currencies.
 			) {
 				let name = this.getItemName(itemID, userLocale) // for debug only
-				item._props.ExaminedByDefault = true
+				// item._props.ExaminedByDefault = true
 
-if (item._props.CanSellOnRagfair == false) {
-					log(`"${itemID}", // ${this.getItemName(itemID)}`)
-}
 				const i18n = translations[userLocale]
 				// boilerplate defaults
 				let descriptionString = ""
@@ -392,17 +388,13 @@ if (item._props.CanSellOnRagfair == false) {
 					}
 				}
 
-				let itemRarityFallback = ""
-				if (itemRarity == 0) {
-					itemRarityFallback = "UNKNOWN"
-				}
-
 				if (item._parent == "543be5cb4bdc2deb348b4568") {
 					// Ammo boxes special case
 					let count = item._props.StackSlots[0]._max_count
 					let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0]
 
-					let value = this.getItemBestTrader(ammo).price
+					// let value = this.getItemBestTrader(ammo).price
+					let value = this.getItemInHandbook(ammo).price
 					traderPrice = value * count
 					if (itemRarity == 0) {
 						itemRarity = this.barterInfoGenerator(this.bartersResolver(ammo)).rarity
@@ -419,12 +411,6 @@ if (item._props.CanSellOnRagfair == false) {
 					}
 				}
 
-				if (config.SpawnInfo.enabled) {
-					if (spawnChance > 0) {
-						spawnString += `${i18n.Spawnchance}: ${spawnChance}%` + newLine + newLine
-					}
-				}
-
 				if (config.FleaAbusePatch.enabled) {
 					if (fleaPrice * ragfairConfig.dynamic.price.min < traderPrice && isBanned == false) {
 						// Ignore banned items for compatibility with Softcore mod.
@@ -435,8 +421,8 @@ if (item._props.CanSellOnRagfair == false) {
 					}
 				}
 
-				if (config.RarityRecolor.enabled && !config.RarityRecolorBlacklist.includes(item._parent) && itemRarity != 0) {
-					item._props.BackgroundColor = "grey"
+				if (config.RarityRecolor.enabled && !config.RarityRecolorBlacklist.includes(item._parent)) {
+					// item._props.BackgroundColor = "grey"
 
 					for (const customItem in config.RarityRecolor.customRarity) {
 						if (customItem == itemID) {
@@ -470,23 +456,40 @@ if (item._props.CanSellOnRagfair == false) {
 						// 8 is for custom dim red background
 						tier = i18n.CUSTOM
 						item._props.BackgroundColor = tiers.CUSTOM
-					} else if (itemRarityFallback.includes("Common")) {
-						tier = i18n.COMMON
-						item._props.BackgroundColor = tiers.COMMON
-					} else if (itemRarityFallback.includes("Rare")) {
-						tier = i18n.RARE
-						item._props.BackgroundColor = tiers.RARE
-					} else if (itemRarityFallback.includes("Superrare")) {
-						tier = i18n.EPIC
-						item._props.BackgroundColor = tiers.EPIC
-					} else if (itemRarityFallback == "Not_exist") {
-						tier = i18n.LEGENDARY
-						item._props.BackgroundColor = tiers.LEGENDARY
-						// log(name)
-					} else {
-						// everything else that falls in here
-						tier = i18n.UNKNOWN
-						item._props.BackgroundColor = tiers.UNKNOWN
+					}
+
+					if (config.RarityRecolor.experimetalValueBasedRecolor == true && itemRarity == 0) {
+						let itemValue = itemInHandbook.Price
+
+						if (item._props.StackMaxSize > 1) {
+							// log(`"${itemID}", // ${name}`)
+							itemValue = itemInHandbook.Price * item._props.StackMaxSize
+						}
+						let itemSlots = item._props.Width * item._props.Height
+						itemValue = Math.round(itemValue / itemSlots)
+						// log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
+
+						if (itemValue < 9999) {
+							tier = i18n.COMMON
+							item._props.BackgroundColor = tiers.COMMON
+						} else if (itemValue < 19999) {
+							tier = i18n.RARE
+							item._props.BackgroundColor = tiers.RARE
+						} else if (itemValue < 29999) {
+							tier = i18n.EPIC
+							item._props.BackgroundColor = tiers.EPIC
+						} else if (itemValue < 39999) {
+							tier = i18n.LEGENDARY
+							item._props.BackgroundColor = tiers.LEGENDARY
+						} else if (itemValue < 59999) {
+							
+							tier = i18n.UBER
+							item._props.BackgroundColor = tiers.UBER
+						} else {
+							// log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
+							tier = i18n.UNOBTAINIUM
+							item._props.BackgroundColor = tiers.UNOBTAINIUM
+						}
 					}
 
 					if (config.RarityRecolor.addTierNameToPricesInfo) {
@@ -665,7 +668,7 @@ if (item._props.CanSellOnRagfair == false) {
 				"590c621186f774138d11ea29",
 				"59faff1d86f7746c51718c9c",
 				"5c0e625a86f7742d77340f62",
-				"5bb20dcad4351e3bac1212da"
+				"5bb20dcad4351e3bac1212da",
 			]
 			for (const debugItemID of debugItemIDlist) {
 				logger.info(`---`)

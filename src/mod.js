@@ -37,127 +37,127 @@ const euroRatio = 118; // TODO: remove hardcode
 const dollarRatio = 114;
 const newLine = "\n";
 const BSGblacklist = [
-    "59faff1d86f7746c51718c9c",
-    "5df8a6a186f77412640e2e80",
-    "5df8a72c86f77412640e2e83",
-    "5df8a77486f77412672a1e3f",
-    "59f32bb586f774757e1e8442",
-    "59f32c3b86f77472a31742f0",
-    "619bc61e86e01e16f839a999",
-    "619bddc6c9546643a67df6ee",
-    "619bddffc9546643a67df6f0",
-    "619bde3dc9546643a67df6f2",
-    "619bdeb986e01e16f839a99e",
-    "619bdf9cc9546643a67df6f8",
-    "5ab8e79e86f7742d8b372e78",
+    "62e7e7bbe6da9612f743f1e0",
+    "6357c98711fb55120211f7e1",
+    "5cfe8010d7ad1a59283b14c6",
+    "5c6175362e221600133e3b94",
+    "59c1383d86f774290a37e0ca",
+    "544a37c44bdc2d25388b4567",
+    "5c0558060db834001b735271",
+    "5d1b5e94d7ad1a2b865a96b0",
+    "5a1eaa87fcdbcb001865f75e",
+    "606587252535c57a13424cfd",
+    "5dcbd56fdbd3d91b3e5468d5",
+    "6183afd850224f204c1da514",
+    "6165ac306ef05c2ce828ef74",
+    "628a60ae6b1d481ff772e9c8",
+    "5e81ebcd8e146c7080625e15",
+    "620109578d82e67e7911abf2",
+    "62178c4d4ecf221597654e3d",
+    "6176aca650224f204c1da3fb",
+    "5df8ce05b11454561e39243b",
+    "5aafa857e5b5b00018480968",
+    "5fc22d7c187fea44d52eda44",
+    "5a367e5dc4a282000e49738f",
+    "6275303a9f372d6ea97f9ec7",
+    "5e848cc2988a8701445df1e8",
+    "627e14b21713922ded6f2c15",
+    "5c091a4e0db834001d5addc8",
+    "5aa7e276e5b5b000171d0647",
+    "5f60c74e3b85f6263c145586",
+    "5ca20ee186f774799474abc2",
+    "5a154d5cfcdbcb001a3b00da",
+    "5ac8d6885acfc400180ae7b0",
+    "5c17a7ed2e2216152142459c",
+    "5c0e874186f7745dc7616606",
+    "5f60b34a41e30a4ab12a6947",
+    "5e00c1ad86f774747333222c",
+    "5e01ef6886f77445f643baa4",
+    "5c0e625a86f7742d77340f62",
     "545cdb794bdc2d3a198b456a",
     "5c0e541586f7747fa54205c9",
-    "5fd4c474dd870108a754b241",
     "60a283193cb70855c43a381d",
-    "5e9dacf986f774054d6b89f4",
+    "63737f448b28897f2802b874",
     "5b44cd8b86f774503d30cba2",
     "5b44cf1486f77431723e3d05",
     "5b44d0de86f774503d30cba8",
     "5f5f41476bdad616ad46d631",
     "5ca2151486f774244a3b8d30",
     "5ca21c6986f77479963115a7",
+    "5ab8e79e86f7742d8b372e78",
+    "5e9dacf986f774054d6b89f4",
+    "5fd4c474dd870108a754b241",
     "5e4abb5086f77406975c9342",
     "6038b4ca92ec1c3103795a0d",
     "6038b4b292ec1c3103795a0b",
-    "5c0e625a86f7742d77340f62",
     "62963c18dbc8ab5f0d382d0b",
     "62a61bbf8ec41a51b34758d2",
     "60a7ad3a0c5cb24b0134664a",
     "60a7ad2a2198820d95707a2e",
-    "5f60c74e3b85f6263c145586",
-    "5a154d5cfcdbcb001a3b00da",
-    "5aa7e276e5b5b000171d0647",
-    "5ac8d6885acfc400180ae7b0",
-    "5c091a4e0db834001d5addc8",
-    "5ca20ee186f774799474abc2",
-    "5c17a7ed2e2216152142459c",
-    "5f60b34a41e30a4ab12a6947",
-    "5c0e874186f7745dc7616606",
-    "5e00c1ad86f774747333222c",
-    "5e01ef6886f77445f643baa4",
-    "5f60c85b58eff926626a60f7",
     "5ca2113f86f7740b2547e1d2",
     "5a16b7e1fcdbcb00165aa6c9",
     "5c0919b50db834001b7ce3b9",
-    "5e01f37686f774773c6f6c15",
+    "5f60c85b58eff926626a60f7",
     "5e00cdd986f7747473332240",
-    "5c0558060db834001b735271",
-    "5d1b5e94d7ad1a2b865a96b0",
-    "5a1eaa87fcdbcb001865f75e",
-    "5cfe8010d7ad1a59283b14c6",
-    "5c6175362e221600133e3b94",
-    "59c1383d86f774290a37e0ca",
-    "544a37c44bdc2d25388b4567",
-    "5ab8ebf186f7742d8b372e80",
-    "5c0e805e86f774683f3dd637",
-    "61b9e1aaef9a1b5d6a79899a",
-    "5f5e46b96bdad616ad46d613",
-    "59e763f286f7742ee57895da",
-    "6034d2d697633951dc245ea6",
-    "5df8a4d786f77412672a1e3b",
-    "5c0e774286f77468413cc5b2",
-    "5857a8b324597729ab0a0e7d",
-    "5c0a794586f77461c458f892",
-    "5c0a5a5986f77476aa30ae64",
-    "59db794186f77448bc595262",
-    "5857a8bc2459772bad15db29",
-    "5c093ca986f7740a1867ab12",
-    "544a11ac4bdc2d470e8b456a",
-    "5732ee6a24597719ae0c0281",
-    "627a4e6b255f7527fb05a0f6",
-    "557ffd194bdc2d28148b457f",
-    "60c7272c204bc17802313365",
-    "5af99e9186f7747c447120b8",
-    "61bcc89aef0f505f0c6cd0fc",
-    "5d5d87f786f77427997cfaef",
-    "544a5caa4bdc2d1a388b4568",
-    "628d0618d1ba6e4fa07ce5a4",
+    "5e01f37686f774773c6f6c15",
+    "619bc61e86e01e16f839a999",
+    "619bddc6c9546643a67df6ee",
+    "619bddffc9546643a67df6f0",
+    "619bde3dc9546643a67df6f2",
+    "619bdeb986e01e16f839a99e",
+    "619bdf9cc9546643a67df6f8",
     "5e4ac41886f77406a511c9a8",
-    "5c0e746986f7741453628fe5",
-    "628dc750b910320f4c27a732",
-    "61bc85697113f767765c7fe7",
+    "544a5caa4bdc2d1a388b4568",
     "609e860ebd219504d8507525",
+    "628d0618d1ba6e4fa07ce5a4",
+    "61bc85697113f767765c7fe7",
+    "5d5d87f786f77427997cfaef",
+    "628dc750b910320f4c27a732",
+    "5c0e746986f7741453628fe5",
+    "61bcc89aef0f505f0c6cd0fc",
     "628b9784bcf6e2659e09b8a2",
     "628b9c7d45122232a872358f",
-    "5b44cad286f77402a54ae7e5",
     "60a3c70cde5f453f634816a3",
     "60a3c68c37ea821725773ef5",
+    "639343fce101f4caa40a4ef3",
+    "5b44cad286f77402a54ae7e5",
     "628cd624459354321c4b7fa2",
+    "5c0e774286f77468413cc5b2",
+    "59e763f286f7742ee57895da",
+    "5df8a4d786f77412672a1e3b",
+    "6034d2d697633951dc245ea6",
+    "5ab8ebf186f7742d8b372e80",
+    "639346cc1c8f182ad90c8972",
+    "5f5e46b96bdad616ad46d613",
+    "61b9e1aaef9a1b5d6a79899a",
+    "5c0e805e86f774683f3dd637",
+    "5857a8bc2459772bad15db29",
+    "5c093ca986f7740a1867ab12",
+    "5857a8b324597729ab0a0e7d",
+    "59db794186f77448bc595262",
+    "544a11ac4bdc2d470e8b456a",
+    "5732ee6a24597719ae0c0281",
     "5c0a840b86f7742ffa4f2482",
     "5b7c710788a4506dec015957",
     "5b6d9ce188a4501afc1b2b25",
-    "6183afd850224f204c1da514",
-    "606587252535c57a13424cfd",
-    "5dcbd56fdbd3d91b3e5468d5",
-    "6165ac306ef05c2ce828ef74",
-    "628a60ae6b1d481ff772e9c8",
-    "5e81ebcd8e146c7080625e15",
-    "6217726288ed9f0845317459",
-    "62178c4d4ecf221597654e3d",
-    "624c0b3340357b5f566e8766",
-    "620109578d82e67e7911abf2",
-    "6176aca650224f204c1da3fb",
-    "5df8ce05b11454561e39243b",
-    "5a367e5dc4a282000e49738f",
-    "5aafa857e5b5b00018480968",
-    "5fc22d7c187fea44d52eda44",
-    "6275303a9f372d6ea97f9ec7",
-    "5e848cc2988a8701445df1e8",
-    "627e14b21713922ded6f2c15",
+    "614451b71e5874611e2c7ae5",
+    "6389c8fb46b54c634724d847",
+    "6389c92d52123d5dd17f8876",
+    "593962ca86f774068014d9af",
+    "5937ee6486f77408994ba448",
+    "63a39e1d234195315d4020bd",
     "5c94bbff86f7747ee735c08f",
+    "62e910aaf957f2915e0a5e36",
+    "63a0b2eabea67a6d93009e52",
     "5efb0cabfb3e451d70735af5",
+    "5cadf6eeae921500134b2799",
     "5d6e68a8a4b9360b6c0d54e2",
     "5d6e68b3a4b9361bca7e50b5",
     "5d6e68d1a4b93622fe60e845",
     "5e85a9f4add9fe03027d9bf1",
     "62389aaba63f32501b1b444f",
     "62389ba9a63f32501b1b4451",
-    "62389be94d5d474bf712e709",
+    "5ede474b0c226a66f5402622",
     "5f0c892565703e5c461894e9",
     "5ede47405b097655935d7d16",
     "5ba26835d4351e0035628ff5",
@@ -172,37 +172,46 @@ const BSGblacklist = [
     "601949593ae8f707c4608daa",
     "5cc80f67e4a949035e43bbba",
     "5cc80f38e4a949001152b560",
+    "5c0d688c86f77413ae3407b2",
+    "5fc382b6d6fa9c00c571bbc3",
     "5fd20ff893a8961fc660a954",
     "59e0d99486f7744a32234762",
     "601aa3d2b2bcb34913271e6d",
     "5a6086ea4f39f99cd479502f",
     "5a608bf24f39f98ffc77720e",
+    "58dd3ad986f77403051cba8f",
     "5efb0c1bd79ff02a1f5e68d9",
-    "5e023d34e8a400319a28ed44",
     "5e023d48186a883be655e551",
-    "560d61e84bdc2da74d8b4571",
     "5fc382a9d724d907e2077dab",
     "5fc275cf85fd526b824a571a",
-    "5fc382b6d6fa9c00c571bbc3",
+    "5a26ac0ec4a28200741e1e18",
+    "5e023d34e8a400319a28ed44",
+    "560d61e84bdc2da74d8b4571",
     "5efb0da7a29a85116f6ea05f",
     "5c925fa22e221601da359b7b",
-    "5c0d688c86f77413ae3407b2",
+    "61962d879bb3d20b0946d385",
     "57a0e5022459774d1673f889",
     "5c0d668f86f7747ccb7f13b2",
     "635267f063651329f75a4ee8",
-    "57372bd3245977670b7cd243",
-    "57372c89245977685d4159b1",
     "57372b832459776701014e41",
-    "5c1260dc86f7746b106e8748",
-    "57372c21245977670937c6c2",
     "5c1262a286f7743f8a69aab2",
+    "57372bd3245977670b7cd243",
+    "57372c21245977670937c6c2",
+    "57372c89245977685d4159b1",
+    "5c1260dc86f7746b106e8748",
     "57372bad245977670b7cd242",
     "57372c56245977685e584582",
-    "5696686a4bdc2da3298b456a",
-    "569668774bdc2da2298b4568",
-    "5449016a4bdc2d6f028b456f",
     "617fd91e5539a84ec44ce155",
-    "618a431df1eb8e24b8741deb", // RGO hand grenade
+    "618a431df1eb8e24b8741deb",
+    "6389c7f115805221fb410466",
+    "6389c7750ef44505c87f5996",
+    "6389c85357baa773a825b356",
+    "59faff1d86f7746c51718c9c",
+    "5df8a6a186f77412640e2e80",
+    "5df8a72c86f77412640e2e83",
+    "5df8a77486f77412672a1e3f",
+    "59f32bb586f774757e1e8442",
+    "59f32c3b86f77472a31742f0", // Dogtag USEC
 ];
 class ItemInfo {
     init(container) {
@@ -299,10 +308,7 @@ class ItemInfo {
                 item._parent != "543be5dd4bdc2deb348b4569" // Ignore currencies.
             ) {
                 let name = this.getItemName(itemID, userLocale); // for debug only
-                item._props.ExaminedByDefault = true;
-                if (item._props.CanSellOnRagfair == false) {
-                    log(`"${itemID}", // ${this.getItemName(itemID)}`);
-                }
+                // item._props.ExaminedByDefault = true
                 const i18n = translations_json_1.default[userLocale];
                 // boilerplate defaults
                 let descriptionString = "";
@@ -345,15 +351,12 @@ class ItemInfo {
                         itemRarity = 7;
                     }
                 }
-                let itemRarityFallback = "";
-                if (itemRarity == 0) {
-                    itemRarityFallback = "UNKNOWN";
-                }
                 if (item._parent == "543be5cb4bdc2deb348b4568") {
                     // Ammo boxes special case
                     let count = item._props.StackSlots[0]._max_count;
                     let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0];
-                    let value = this.getItemBestTrader(ammo).price;
+                    // let value = this.getItemBestTrader(ammo).price
+                    let value = this.getItemInHandbook(ammo).price;
                     traderPrice = value * count;
                     if (itemRarity == 0) {
                         itemRarity = this.barterInfoGenerator(this.bartersResolver(ammo)).rarity;
@@ -368,11 +371,6 @@ class ItemInfo {
                         this.addToName(itemID, ` (${item._props.Damage * damageMult}/${item._props.PenetrationPower})`, "append");
                     }
                 }
-                if (config_json_1.default.SpawnInfo.enabled) {
-                    if (spawnChance > 0) {
-                        spawnString += `${i18n.Spawnchance}: ${spawnChance}%` + newLine + newLine;
-                    }
-                }
                 if (config_json_1.default.FleaAbusePatch.enabled) {
                     if (fleaPrice * ragfairConfig.dynamic.price.min < traderPrice && isBanned == false) {
                         // Ignore banned items for compatibility with Softcore mod.
@@ -382,8 +380,8 @@ class ItemInfo {
                         fleaPrice = fleaPriceFix;
                     }
                 }
-                if (config_json_1.default.RarityRecolor.enabled && !config_json_1.default.RarityRecolorBlacklist.includes(item._parent) && itemRarity != 0) {
-                    item._props.BackgroundColor = "grey";
+                if (config_json_1.default.RarityRecolor.enabled && !config_json_1.default.RarityRecolorBlacklist.includes(item._parent)) {
+                    // item._props.BackgroundColor = "grey"
                     for (const customItem in config_json_1.default.RarityRecolor.customRarity) {
                         if (customItem == itemID) {
                             itemRarity = config_json_1.default.RarityRecolor.customRarity[customItem];
@@ -423,27 +421,40 @@ class ItemInfo {
                         tier = i18n.CUSTOM;
                         item._props.BackgroundColor = tiers_json_1.default.CUSTOM;
                     }
-                    else if (itemRarityFallback.includes("Common")) {
-                        tier = i18n.COMMON;
-                        item._props.BackgroundColor = tiers_json_1.default.COMMON;
-                    }
-                    else if (itemRarityFallback.includes("Rare")) {
-                        tier = i18n.RARE;
-                        item._props.BackgroundColor = tiers_json_1.default.RARE;
-                    }
-                    else if (itemRarityFallback.includes("Superrare")) {
-                        tier = i18n.EPIC;
-                        item._props.BackgroundColor = tiers_json_1.default.EPIC;
-                    }
-                    else if (itemRarityFallback == "Not_exist") {
-                        tier = i18n.LEGENDARY;
-                        item._props.BackgroundColor = tiers_json_1.default.LEGENDARY;
-                        // log(name)
-                    }
-                    else {
-                        // everything else that falls in here
-                        tier = i18n.UNKNOWN;
-                        item._props.BackgroundColor = tiers_json_1.default.UNKNOWN;
+                    if (config_json_1.default.RarityRecolor.experimetalValueBasedRecolor == true && itemRarity == 0) {
+                        let itemValue = itemInHandbook.Price;
+                        if (item._props.StackMaxSize > 1) {
+                            // log(`"${itemID}", // ${name}`)
+                            itemValue = itemInHandbook.Price * item._props.StackMaxSize;
+                        }
+                        let itemSlots = item._props.Width * item._props.Height;
+                        itemValue = Math.round(itemValue / itemSlots);
+                        // log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
+                        if (itemValue < 9999) {
+                            tier = i18n.COMMON;
+                            item._props.BackgroundColor = tiers_json_1.default.COMMON;
+                        }
+                        else if (itemValue < 19999) {
+                            tier = i18n.RARE;
+                            item._props.BackgroundColor = tiers_json_1.default.RARE;
+                        }
+                        else if (itemValue < 29999) {
+                            tier = i18n.EPIC;
+                            item._props.BackgroundColor = tiers_json_1.default.EPIC;
+                        }
+                        else if (itemValue < 39999) {
+                            tier = i18n.LEGENDARY;
+                            item._props.BackgroundColor = tiers_json_1.default.LEGENDARY;
+                        }
+                        else if (itemValue < 59999) {
+                            tier = i18n.UBER;
+                            item._props.BackgroundColor = tiers_json_1.default.UBER;
+                        }
+                        else {
+                            // log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
+                            tier = i18n.UNOBTAINIUM;
+                            item._props.BackgroundColor = tiers_json_1.default.UNOBTAINIUM;
+                        }
                     }
                     if (config_json_1.default.RarityRecolor.addTierNameToPricesInfo) {
                         if (tier.length > 0) {
@@ -605,7 +616,7 @@ class ItemInfo {
                 "590c621186f774138d11ea29",
                 "59faff1d86f7746c51718c9c",
                 "5c0e625a86f7742d77340f62",
-                "5bb20dcad4351e3bac1212da"
+                "5bb20dcad4351e3bac1212da",
             ];
             for (const debugItemID of debugItemIDlist) {
                 logger.info(`---`);

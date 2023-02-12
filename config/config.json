@@ -1,7 +1,7 @@
 {
 	"_SELECT YOUR LANGUAGE IN UserLocale CONFIGURATION BELOW. USE ONE OF THESE LANGUAGE CODES": "ch, cz, en, es-mx, es, fr, ge, hu, it, jp, kr, pl, po, ru, sk, tu",
 	"UserLocale": "en",
-	"HideLanguageAlert": true,
+	"HideLanguageAlert": false,
 	"FormatPrice": true,
 	"PricesInfo": {
 		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to. Separate option to hide flea price info.",
@@ -17,10 +17,10 @@
 		"_description": "This BETA feature clears and changes background color on EVERY item in the game based on MMO style rarity tier-list with colors that make actual sense. Tiers are based on trader level you can purchase or barter the item. Barters are considered +1 rarity level. Banned on flea market items are given highest rarity - overpowered. The tier list: Common (grey background, bought with level 1 traders) > Rare (blue, level 2 trades for currency and level 1 barters) > Epic (purple, level 3 and level 2 barters) > Legendary (dim yellow, level 4 and level 3 barters) > Uber (bright yellow, level 4 barters only) > UNOBTAINIUM (bright green, super rare spawns, not 100% accurate to actual in-game spawns, but good enough) > OP (bright red, banned on flea market) > CUSTOM (dim red, not used by default). Works for 95% of items well enough to be very much usable. Can add tier name to PricesInfo module. TODO: more robust calculation that includes craftable items.",
 		"enabled": true,
 		"addTierNameToPricesInfo": true,
+		"experimetalValueBasedRecolor": true,
+		"_description_experimetalValueBasedRecolor": "SPT AKI 3.5 removed clientitems file I used for determening rarities, this is experimental quickfix option that colors items based on their slot value. Might actually be an even better option then before...",
 		"customRarity": {
 			"Use https://db.sp-tarkov.com/search to find itemID you are interested in.": "Custom rarity values: COMMON 1, RARE 2, EPIC 3, LEGENDARY 4, UBER 5, UNOBTAINIUM 6, OVERPOWERED 7, CUSTOM 8 (dim red BG)",
-			"59faff1d86f7746c51718c9c": "6",
-			"5c0530ee86f774697952d952": "6",
 			"add itemID here": "add rarity here",
 			"": "",
 			"": "",
@@ -63,7 +63,7 @@
 	},
 	"ArmorInfo": {
 		"_description": "Adds armor stats for armor level (usefull for Realism mod), effective durability calculation, material quality and per repair degradation.",
-		"enabled": false,
+		"enabled": true,
 		"_example": "[BNTI Zhuk-6a body armor] Armor class: 6 | Effective durability: 94 (Max: 75 x Ceramic: 1.3) | Repair degradation: 17% - 22%",
 		"addArmorClassInfo": true
 	},
@@ -108,19 +108,14 @@
 		"_example": "[Ibuprofen painkillers] Traded ×15 @ Therapist lv.4 > T H I C C item case < … + ★Defibrillator ×15 + ★LEDX ×15 + ★Toothpaste ×15 | Δ ≈ -9777545₽",
 		"enabled": true
 	},
-	"SpawnInfo": {
-		"_description": "Shows pseudo spawn info based on BSG handbook data. Mildly useful, not representative to real spawns, can be safely disabled.",
-		"_example": "",
-		"enabled": false
-	},
 	"delay": {
 		"_description": "Delay loading the mod for compatibility reasons (mods that add items in a weird way, or mods that take too long to load like Lua's Flea Market Price Updater).",
-		"enabled": false,
+		"enabled": true,
 		"seconds": 5
 	},
 	"useBSGStaticFleaBanlist": {
 		"_description": "For compatibility reasons with other mods that modify flea banned items",
-		"enabled": false
+		"enabled": true
 	},
 	"dummy": {
 		"_description": "",
