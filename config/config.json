@@ -1,7 +1,7 @@
 {
 	"_SELECT YOUR LANGUAGE IN UserLocale CONFIGURATION BELOW. USE ONE OF THESE LANGUAGE CODES": "ch, cz, en, es-mx, es, fr, ge, hu, it, jp, kr, pl, po, ru, sk, tu",
 	"UserLocale": "en",
-	"HideLanguageAlert": false,
+	"HideLanguageAlert": true,
 	"FormatPrice": true,
 	"PricesInfo": {
 		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to. Separate option to hide flea price info.",
@@ -63,9 +63,9 @@
 	},
 	"ArmorInfo": {
 		"_description": "Adds armor stats for armor level (usefull for Realism mod), effective durability calculation, material quality and per repair degradation.",
+		"enabled": false,
 		"_example": "[BNTI Zhuk-6a body armor] Armor class: 6 | Effective durability: 94 (Max: 75 x Ceramic: 1.3) | Repair degradation: 17% - 22%",
-		"addArmorClassInfo": true,
-		"enabled": true
+		"addArmorClassInfo": true
 	},
 	"ContainerInfo": {
 		"_description": "Adds slot efficiency calculation for rigs, backpacks and containers (number of internal slots / item size).",
@@ -115,12 +115,12 @@
 	},
 	"delay": {
 		"_description": "Delay loading the mod for compatibility reasons (mods that add items in a weird way, or mods that take too long to load like Lua's Flea Market Price Updater).",
-		"enabled": true,
+		"enabled": false,
 		"seconds": 5
 	},
 	"useBSGStaticFleaBanlist": {
 		"_description": "For compatibility reasons with other mods that modify flea banned items",
-		"enabled": true
+		"enabled": false
 	},
 	"dummy": {
 		"_description": "",

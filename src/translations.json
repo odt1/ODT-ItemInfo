@@ -1,7 +1,7 @@
 {
 	"debug": {
 		"enabled": false,
-		"languageToDebug": "ru"
+		"languageToDebug": "en"
 	},
 	"en": {
 		"Bought": "Bought",

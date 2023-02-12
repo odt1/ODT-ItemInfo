@@ -16,7 +16,6 @@ let items;
 let handbook;
 let logger;
 let locales;
-let clientItems;
 let fleaPrices;
 let hideoutProduction;
 let hideoutAreas;
@@ -216,7 +215,6 @@ class ItemInfo {
         items = tables.templates.items;
         handbook = tables.templates.handbook;
         locales = tables.locales.global;
-        clientItems = tables.templates.clientItems.data;
         fleaPrices = tables.templates.prices;
         hideoutProduction = tables.hideout.production;
         hideoutAreas = tables.hideout.areas;
@@ -301,6 +299,10 @@ class ItemInfo {
                 item._parent != "543be5dd4bdc2deb348b4569" // Ignore currencies.
             ) {
                 let name = this.getItemName(itemID, userLocale); // for debug only
+                item._props.ExaminedByDefault = true;
+                if (item._props.CanSellOnRagfair == false) {
+                    log(`"${itemID}", // ${this.getItemName(itemID)}`);
+                }
                 const i18n = translations_json_1.default[userLocale];
                 // boilerplate defaults
                 let descriptionString = "";
@@ -322,7 +324,7 @@ class ItemInfo {
                 let itemBestVendor = this.getItemBestTrader(itemID, userLocale);
                 let traderPrice = Math.round(itemBestVendor.price);
                 let traderName = itemBestVendor.name;
-                let spawnChance = clientItems[itemID]?._props?.SpawnChance;
+                let spawnChance = 10; // DEGUG
                 let slotDensity = this.getItemSlotDensity(itemID);
                 let itemBarters = this.bartersResolver(itemID);
                 let barterInfo = this.barterInfoGenerator(itemBarters, userLocale);
@@ -345,13 +347,7 @@ class ItemInfo {
                 }
                 let itemRarityFallback = "";
                 if (itemRarity == 0) {
-                    try {
-                        itemRarityFallback = clientItems[itemID]._props.Rarity;
-                    }
-                    catch (error) {
-                        // meh..
-                        itemRarityFallback = "UNKNOWN";
-                    }
+                    itemRarityFallback = "UNKNOWN";
                 }
                 if (item._parent == "543be5cb4bdc2deb348b4568") {
                     // Ammo boxes special case
@@ -386,7 +382,7 @@ class ItemInfo {
                         fleaPrice = fleaPriceFix;
                     }
                 }
-                if (config_json_1.default.RarityRecolor.enabled && !config_json_1.default.RarityRecolorBlacklist.includes(item._parent)) {
+                if (config_json_1.default.RarityRecolor.enabled && !config_json_1.default.RarityRecolorBlacklist.includes(item._parent) && itemRarity != 0) {
                     item._props.BackgroundColor = "grey";
                     for (const customItem in config_json_1.default.RarityRecolor.customRarity) {
                         if (customItem == itemID) {
@@ -609,6 +605,7 @@ class ItemInfo {
                 "590c621186f774138d11ea29",
                 "59faff1d86f7746c51718c9c",
                 "5c0e625a86f7742d77340f62",
+                "5bb20dcad4351e3bac1212da"
             ];
             for (const debugItemID of debugItemIDlist) {
                 logger.info(`---`);
