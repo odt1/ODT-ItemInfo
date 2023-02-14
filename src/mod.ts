@@ -1014,7 +1014,7 @@ class ItemInfo implements IPostDBLoadMod {
 				let recipeAreaString = this.getCraftingAreaName(recipe.areaType, locale)
 				let totalRecipePrice = 0
 				let recipeDivision = ""
-
+				let questReq = ""
 				for (
 					let i = recipe.requirements.length - 1;
 					i >= 0;
@@ -1042,6 +1042,10 @@ class ItemInfo implements IPostDBLoadMod {
 						componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + Math.round(resourceProportion * 100) + "%" + " + "
 						totalRecipePrice += Math.round(craftComponentPrice * resourceProportion)
 					}
+					if (recipe.requirements[i].type === "QuestComplete") {
+						//
+						questReq = ` (${locales[locale][`${recipe.requirements[i].questId} name`]}✔)`
+					}
 				}
 				if (recipe.count > 1) {
 					recipeDivision = " " + translations[locale].peritem
@@ -1060,7 +1064,7 @@ class ItemInfo implements IPostDBLoadMod {
 					// // 25× GPU: ${convertTime(gpuTime(25))} x${roundWithPrecision(time/gpuTime(25), 2)}
 					// // 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time/gpuTime(50), 2)}`)
 				} else {
-					craftableString += `${translations[locale].Crafted} ×${recipe.count} @ ${recipeAreaString} < `
+					craftableString += `${translations[locale].Crafted} ×${recipe.count} @ ${recipeAreaString}${questReq} < `
 					craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽\n`
 				}
 
@@ -1079,7 +1083,7 @@ class ItemInfo implements IPostDBLoadMod {
 				// 	console.log("Hava Nagila! Profitable craft at " + profit + " profit detected! " + this.GetItemName(id) + " can be crafted at " + recipeAreaString)
 				// }
 			}
-		}
+		}		
 		return craftableString
 	}
 
@@ -1114,6 +1118,7 @@ class ItemInfo implements IPostDBLoadMod {
 					let usedForCraftingComponentsString = " < … + "
 					let recipeAreaString = ""
 					let totalRecipePrice = 0
+					let questReq = ""
 					for (
 						let i = hideoutProduction[craftID].requirements.length - 1;
 						i >= 0;
@@ -1139,13 +1144,16 @@ class ItemInfo implements IPostDBLoadMod {
 							}
 							totalRecipePrice += Math.round(this.getFleaPrice(craftComponent.templateId) * resourceProportion)
 						}
+						if (hideoutProduction[craftID].requirements[i].type === "QuestComplete") {
+							questReq = ` (${locales[locale][`${hideoutProduction[craftID].requirements[i].questId} name`]}✔) `
+						}
 					}
 					usedForCraftingComponentsString = usedForCraftingComponentsString.slice(0, usedForCraftingComponentsString.length - 3)
 					// prettier-ignore
 					usedForCraftingComponentsString += ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(hideoutProduction[craftID].endProduct) * hideoutProduction[craftID].count - totalRecipePrice))}₽`
 					// prettier-ignore
 					usedForCraftingString += `${hideoutProduction[craftID].requirements[s].type == "Tool" ? translations[locale].Tool : translations[locale].Part + " ×" + hideoutProduction[craftID].requirements[s].count} > ${this.getItemName(hideoutProduction[craftID].endProduct, locale)} ×${hideoutProduction[craftID].count}`
-					usedForCraftingString += ` @ ${recipeAreaString + usedForCraftingComponentsString}\n`
+					usedForCraftingString += ` @ ${recipeAreaString + questReq + usedForCraftingComponentsString}\n`
 				}
 			}
 		}

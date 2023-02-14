@@ -951,6 +951,7 @@ class ItemInfo {
                 let recipeAreaString = this.getCraftingAreaName(recipe.areaType, locale);
                 let totalRecipePrice = 0;
                 let recipeDivision = "";
+                let questReq = "";
                 for (let i = recipe.requirements.length - 1; i >= 0; i-- // Itterate
                 ) {
                     if (recipe.requirements[i].type === "Area") {
@@ -973,6 +974,10 @@ class ItemInfo {
                         componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + Math.round(resourceProportion * 100) + "%" + " + ";
                         totalRecipePrice += Math.round(craftComponentPrice * resourceProportion);
                     }
+                    if (recipe.requirements[i].type === "QuestComplete") {
+                        //
+                        questReq = ` (${locales[locale][`${recipe.requirements[i].questId} name`]}✔)`;
+                    }
                 }
                 if (recipe.count > 1) {
                     recipeDivision = " " + translations_json_1.default[locale].peritem;
@@ -991,7 +996,7 @@ class ItemInfo {
                     // // 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time/gpuTime(50), 2)}`)
                 }
                 else {
-                    craftableString += `${translations_json_1.default[locale].Crafted} ×${recipe.count} @ ${recipeAreaString} < `;
+                    craftableString += `${translations_json_1.default[locale].Crafted} ×${recipe.count} @ ${recipeAreaString}${questReq} < `;
                     craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽\n`;
                 }
                 function convertTime(time, locale = "en") {
@@ -1036,6 +1041,7 @@ class ItemInfo {
                     let usedForCraftingComponentsString = " < … + ";
                     let recipeAreaString = "";
                     let totalRecipePrice = 0;
+                    let questReq;
                     for (let i = hideoutProduction[craftID].requirements.length - 1; i >= 0; i-- // Itterate
                     ) {
                         if (hideoutProduction[craftID].requirements[i].type == "Area") {
@@ -1058,13 +1064,16 @@ class ItemInfo {
                             }
                             totalRecipePrice += Math.round(this.getFleaPrice(craftComponent.templateId) * resourceProportion);
                         }
+                        if (hideoutProduction[craftID].requirements[i].type === "QuestComplete") {
+                            questReq = ` (${locales[locale][`${hideoutProduction[craftID].requirements[i].questId} name`]}✔) `;
+                        }
                     }
                     usedForCraftingComponentsString = usedForCraftingComponentsString.slice(0, usedForCraftingComponentsString.length - 3);
                     // prettier-ignore
                     usedForCraftingComponentsString += ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(hideoutProduction[craftID].endProduct) * hideoutProduction[craftID].count - totalRecipePrice))}₽`;
                     // prettier-ignore
                     usedForCraftingString += `${hideoutProduction[craftID].requirements[s].type == "Tool" ? translations_json_1.default[locale].Tool : translations_json_1.default[locale].Part + " ×" + hideoutProduction[craftID].requirements[s].count} > ${this.getItemName(hideoutProduction[craftID].endProduct, locale)} ×${hideoutProduction[craftID].count}`;
-                    usedForCraftingString += ` @ ${recipeAreaString + usedForCraftingComponentsString}\n`;
+                    usedForCraftingString += ` @ ${recipeAreaString + questReq + usedForCraftingComponentsString}\n`;
                 }
             }
         }
