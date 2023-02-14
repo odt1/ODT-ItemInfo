@@ -479,19 +479,19 @@ class ItemInfo implements IPostDBLoadMod {
 							itemValue = value * count
 						}
 
-						if (itemValue < 9999) {
+						if (itemValue < tiers.COMMON_VALUE_FALLBACK) {
 							// tier = i18n.COMMON
 							item._props.BackgroundColor = tiers.COMMON
-						} else if (itemValue < 19999) {
+						} else if (itemValue < tiers.RARE_VALUE_FALLBACK) {
 							// tier = i18n.RARE
 							item._props.BackgroundColor = tiers.RARE
-						} else if (itemValue < 29999) {
+						} else if (itemValue < tiers.EPIC_VALUE_FALLBACK) {
 							// tier = i18n.EPIC
 							item._props.BackgroundColor = tiers.EPIC
-						} else if (itemValue < 39999) {
+						} else if (itemValue < tiers.LEGENDARY_VALUE_FALLBACK) {
 							// tier = i18n.LEGENDARY
 							item._props.BackgroundColor = tiers.LEGENDARY
-						} else if (itemValue < 59999) {
+						} else if (itemValue < tiers.UBER_VALUE_FALLBACK) {
 							// tier = i18n.UBER
 							item._props.BackgroundColor = tiers.UBER
 						} else {

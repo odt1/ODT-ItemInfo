@@ -437,23 +437,23 @@ class ItemInfo {
                             let value = this.getItemInHandbook(ammo).price;
                             itemValue = value * count;
                         }
-                        if (itemValue < 9999) {
+                        if (itemValue < tiers_json_1.default.COMMON_VALUE_FALLBACK) {
                             // tier = i18n.COMMON
                             item._props.BackgroundColor = tiers_json_1.default.COMMON;
                         }
-                        else if (itemValue < 19999) {
+                        else if (itemValue < tiers_json_1.default.RARE_VALUE_FALLBACK) {
                             // tier = i18n.RARE
                             item._props.BackgroundColor = tiers_json_1.default.RARE;
                         }
-                        else if (itemValue < 29999) {
+                        else if (itemValue < tiers_json_1.default.EPIC_VALUE_FALLBACK) {
                             // tier = i18n.EPIC
                             item._props.BackgroundColor = tiers_json_1.default.EPIC;
                         }
-                        else if (itemValue < 39999) {
+                        else if (itemValue < tiers_json_1.default.LEGENDARY_VALUE_FALLBACK) {
                             // tier = i18n.LEGENDARY
                             item._props.BackgroundColor = tiers_json_1.default.LEGENDARY;
                         }
-                        else if (itemValue < 59999) {
+                        else if (itemValue < tiers_json_1.default.UBER_VALUE_FALLBACK) {
                             // tier = i18n.UBER
                             item._props.BackgroundColor = tiers_json_1.default.UBER;
                         }
@@ -1041,7 +1041,7 @@ class ItemInfo {
                     let usedForCraftingComponentsString = " < … + ";
                     let recipeAreaString = "";
                     let totalRecipePrice = 0;
-                    let questReq;
+                    let questReq = "";
                     for (let i = hideoutProduction[craftID].requirements.length - 1; i >= 0; i-- // Itterate
                     ) {
                         if (hideoutProduction[craftID].requirements[i].type == "Area") {
