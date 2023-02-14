@@ -419,6 +419,11 @@ class ItemInfo {
                         tier = i18n.CUSTOM;
                         item._props.BackgroundColor = tiers_json_1.default.CUSTOM;
                     }
+                    else if (itemRarity == 9) {
+                        // 8 is for custom dim orange background
+                        // tier = i18n.CUSTOM2
+                        item._props.BackgroundColor = tiers_json_1.default.CUSTOM2;
+                    }
                     if (config_json_1.default.RarityRecolor.fallbackValueBasedRecolor == true && itemRarity == 0) {
                         let itemValue = itemInHandbook.Price;
                         if (item._props.StackMaxSize > 1) {

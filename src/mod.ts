@@ -455,6 +455,10 @@ class ItemInfo implements IPostDBLoadMod {
 						// 8 is for custom dim red background
 						tier = i18n.CUSTOM
 						item._props.BackgroundColor = tiers.CUSTOM
+					} else if (itemRarity == 9) {
+						// 8 is for custom dim orange background
+						// tier = i18n.CUSTOM2
+						item._props.BackgroundColor = tiers.CUSTOM2
 					}
 
 					if (config.RarityRecolor.fallbackValueBasedRecolor == true && itemRarity == 0) {
@@ -1083,7 +1087,7 @@ class ItemInfo implements IPostDBLoadMod {
 				// 	console.log("Hava Nagila! Profitable craft at " + profit + " profit detected! " + this.GetItemName(id) + " can be crafted at " + recipeAreaString)
 				// }
 			}
-		}		
+		}
 		return craftableString
 	}
 

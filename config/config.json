@@ -20,13 +20,20 @@
 		"fallbackValueBasedRecolor": true,
 		"_description_fallbackValueBasedRecolor": "If item is unbuyable from traders, fallsback to slot value rarity tiering.",
 		"customRarity": {
-			"Use https://db.sp-tarkov.com/search to find itemID you are interested in.": "Custom rarity values: COMMON 1, RARE 2, EPIC 3, LEGENDARY 4, UBER 5, UNOBTAINIUM 6, OVERPOWERED 7, CUSTOM 8 (dim red BG)",
+			"Use https://db.sp-tarkov.com/search to find itemID you are interested in.": "Custom rarity values: COMMON 1, RARE 2, EPIC 3, LEGENDARY 4, UBER 5, UNOBTAINIUM 6, OVERPOWERED 7, CUSTOM 8 (dim red BG), CUSTOM 9 (called oragne, but actually brown)",
 			"add itemID here": "add rarity here",
 			"59faff1d86f7746c51718c9c": "6",
 			"5c0530ee86f774697952d952": "6",
 			"": "",
 			"": "",
 			"": "",
+			"": "",
+			"5732ee6a24597719ae0c0281": "1",
+			"544a11ac4bdc2d470e8b456a": "2",
+			"5857a8b324597729ab0a0e7d": "3",
+			"59db794186f77448bc595262": "4",
+			"5857a8bc2459772bad15db29": "5",
+			"5c093ca986f7740a1867ab12": "6",
 			"": ""
 		}
 	},
