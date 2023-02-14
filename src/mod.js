@@ -32,8 +32,8 @@ let peacekeeper;
 let skier;
 let traderList;
 // ^ PLS, somebody explain to me (I'm NOT a programmer btw) how not to use a bajillion "this.*" for EVERY variable in a class to write PROPER (sic) code. This can't be sane, I just refuse.
-const euroRatio = 118; // TODO: remove hardcode
-const dollarRatio = 114;
+const euroRatio = 134; // TODO: remove hardcode
+const dollarRatio = 121;
 const newLine = "\n";
 const BSGblacklist = [
     "62e7e7bbe6da9612f743f1e0",
@@ -235,7 +235,6 @@ class ItemInfo {
         prapor = tables.traders["54cb50c76803fa8b248b4571"];
         peacekeeper = tables.traders["5935c25fb3acc3127c3d8cd9"];
         skier = tables.traders["58330581ace78e27b8b10cee"];
-        fence = tables.traders["579dc571d53a0658a154fbec"];
         traderList = [therapist, ragman, jaeger, mechanic, prapor, peacekeeper, skier];
     }
     postDBLoad(container) {
@@ -354,8 +353,8 @@ class ItemInfo {
                     // Ammo boxes special case
                     let count = item._props.StackSlots[0]._max_count;
                     let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0];
-                    // let value = this.getItemBestTrader(ammo).price
-                    let value = this.getItemInHandbook(ammo).price;
+                    let value = this.getItemBestTrader(ammo).price;
+                    // let value = this.getItemInHandbook(ammo).price
                     traderPrice = value * count;
                     if (itemRarity == 0) {
                         itemRarity = this.barterInfoGenerator(this.bartersResolver(ammo)).rarity;
@@ -420,38 +419,47 @@ class ItemInfo {
                         tier = i18n.CUSTOM;
                         item._props.BackgroundColor = tiers_json_1.default.CUSTOM;
                     }
-                    if (config_json_1.default.RarityRecolor.experimetalValueBasedRecolor == true && itemRarity == 0) {
+                    if (config_json_1.default.RarityRecolor.fallbackValueBasedRecolor == true && itemRarity == 0) {
                         let itemValue = itemInHandbook.Price;
                         if (item._props.StackMaxSize > 1) {
                             // log(`"${itemID}", // ${name}`)
                             itemValue = itemInHandbook.Price * item._props.StackMaxSize;
                         }
                         let itemSlots = item._props.Width * item._props.Height;
-                        itemValue = Math.round(itemValue / itemSlots);
+                        if (itemSlots > 1) {
+                            itemValue = Math.round(itemValue / itemSlots);
+                        }
                         // log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
+                        if (item._parent == "543be5cb4bdc2deb348b4568") {
+                            // Ammo boxes special case
+                            let count = item._props.StackSlots[0]._max_count;
+                            let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0];
+                            let value = this.getItemInHandbook(ammo).price;
+                            itemValue = value * count;
+                        }
                         if (itemValue < 9999) {
-                            tier = i18n.COMMON;
+                            // tier = i18n.COMMON
                             item._props.BackgroundColor = tiers_json_1.default.COMMON;
                         }
                         else if (itemValue < 19999) {
-                            tier = i18n.RARE;
+                            // tier = i18n.RARE
                             item._props.BackgroundColor = tiers_json_1.default.RARE;
                         }
                         else if (itemValue < 29999) {
-                            tier = i18n.EPIC;
+                            // tier = i18n.EPIC
                             item._props.BackgroundColor = tiers_json_1.default.EPIC;
                         }
                         else if (itemValue < 39999) {
-                            tier = i18n.LEGENDARY;
+                            // tier = i18n.LEGENDARY
                             item._props.BackgroundColor = tiers_json_1.default.LEGENDARY;
                         }
                         else if (itemValue < 59999) {
-                            tier = i18n.UBER;
+                            // tier = i18n.UBER
                             item._props.BackgroundColor = tiers_json_1.default.UBER;
                         }
                         else {
                             // log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
-                            tier = i18n.UNOBTAINIUM;
+                            // tier = i18n.UNOBTAINIUM
                             item._props.BackgroundColor = tiers_json_1.default.UNOBTAINIUM;
                         }
                     }

@@ -39,8 +39,8 @@ let traderList
 
 // ^ PLS, somebody explain to me (I'm NOT a programmer btw) how not to use a bajillion "this.*" for EVERY variable in a class to write PROPER (sic) code. This can't be sane, I just refuse.
 
-const euroRatio = 118 // TODO: remove hardcode
-const dollarRatio = 114
+const euroRatio = 134 // TODO: remove hardcode
+const dollarRatio = 121
 
 const newLine = "\n"
 
@@ -392,8 +392,8 @@ class ItemInfo implements IPostDBLoadMod {
 					let count = item._props.StackSlots[0]._max_count
 					let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0]
 
-					// let value = this.getItemBestTrader(ammo).price
-					let value = this.getItemInHandbook(ammo).price
+					let value = this.getItemBestTrader(ammo).price
+					// let value = this.getItemInHandbook(ammo).price
 					traderPrice = value * count
 					if (itemRarity == 0) {
 						itemRarity = this.barterInfoGenerator(this.bartersResolver(ammo)).rarity
@@ -457,40 +457,49 @@ class ItemInfo implements IPostDBLoadMod {
 						item._props.BackgroundColor = tiers.CUSTOM
 					}
 
-					if (config.RarityRecolor.experimetalValueBasedRecolor == true && itemRarity == 0) {
+					if (config.RarityRecolor.fallbackValueBasedRecolor == true && itemRarity == 0) {
 						let itemValue = itemInHandbook.Price
 
 						if (item._props.StackMaxSize > 1) {
 							// log(`"${itemID}", // ${name}`)
 							itemValue = itemInHandbook.Price * item._props.StackMaxSize
 						}
+
 						let itemSlots = item._props.Width * item._props.Height
-						itemValue = Math.round(itemValue / itemSlots)
+						if (itemSlots > 1) {
+							itemValue = Math.round(itemValue / itemSlots)
+						}
 						// log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
 
+						if (item._parent == "543be5cb4bdc2deb348b4568") {
+							// Ammo boxes special case
+							let count = item._props.StackSlots[0]._max_count
+							let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0]
+							let value = this.getItemInHandbook(ammo).price
+							itemValue = value * count
+						}
+
 						if (itemValue < 9999) {
-							tier = i18n.COMMON
+							// tier = i18n.COMMON
 							item._props.BackgroundColor = tiers.COMMON
 						} else if (itemValue < 19999) {
-							tier = i18n.RARE
+							// tier = i18n.RARE
 							item._props.BackgroundColor = tiers.RARE
 						} else if (itemValue < 29999) {
-							tier = i18n.EPIC
+							// tier = i18n.EPIC
 							item._props.BackgroundColor = tiers.EPIC
 						} else if (itemValue < 39999) {
-							tier = i18n.LEGENDARY
+							// tier = i18n.LEGENDARY
 							item._props.BackgroundColor = tiers.LEGENDARY
 						} else if (itemValue < 59999) {
-							
-							tier = i18n.UBER
+							// tier = i18n.UBER
 							item._props.BackgroundColor = tiers.UBER
 						} else {
 							// log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
-							tier = i18n.UNOBTAINIUM
+							// tier = i18n.UNOBTAINIUM
 							item._props.BackgroundColor = tiers.UNOBTAINIUM
 						}
 					}
-
 					if (config.RarityRecolor.addTierNameToPricesInfo) {
 						if (tier.length > 0) {
 							priceString += tier + " | "
