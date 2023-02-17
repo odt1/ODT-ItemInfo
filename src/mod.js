@@ -23,6 +23,7 @@ let quests;
 let armors;
 let ragfairConfig;
 let hideoutConfig;
+let itemBaseClassService;
 let therapist;
 let ragman;
 let jaeger;
@@ -216,6 +217,7 @@ class ItemInfo {
     init(container) {
         database = container.resolve("DatabaseServer");
         const configServer = container.resolve("ConfigServer");
+        itemBaseClassService = container.resolve("ItemBaseClassService");
         ragfairConfig = configServer.getConfig(ConfigTypes_1.ConfigTypes.RAGFAIR);
         hideoutConfig = configServer.getConfig(ConfigTypes_1.ConfigTypes.HIDEOUT);
         logger.info("[Item Info] Database data is loaded, working...");
@@ -235,7 +237,7 @@ class ItemInfo {
         prapor = tables.traders["54cb50c76803fa8b248b4571"];
         peacekeeper = tables.traders["5935c25fb3acc3127c3d8cd9"];
         skier = tables.traders["58330581ace78e27b8b10cee"];
-        traderList = [therapist, ragman, jaeger, mechanic, prapor, peacekeeper, skier];
+        traderList = [therapist, ragman, jaeger, mechanic, prapor, skier, peacekeeper]; // Hardcode list for best buy_price_coef
     }
     postDBLoad(container) {
         logger = container.resolve("WinstonLogger");
@@ -325,7 +327,7 @@ class ItemInfo {
                 let itemRarity = 0;
                 let spawnString = "";
                 let fleaPrice = this.getFleaPrice(itemID);
-                let itemBestVendor = this.getItemBestTrader(itemID, userLocale);
+                let itemBestVendor = this.getItemBestTrader350(itemID, userLocale);
                 let traderPrice = Math.round(itemBestVendor.price);
                 let traderName = itemBestVendor.name;
                 let spawnChance = 10; // DEGUG
@@ -353,7 +355,7 @@ class ItemInfo {
                     // Ammo boxes special case
                     let count = item._props.StackSlots[0]._max_count;
                     let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0];
-                    let value = this.getItemBestTrader(ammo).price;
+                    let value = this.getItemBestTrader350(ammo).price;
                     // let value = this.getItemInHandbook(ammo).price
                     traderPrice = value * count;
                     if (itemRarity == 0) {
@@ -747,6 +749,44 @@ class ItemInfo {
             log(error);
         }
     }
+    resolveBestTrader350(itemID, locale = "en") {
+        let traderMulti = 0; // AVG fallback
+        let traderName = "None";
+        let itemParentID = items[itemID]._parent;
+        let itemBaseClasses = itemBaseClassService.getItemBaseClasses(itemID);
+        // log(itemBaseClasses)
+        // let handbookCategories = handbook.Categories.filter((i) => i.Id === handbookParentId)[0]
+        // traderSellCategory = handbookCategories?.Id // "?" check is for shitty custom items
+        // altTraderSellCategory = handbookCategories?.ParentId
+        for (let i = 0; i < 7; i++) {
+            if ((traderList[i].base.items_buy.category.some((x) => itemBaseClasses.includes(x)) || traderList[i].base.items_buy.id_list.includes(itemID)) && !traderList[i].base.items_buy_prohibited.id_list.includes(itemID)) { // items_buy is new to 350 it seems
+                traderMulti = (100 - traderList[i].base.loyaltyLevels[0].buy_price_coef) / 100;
+                //traderName = traderList[i].base.nickname
+                traderName = locales[locale][`${traderList[i].base._id} Nickname`];
+                // log(`${this.getItemName(itemID)} @ ${traderName}`)
+                return {
+                    multi: traderMulti,
+                    name: traderName,
+                };
+            }
+        }
+        return {
+            multi: traderMulti,
+            name: traderName,
+        };
+    }
+    getItemBestTrader350(itemID, locale = "en") {
+        let itemBasePrice = 1;
+        let handbookItem = this.getItemInHandbook(itemID);
+        // log(handbookItem)
+        let bestTrader = this.resolveBestTrader350(itemID, locale);
+        let result = handbookItem.Price * bestTrader.multi;
+        return {
+            price: result,
+            name: bestTrader.name,
+            ParentId: handbookItem.ParentId,
+        };
+    }
     resolveBestTrader(handbookParentId, locale = "en") {
         // I stole this code from someone looong ago, can't remember where, PM me to give proper credit
         let traderSellCategory = "";
@@ -795,7 +835,7 @@ class ItemInfo {
             return fleaPrices[itemID];
         }
         else {
-            return this.getItemBestTrader(itemID).price;
+            return this.getItemBestTrader350(itemID).price;
         }
     }
     bartersResolver(itemID) {
