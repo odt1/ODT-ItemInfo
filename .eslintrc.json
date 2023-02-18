@@ -49,7 +49,7 @@
     ],
     "@typescript-eslint/indent": [
       "warn",
-      4
+      "tab"
     ],
     "@typescript-eslint/no-unused-expressions": [
       "warn",
