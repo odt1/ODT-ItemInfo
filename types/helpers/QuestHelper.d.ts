@@ -40,7 +40,7 @@ export declare class QuestHelper {
     protected questConfig: IQuestConfig;
     constructor(logger: ILogger, jsonUtil: JsonUtil, timeUtil: TimeUtil, hashUtil: HashUtil, itemHelper: ItemHelper, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, localeService: LocaleService, ragfairServerHelper: RagfairServerHelper, dialogueHelper: DialogueHelper, profileHelper: ProfileHelper, paymentHelper: PaymentHelper, localisationService: LocalisationService, traderHelper: TraderHelper, configServer: ConfigServer);
     /**
-    * Get status of a quest by quest id
+    * Get status of a quest in player profile by its id
     * @param pmcData Profile to search
     * @param questID Quest id to look up
     * @returns QuestStatus enum
