@@ -10,7 +10,7 @@ import { ILogger } from "@spt-aki/models/spt/utils/ILogger"
 import { ConfigServer } from "@spt-aki/servers/ConfigServer"
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer"
 import { ItemBaseClassService } from "@spt-aki/services/ItemBaseClassService"
-import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem"
 import { HandbookItem, IHandbookBase } from "@spt-aki/models/eft/common/tables/IHandbookBase"
 import { IDatabaseTables } from "@spt-aki/models/spt/server/IDatabaseTables"
 import { IHideoutProduction } from "@spt-aki/models/eft/hideout/IHideoutProduction"
@@ -18,14 +18,12 @@ import { IHideoutArea } from "@spt-aki/models/eft/hideout/IHideoutArea"
 import { IQuest } from "@spt-aki/models/eft/common/tables/IQuest"
 import { ArmorMaterials } from "@spt-aki/models/eft/common/IGlobals"
 import { IBarterScheme, ITrader } from "@spt-aki/models/eft/common/tables/ITrader"
-import { Traders } from "@spt-aki/models/enums/Traders";
+import { Traders } from "@spt-aki/models/enums/Traders"
 
 import config from "../config/config.json"
 import tiers from "../config/tiers.json"
 import translations from "./translations.json"
 import { Item } from "@spt-aki/models/eft/common/tables/IItem"
-
-// Abandon hope, all ye who enter here...
 
 // Using `this.` is perfectly fine. Much better than having ambiguous and typeless variables declared in some global scope
 // Don't worry - there's always opportunities to learn :) - Terkoiz
@@ -213,28 +211,26 @@ const bsgBlacklist = [
 	"59f32c3b86f77472a31742f0", // Dogtag USEC
 ]
 
-class ItemInfo implements IPostDBLoadMod 
-{
-	database: DatabaseServer;
-	configServer: ConfigServer;
-	itemBaseClassService: ItemBaseClassService;
-	ragfairConfig: IRagfairConfig;
-	hideoutConfig: IHideoutConfig;
-	logger: ILogger;
-	tables: IDatabaseTables;
-	items: Record<string, ITemplateItem>;
-	handbook: IHandbookBase;
-	locales: Record<string, Record<string, string>>;
-	fleaPrices: Record<string, number>;
-	hideoutProduction: IHideoutProduction[];
-	hideoutAreas: IHideoutArea[];
-	quests: Record<string, IQuest>;
-	armors: ArmorMaterials;
-	traders: Record<string, ITrader>;
-	traderList: ITrader[];
+class ItemInfo implements IPostDBLoadMod {
+	database: DatabaseServer
+	configServer: ConfigServer
+	itemBaseClassService: ItemBaseClassService
+	ragfairConfig: IRagfairConfig
+	hideoutConfig: IHideoutConfig
+	logger: ILogger
+	tables: IDatabaseTables
+	items: Record<string, ITemplateItem>
+	handbook: IHandbookBase
+	locales: Record<string, Record<string, string>>
+	fleaPrices: Record<string, number>
+	hideoutProduction: IHideoutProduction[]
+	hideoutAreas: IHideoutArea[]
+	quests: Record<string, IQuest>
+	armors: ArmorMaterials
+	traders: Record<string, ITrader>
+	traderList: ITrader[]
 
-	private init(container: DependencyContainer) 
-	{
+	private init(container: DependencyContainer) {
 		this.database = container.resolve<DatabaseServer>("DatabaseServer")
 		this.configServer = container.resolve<ConfigServer>("ConfigServer")
 		this.itemBaseClassService = container.resolve<ItemBaseClassService>("ItemBaseClassService")
@@ -266,37 +262,30 @@ class ItemInfo implements IPostDBLoadMod
 		]
 	}
 
-	public postDBLoad(container: DependencyContainer) 
-	{
+	public postDBLoad(container: DependencyContainer) {
 		this.logger = container.resolve<ILogger>("WinstonLogger")
 
 		// TODO: With order.json being a thing, this can probably be removed and instead instructions for changing load order could be added
-		if (config.delay.enabled) 
-		{
+		if (config.delay.enabled) {
 			this.logger.log(
 				`[Item Info] Mod compatibility delay enabled (${config.delay.seconds} seconds), waiting for other mods data to load...`,
 				LogTextColor.BLACK,
 				LogBackgroundColor.CYAN
 			)
-			setTimeout(() => 
-			{
+			setTimeout(() => {
 				this.init(container)
 				this.ItemInfoMain()
 			}, config.delay.seconds * 1000)
-		}
-		else 
-		{
+		} else {
 			this.init(container)
 			this.ItemInfoMain()
 		}
 	}
 
-	private ItemInfoMain(): void
-	{
+	private ItemInfoMain(): void {
 		let userLocale = config.UserLocale
 
-		if (!config.HideLanguageAlert) 
-		{
+		if (!config.HideLanguageAlert) {
 			this.logger.log(
 				"[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean, French and Chinese are fully translated.\nHide this message in config.json",
 				LogTextColor.BLACK,
@@ -309,32 +298,28 @@ class ItemInfo implements IPostDBLoadMod
 			)
 		}
 
-		if (translations.debug.enabled) 
-		{
+		if (translations.debug.enabled) {
 			this.logger.warning(`Translation debugging mode enabled! Changing userLocale to ${translations.debug.languageToDebug}`)
 			userLocale = translations.debug.languageToDebug
 		}
 
 		// Fill the missing translation dictionaries with English keys as a fallback + debug mode to help translations. Smart.
-		for (const key in translations["en"]) 
-		{
-			for (const lang in translations) 
-			{
+		for (const key in translations["en"]) {
+			for (const lang in translations) {
 				if (
 					translations.debug.enabled &&
 					lang != "en" &&
 					lang == translations.debug.languageToDebug &&
 					translations[translations.debug.languageToDebug][key] == translations["en"][key] &&
 					key != ""
-				) 
-				{
-					this.logger.warning(translations.debug.languageToDebug + ` language "${translations[translations.debug.languageToDebug][key]}" is the same as in English`)
+				) {
+					this.logger.warning(
+						translations.debug.languageToDebug + ` language "${translations[translations.debug.languageToDebug][key]}" is the same as in English`
+					)
 				}
 
-				if (key in translations[lang] == false) 
-				{
-					if (translations.debug.enabled && translations.debug.languageToDebug == lang) 
-					{
+				if (key in translations[lang] == false) {
+					if (translations.debug.enabled && translations.debug.languageToDebug == lang) {
 						this.logger.warning(`${lang} language is missing "${key}" transaition!`)
 					}
 
@@ -363,8 +348,7 @@ class ItemInfo implements IPostDBLoadMod
 		// P.S. Is there a way to access last user selected locale at IPreAkiLoadMod?
 		//}
 
-		for (const itemID in this.items) 
-		{
+		for (const itemID in this.items) {
 			const item = this.items[itemID]
 			const itemInHandbook = this.getItemInHandbook(itemID)
 
@@ -373,8 +357,7 @@ class ItemInfo implements IPostDBLoadMod
 				itemInHandbook != undefined && // Ignore "useless" items
 				!item._props.QuestItem && // Ignore quest items.
 				item._parent != "543be5dd4bdc2deb348b4569" // Ignore currencies.
-			) 
-			{
+			) {
 				// let name = this.getItemName(itemID, userLocale) // for debug only
 				// item._props.ExaminedByDefault = true
 
@@ -397,7 +380,7 @@ class ItemInfo implements IPostDBLoadMod
 				let spawnString = ""
 
 				let fleaPrice = this.getFleaPrice(itemID)
-				let itemBestVendor = this.getItemBestTrader350(itemID, userLocale)
+				let itemBestVendor = this.getItemBestTrader(itemID, userLocale)
 				let traderPrice = Math.round(itemBestVendor.price)
 				let traderName = itemBestVendor.name
 
@@ -413,58 +396,46 @@ class ItemInfo implements IPostDBLoadMod
 				itemRarity = Math.min(...rarityArray)
 
 				let isBanned = false
-				if (config.useBSGStaticFleaBanlist) 
-				{
+				if (config.useBSGStaticFleaBanlist) {
 					isBanned = bsgBlacklist.includes(itemID)
-				}
-				else 
-				{
+				} else {
 					isBanned = !item._props.CanSellOnRagfair
 				}
 
-				if (isBanned) 
-				{
+				if (isBanned) {
 					fleaPrice = i18n.BANNED
 
-					if (!itemRarity) 
-					{
+					if (!itemRarity) {
 						itemRarity = 7
 					}
 				}
 
-				if (item._parent == "543be5cb4bdc2deb348b4568") 
-				{
+				if (item._parent == "543be5cb4bdc2deb348b4568") {
 					// Ammo boxes special case
 					let count = item._props.StackSlots[0]._max_count
 					let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0]
 
-					let value = this.getItemBestTrader350(ammo).price
+					let value = this.getItemBestTrader(ammo).price
 					// let value = this.getItemInHandbook(ammo).price
 					traderPrice = value * count
 
-					if (!itemRarity) 
-					{
+					if (!itemRarity) {
 						itemRarity = this.barterInfoGenerator(this.bartersResolver(ammo)).rarity
 					}
 				}
 
-				if (config.BulletStatsInName.enabled) 
-				{
-					if (item._props.ammoType === "bullet" || item._props.ammoType === "buckshot") 
-					{
+				if (config.BulletStatsInName.enabled) {
+					if (item._props.ammoType === "bullet" || item._props.ammoType === "buckshot") {
 						let damageMult = 1
-						if (item._props.ammoType === "buckshot") 
-						{
+						if (item._props.ammoType === "buckshot") {
 							damageMult = item._props.buckshotBullets
 						}
 						this.addToName(itemID, ` (${item._props.Damage * damageMult}/${item._props.PenetrationPower})`, "append")
 					}
 				}
 
-				if (config.FleaAbusePatch.enabled) 
-				{
-					if (fleaPrice * this.ragfairConfig.dynamic.price.min < traderPrice && !isBanned) 
-					{
+				if (config.FleaAbusePatch.enabled) {
+					if (fleaPrice * this.ragfairConfig.dynamic.price.min < traderPrice && !isBanned) {
 						// Ignore banned items for compatibility with Softcore mod.
 						// log(name)
 						let fleaPriceFix = Math.round(traderPrice * (1 / this.ragfairConfig.dynamic.price.min + 0.01))
@@ -473,86 +444,62 @@ class ItemInfo implements IPostDBLoadMod
 					}
 				}
 
-				if (config.RarityRecolor.enabled && !config.RarityRecolorBlacklist.includes(item._parent)) 
-				{
+				if (config.RarityRecolor.enabled && !config.RarityRecolorBlacklist.includes(item._parent)) {
 					// item._props.BackgroundColor = "grey"
 
-					for (const customItem in config.RarityRecolor.customRarity) 
-					{
-						if (customItem == itemID) 
-						{
+					for (const customItem in config.RarityRecolor.customRarity) {
+						if (customItem == itemID) {
 							itemRarity = config.RarityRecolor.customRarity[customItem]
 						}
 					}
 
-					if (itemRarity == 7) 
-					{
+					if (itemRarity == 7) {
 						tier = i18n.OVERPOWERED
 						item._props.BackgroundColor = tiers.OVERPOWERED
-					}
-					else if (itemRarity == 1) 
-					{
+					} else if (itemRarity == 1) {
 						tier = i18n.COMMON
 						item._props.BackgroundColor = tiers.COMMON
-					}
-					else if (itemRarity == 2) 
-					{
+					} else if (itemRarity == 2) {
 						tier = i18n.RARE
 						item._props.BackgroundColor = tiers.RARE
-					}
-					else if (itemRarity == 3) 
-					{
+					} else if (itemRarity == 3) {
 						tier = i18n.EPIC
 						item._props.BackgroundColor = tiers.EPIC
-					}
-					else if (itemRarity == 4) 
-					{
+					} else if (itemRarity == 4) {
 						tier = i18n.LEGENDARY
 						item._props.BackgroundColor = tiers.LEGENDARY
-					}
-					else if (itemRarity == 5) 
-					{
+					} else if (itemRarity == 5) {
 						tier = i18n.UBER
 						item._props.BackgroundColor = tiers.UBER
-					}
-					else if (spawnChance < 2 || itemRarity == 6) 
-					{
+					} else if (spawnChance < 2 || itemRarity == 6) {
 						// can get 6 from custom rules only
 						tier = i18n.UNOBTAINIUM
 						item._props.BackgroundColor = tiers.UNOBTAINIUM
-					}
-					else if (itemRarity == 8) 
-					{
+					} else if (itemRarity == 8) {
 						// 8 is for custom dim red background
 						tier = i18n.CUSTOM
 						item._props.BackgroundColor = tiers.CUSTOM
-					}
-					else if (itemRarity == 9) 
-					{
+					} else if (itemRarity == 9) {
 						// 8 is for custom dim orange background
 						// tier = i18n.CUSTOM2
 						item._props.BackgroundColor = tiers.CUSTOM2
 					}
 
-					if (config.RarityRecolor.fallbackValueBasedRecolor && itemRarity == 0) 
-					{
+					if (config.RarityRecolor.fallbackValueBasedRecolor && itemRarity == 0) {
 						let itemValue = itemInHandbook.Price
 
-						if (item._props.StackMaxSize > 1) 
-						{
+						if (item._props.StackMaxSize > 1) {
 							// log(`"${itemID}", // ${name}`)
 							itemValue = itemInHandbook.Price * item._props.StackMaxSize
 						}
 
 						let itemSlots = item._props.Width * item._props.Height
-						if (itemSlots > 1) 
-						{
+						if (itemSlots > 1) {
 							itemValue = Math.round(itemValue / itemSlots)
 						}
 						// log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
 
-						if (item._parent == "543be5cb4bdc2deb348b4568") 
-						{
+						if (item._parent == "543be5cb4bdc2deb348b4568") {
 							// Ammo boxes special case
 							let count = item._props.StackSlots[0]._max_count
 							let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0]
@@ -561,51 +508,36 @@ class ItemInfo implements IPostDBLoadMod
 						}
 
 						// TODO: This will generate non-user friendly errors if they f*ck up their config. Maybe needs manual validation to ensure that all tiers.X values are numbers?
-						if (itemValue < Number.parseInt(tiers.COMMON_VALUE_FALLBACK)) 
-						{
+						if (itemValue < Number.parseInt(tiers.COMMON_VALUE_FALLBACK)) {
 							// tier = i18n.COMMON
 							item._props.BackgroundColor = tiers.COMMON
-						}
-						else if (itemValue < Number.parseInt(tiers.RARE_VALUE_FALLBACK)) 
-						{
+						} else if (itemValue < Number.parseInt(tiers.RARE_VALUE_FALLBACK)) {
 							// tier = i18n.RARE
 							item._props.BackgroundColor = tiers.RARE
-						}
-						else if (itemValue < Number.parseInt(tiers.EPIC_VALUE_FALLBACK)) 
-						{
+						} else if (itemValue < Number.parseInt(tiers.EPIC_VALUE_FALLBACK)) {
 							// tier = i18n.EPIC
 							item._props.BackgroundColor = tiers.EPIC
-						}
-						else if (itemValue < Number.parseInt(tiers.LEGENDARY_VALUE_FALLBACK)) 
-						{
+						} else if (itemValue < Number.parseInt(tiers.LEGENDARY_VALUE_FALLBACK)) {
 							// tier = i18n.LEGENDARY
 							item._props.BackgroundColor = tiers.LEGENDARY
-						}
-						else if (itemValue < Number.parseInt(tiers.UBER_VALUE_FALLBACK)) 
-						{
+						} else if (itemValue < Number.parseInt(tiers.UBER_VALUE_FALLBACK)) {
 							// tier = i18n.UBER
 							item._props.BackgroundColor = tiers.UBER
-						}
-						else 
-						{
+						} else {
 							// log(`"${itemID}", // ${name}, ${item._props.BackgroundColor}, ${itemValue}`)
 							// tier = i18n.UNOBTAINIUM
 							item._props.BackgroundColor = tiers.UNOBTAINIUM
 						}
 					}
-					if (config.RarityRecolor.addTierNameToPricesInfo) 
-					{
-						if (tier.length > 0) 
-						{
+					if (config.RarityRecolor.addTierNameToPricesInfo) {
+						if (tier.length > 0) {
 							priceString += tier + " | "
 						}
 					}
 				}
 
-				if (config.ArmorInfo.enabled) 
-				{
-					if (item._props.armorClass > 0) 
-					{
+				if (config.ArmorInfo.enabled) {
+					if (item._props.armorClass > 0) {
 						let armor = this.armors[item._props.ArmorMaterial]
 						// prettier-ignore
 						armorDurabilityString += `${config.ArmorInfo.addArmorClassInfo ? i18n.Armorclass + ": " + item._props.armorClass + " | " : ""}${i18n.Effectivedurability}: ${Math.round(item._props.MaxDurability / armor.Destructibility)} (${i18n.Max}: ${item._props.MaxDurability} x ${this.locales[userLocale][`Mat${(item._props.ArmorMaterial)}`]}: ${roundWithPrecision(1 / armor.Destructibility, 1)}) | ${i18n.Repairdegradation}: ${Math.round(armor.MinRepairDegradation * 100)}% - ${Math.round(armor.MaxRepairDegradation * 100)}%` + newLine + newLine;
@@ -614,13 +546,10 @@ class ItemInfo implements IPostDBLoadMod
 					}
 				}
 
-				if (config.ContainerInfo.enabled) 
-				{
-					if (item._props.Grids?.length > 0) 
-					{
+				if (config.ContainerInfo.enabled) {
+					if (item._props.Grids?.length > 0) {
 						let totalSlots = 0
-						for (const grid of item._props.Grids) 
-						{
+						for (const grid of item._props.Grids) {
 							totalSlots += grid._props.cellsH * grid._props.cellsV
 						}
 						let slotefficiency = roundWithPrecision(totalSlots / (item._props.Width * item._props.Height), 2)
@@ -631,65 +560,49 @@ class ItemInfo implements IPostDBLoadMod
 					}
 				}
 
-				if (config.MarkValueableItems.enabled) 
-				{
+				if (config.MarkValueableItems.enabled) {
 					let itemvalue = traderPrice / slotDensity
 					let fleaValue
-					if (isBanned) 
-					{
+					if (isBanned) {
 						// For banned items, recalculate flea price.
 						fleaValue = this.getFleaPrice(itemID) / slotDensity
 
-						if (config.MarkValueableItems.alwaysMarkBannedItems) 
-						{
+						if (config.MarkValueableItems.alwaysMarkBannedItems) {
 							fleaValue = config.MarkValueableItems.fleaSlotValueThresholdBest + 1 // always mark flea banned items as best.
 						}
-					}
-					else 
-					{
+					} else {
 						fleaValue = fleaPrice / slotDensity
 					}
 
-					if (this.items[itemID]._parent != "5795f317245977243854e041") 
-					{
+					if (this.items[itemID]._parent != "5795f317245977243854e041") {
 						// ignore containers
-						if (itemvalue > config.MarkValueableItems.traderSlotValueThresholdBest || fleaValue > config.MarkValueableItems.fleaSlotValueThresholdBest) 
-						{
-							if (config.MarkValueableItems.addToShortName) 
-							{
+						if (itemvalue > config.MarkValueableItems.traderSlotValueThresholdBest || fleaValue > config.MarkValueableItems.fleaSlotValueThresholdBest) {
+							if (config.MarkValueableItems.addToShortName) {
 								this.addToShortName(itemID, "★", "prepend")
 							}
-							if (config.MarkValueableItems.addToName) 
-							{
+							if (config.MarkValueableItems.addToName) {
 								this.addToName(itemID, "★", "append")
 							}
-						}
-						else if (itemvalue > config.MarkValueableItems.traderSlotValueThresholdGood || fleaValue > config.MarkValueableItems.fleaSlotValueThresholdGood) 
-						{
-							if (config.MarkValueableItems.addToShortName) 
-							{
+						} else if (itemvalue > config.MarkValueableItems.traderSlotValueThresholdGood || fleaValue > config.MarkValueableItems.fleaSlotValueThresholdGood) {
+							if (config.MarkValueableItems.addToShortName) {
 								this.addToShortName(itemID, "☆", "prepend")
 							}
-							if (config.MarkValueableItems.addToName) 
-							{
+							if (config.MarkValueableItems.addToName) {
 								this.addToName(itemID, "☆", "append")
 							}
 						}
 					}
 				}
 
-				if (config.PricesInfo.enabled) 
-				{
+				if (config.PricesInfo.enabled) {
 					// prettier-ignore
 					priceString += (config.PricesInfo.addFleaPrice ? i18n.Fleaprice + ": " + this.formatPrice(fleaPrice) + (fleaPrice > 0 ? "₽" : "") + " | " : "") + i18n.Valuation1 + traderName + i18n.Valuation2 + ": " + this.formatPrice(traderPrice) + "₽" + newLine + newLine;
 
 					// log(priceString)
 				}
 
-				if (config.HeadsetInfo.enabled) 
-				{
-					if (item._props.Distortion !== undefined) 
-					{
+				if (config.HeadsetInfo.enabled) {
+					if (item._props.Distortion !== undefined) {
 						let gain = item._props.CompressorGain
 						let thresh = item._props.CompressorTreshold
 						// prettier-ignore
@@ -699,46 +612,37 @@ class ItemInfo implements IPostDBLoadMod
 					}
 				}
 
-				if (config.BarterInfo.enabled) 
-				{
-					if (barterInfo.barters.length > 1) 
-					{
+				if (config.BarterInfo.enabled) {
+					if (barterInfo.barters.length > 1) {
 						barterString = barterInfo.barters + newLine
 						// log(name)
 						// log(barterString)
 					}
 				}
 
-				if (config.ProductionInfo.enabled) 
-				{
+				if (config.ProductionInfo.enabled) {
 					let productionInfo = this.productionGenarator(itemID, userLocale)
-					if (productionInfo.length > 1) 
-					{
+					if (productionInfo.length > 1) {
 						productionString = productionInfo + newLine
 						// log(name)
 						// log(productionString)
 					}
 				}
 
-				if (config.BarterResourceInfo.enabled) 
-				{
-					if (barterResourceInfo.length > 1) 
-					{
+				if (config.BarterResourceInfo.enabled) {
+					if (barterResourceInfo.length > 1) {
 						usedForBarterString = barterResourceInfo + newLine
 						// log(name)
 						// log(usedForBarterString)
 					}
 				}
 
-				if (config.QuestInfo.enabled) 
-				{
+				if (config.QuestInfo.enabled) {
 					const itemQuestInfo = this.QuestInfoGenerator(itemID, userLocale)
-					if (itemQuestInfo.length > 1) 
-					{
+					if (itemQuestInfo.length > 1) {
 						usedForQuestsString = itemQuestInfo + newLine
 						// item._props.BackgroundColor = "tracerGreen"
-						if (config.QuestInfo.FIRinName && itemQuestInfo.includes("✔")) 
-						{
+						if (config.QuestInfo.FIRinName && itemQuestInfo.includes("✔")) {
 							this.addToName(itemID, "✔", "append")
 							this.addToShortName(itemID, "", "prepend") // ✔ is not shown in inventory icon font :(
 						}
@@ -747,22 +651,18 @@ class ItemInfo implements IPostDBLoadMod
 					}
 				}
 
-				if (config.HideoutInfo.enabled) 
-				{
+				if (config.HideoutInfo.enabled) {
 					const itemHideoutInfo = this.HideoutInfoGenerator(itemID, userLocale)
-					if (itemHideoutInfo.length > 1) 
-					{
+					if (itemHideoutInfo.length > 1) {
 						usedForHideoutString = itemHideoutInfo + newLine
 						// log(name)
 						// log(usedForHideoutString)
 					}
 				}
 
-				if (config.CraftingMaterialInfo.enabled) 
-				{
+				if (config.CraftingMaterialInfo.enabled) {
 					const itemCraftingMaterialInfo = this.CraftingMaterialInfoGenarator(itemID, userLocale)
-					if (itemCraftingMaterialInfo.length > 1) 
-					{
+					if (itemCraftingMaterialInfo.length > 1) {
 						usedForCraftingString = itemCraftingMaterialInfo + newLine
 						// log(name)
 						// log(usedForCraftingString)
@@ -786,8 +686,7 @@ class ItemInfo implements IPostDBLoadMod
 				this.addToDescription(itemID, descriptionString, "prepend")
 
 				const debug = false
-				if (debug) 
-				{
+				if (debug) {
 					log(this.getItemName(itemID, userLocale))
 					log(descriptionString)
 					// log(this.getItemDescription(itemID, userLocale))
@@ -798,8 +697,7 @@ class ItemInfo implements IPostDBLoadMod
 			}
 		}
 		this.logger.success("[Item Info] Finished processing items, enjoy!")
-		if (translations.debug.enabled) 
-		{
+		if (translations.debug.enabled) {
 			let debugItemIDlist = [
 				"590a3efd86f77437d351a25b",
 				"5c0e722886f7740458316a57",
@@ -809,8 +707,7 @@ class ItemInfo implements IPostDBLoadMod
 				"5c0e625a86f7742d77340f62",
 				"5bb20dcad4351e3bac1212da",
 			]
-			for (const debugItemID of debugItemIDlist) 
-			{
+			for (const debugItemID of debugItemIDlist) {
 				this.logger.info("---")
 				this.logger.info(newLine)
 				this.logger.info(debugItemID)
@@ -821,81 +718,53 @@ class ItemInfo implements IPostDBLoadMod
 		}
 	}
 
-	getItemName(itemID: string, locale = "en"): string 
-	{
-		if (typeof this.locales[locale][`${itemID} Name`] != "undefined") 
-		{
+	getItemName(itemID: string, locale = "en"): string {
+		if (typeof this.locales[locale][`${itemID} Name`] != "undefined") {
 			return this.locales[locale][`${itemID} Name`]
-		}
-		else if (typeof this.locales["en"][`${itemID} Name`] != "undefined") 
-		{
+		} else if (typeof this.locales["en"][`${itemID} Name`] != "undefined") {
 			return this.locales["en"][`${itemID} Name`]
-		}
-		else 
-		{
+		} else {
 			return this.items[itemID]._props.Name // If THIS fails, the modmaker REALLY fucked up
 		}
 	}
 
-	getItemShortName(itemID: string, locale = "en"): string 
-	{
-		if (typeof this.locales[locale][`${itemID} ShortName`] != "undefined") 
-		{
+	getItemShortName(itemID: string, locale = "en"): string {
+		if (typeof this.locales[locale][`${itemID} ShortName`] != "undefined") {
 			return this.locales[locale][`${itemID} ShortName`]
-		}
-		else if (typeof this.locales["en"][`${itemID} ShortName`] != "undefined") 
-		{
+		} else if (typeof this.locales["en"][`${itemID} ShortName`] != "undefined") {
 			return this.locales["en"][`${itemID} ShortName`]
-		}
-		else 
-		{
+		} else {
 			return this.items[itemID]._props.ShortName
 		}
 	}
 
-	getItemDescription(itemID: string, locale = "en"): string 
-	{
-		if (typeof this.locales[locale][`${itemID} Description`] != "undefined") 
-		{
+	getItemDescription(itemID: string, locale = "en"): string {
+		if (typeof this.locales[locale][`${itemID} Description`] != "undefined") {
 			return this.locales[locale][`${itemID} Description`]
-		}
-		else if (typeof this.locales["en"][`${itemID} Description`] != "undefined") 
-		{
+		} else if (typeof this.locales["en"][`${itemID} Description`] != "undefined") {
 			return this.locales["en"][`${itemID} Description`]
-		}
-		else 
-		{
+		} else {
 			return this.items[itemID]._props.Description
 		}
 	}
 
-	formatPrice(price: number): string 
-	{
-		if (typeof price == "number" && config.FormatPrice) 
-		{
+	formatPrice(price: number): string {
+		if (typeof price == "number" && config.FormatPrice) {
 			return Intl.NumberFormat("en-US").format(price)
-		}
-		else 
-		{
-			return price.toString();
+		} else {
+			return price.toString()
 		}
 	}
 
-	addToName(itemID: string, addToName: string, place: "prepend" | "append", lang = ""): void 
-	{
-		if (lang == "") 
-		{
+	addToName(itemID: string, addToName: string, place: "prepend" | "append", lang = ""): void {
+		if (lang == "") {
 			// I'm actually really proud of this one! If no lang argument is passed, it defaults to recursion for all languages.
-			for (const locale in this.locales) 
-			{
+			for (const locale in this.locales) {
 				this.addToName(itemID, addToName, place, locale)
 			}
-		}
-		else 
-		{
+		} else {
 			let originalName = this.getItemName(itemID, lang)
-			switch (place) 
-			{
+			switch (place) {
 				case "prepend":
 					this.locales[lang][`${itemID} Name`] = addToName + originalName
 					break
@@ -906,20 +775,14 @@ class ItemInfo implements IPostDBLoadMod
 		}
 	}
 
-	addToShortName(itemID: string, addToShortName: string, place: "prepend" | "append", lang = ""): void 
-	{
-		if (lang == "") 
-		{
-			for (const locale in this.locales) 
-			{
+	addToShortName(itemID: string, addToShortName: string, place: "prepend" | "append", lang = ""): void {
+		if (lang == "") {
+			for (const locale in this.locales) {
 				this.addToShortName(itemID, addToShortName, place, locale)
 			}
-		}
-		else 
-		{
+		} else {
 			let originalShortName = this.getItemShortName(itemID, lang)
-			switch (place) 
-			{
+			switch (place) {
 				case "prepend":
 					this.locales[lang][`${itemID} ShortName`] = addToShortName + originalShortName
 					break
@@ -930,20 +793,14 @@ class ItemInfo implements IPostDBLoadMod
 		}
 	}
 
-	addToDescription(itemID: string, addToDescription: string, place: "prepend" | "append", lang = ""): void 
-	{
-		if (lang == "") 
-		{
-			for (const locale in this.locales) 
-			{
+	addToDescription(itemID: string, addToDescription: string, place: "prepend" | "append", lang = ""): void {
+		if (lang == "") {
+			for (const locale in this.locales) {
 				this.addToDescription(itemID, addToDescription, place, locale)
 			}
-		}
-		else 
-		{
+		} else {
 			let originalDescription = this.getItemDescription(itemID, lang)
-			switch (place) 
-			{
+			switch (place) {
 				case "prepend":
 					this.locales[lang][`${itemID} Description`] = addToDescription + originalDescription
 					break
@@ -954,25 +811,19 @@ class ItemInfo implements IPostDBLoadMod
 		}
 	}
 
-	getItemSlotDensity(itemID: string): number 
-	{
+	getItemSlotDensity(itemID: string): number {
 		return (this.items[itemID]._props.Width * this.items[itemID]._props.Height) / this.items[itemID]._props.StackMaxSize
 	}
 
-	getItemInHandbook(itemID: string): HandbookItem 
-	{
-		try 
-		{
+	getItemInHandbook(itemID: string): HandbookItem {
+		try {
 			return this.handbook.Items.find((i) => i.Id === itemID) // Outs: @Id, @ParentId, @Price
-		}
-		catch (error) 
-		{
+		} catch (error) {
 			log(error)
 		}
 	}
 
-	resolveBestTrader350(itemID: string, locale = "en") 
-	{
+	resolveBestTrader(itemID: string, locale = "en") {
 		let traderMulti = 0 // AVG fallback
 		let traderName = "None"
 		// let itemParentID = this.items[itemID]._parent // Unused
@@ -983,61 +834,16 @@ class ItemInfo implements IPostDBLoadMod
 		// traderSellCategory = handbookCategories?.Id // "?" check is for shitty custom items
 		// altTraderSellCategory = handbookCategories?.ParentId
 
-		for (const trader of this.traderList) 
-		{
-			if ((trader.base.items_buy.category.some((x) => itemBaseClasses.includes(x)) || trader.base.items_buy.id_list.includes(itemID)) && !trader.base.items_buy_prohibited.id_list.includes(itemID)) 
-			{ // items_buy is new to 350 it seems
+		for (const trader of this.traderList) {
+			if (
+				(trader.base.items_buy.category.some((x) => itemBaseClasses.includes(x)) || trader.base.items_buy.id_list.includes(itemID)) &&
+				!trader.base.items_buy_prohibited.id_list.includes(itemID)
+			) {
+				// items_buy is new to 350 it seems
 				traderMulti = (100 - trader.base.loyaltyLevels[0].buy_price_coef) / 100
 				//traderName = traderList[i].base.nickname
 				traderName = this.locales[locale][`${trader.base._id} Nickname`]
 				// log(`${this.getItemName(itemID)} @ ${traderName}`)
-				return {
-					multi: traderMulti,
-					name: traderName,
-				}
-			} 
-		}
-
-		return {
-			multi: traderMulti,
-			name: traderName,
-		}
-	}
-
-	getItemBestTrader350(itemID: string, locale = "en") 
-	{
-		let handbookItem = this.getItemInHandbook(itemID)
-
-		// log(handbookItem)
-		let bestTrader = this.resolveBestTrader350(itemID, locale)
-		let result = handbookItem.Price * bestTrader.multi
-		return {
-			price: result,
-			name: bestTrader.name,
-			ParentId: handbookItem.ParentId,
-		}
-	}
-
-	resolveBestTrader(handbookParentId: string, locale = "en") 
-	{
-		// I stole this code from someone looong ago, can't remember where, PM me to give proper credit
-		let traderSellCategory = ""
-		let traderMulti = 0.54 // AVG fallback
-		let altTraderSellCategory = ""
-		let traderName = ""
-
-		let handbookCategories = this.handbook.Categories.filter((i) => i.Id === handbookParentId)[0]
-
-		traderSellCategory = handbookCategories?.Id // "?" check is for shitty custom items
-		altTraderSellCategory = handbookCategories?.ParentId
-
-		for (const trader of this.traderList) 
-		{
-			if (trader.base.sell_category.includes(traderSellCategory) || trader.base.sell_category.includes(altTraderSellCategory)) 
-			{
-				traderMulti = (100 - trader.base.loyaltyLevels[0].buy_price_coef) / 100
-				//traderName = traderList[i].base.nickname
-				traderName = this.locales[locale][`${trader.base._id} Nickname`]
 				return {
 					multi: traderMulti,
 					name: traderName,
@@ -1047,15 +853,15 @@ class ItemInfo implements IPostDBLoadMod
 
 		return {
 			multi: traderMulti,
-			name: "None"
+			name: traderName,
 		}
 	}
 
-	getItemBestTrader(itemID: string, locale = "en") 
-	{
+	getItemBestTrader(itemID: string, locale = "en") {
 		let handbookItem = this.getItemInHandbook(itemID)
+
 		// log(handbookItem)
-		let bestTrader = this.resolveBestTrader(handbookItem.ParentId, locale)
+		let bestTrader = this.resolveBestTrader(itemID, locale)
 		let result = handbookItem.Price * bestTrader.multi
 		return {
 			price: result,
@@ -1064,37 +870,27 @@ class ItemInfo implements IPostDBLoadMod
 		}
 	}
 
-	getFleaPrice(itemID: string): number 
-	{
-		if (typeof this.fleaPrices[itemID] != "undefined") 
-		{
+	getFleaPrice(itemID: string): number {
+		if (typeof this.fleaPrices[itemID] != "undefined") {
 			// Forgot quotes, typeof returns string..
 			return this.fleaPrices[itemID]
-		}
-		else 
-		{
+		} else {
 			return this.getItemInHandbook(itemID).Price
 		}
 	}
 
-	getBestPrice(itemID: string): number 
-	{
-		if (typeof this.fleaPrices[itemID] != "undefined") 
-		{
+	getBestPrice(itemID: string): number {
+		if (typeof this.fleaPrices[itemID] != "undefined") {
 			return this.fleaPrices[itemID]
-		}
-		else 
-		{
-			return this.getItemBestTrader350(itemID).price
+		} else {
+			return this.getItemBestTrader(itemID).price
 		}
 	}
 
-	bartersResolver(itemID: string): ResolvedBarter[] 
-	{
+	bartersResolver(itemID: string): ResolvedBarter[] {
 		let itemBarters: ResolvedBarter[] = []
 
-		this.traderList.forEach((trader) => 
-		{
+		this.traderList.forEach((trader) => {
 			const allTraderBarters = trader.assort.items
 			const traderBarters = allTraderBarters.filter((x) => x._tpl == itemID)
 
@@ -1111,24 +907,17 @@ class ItemInfo implements IPostDBLoadMod
 
 			itemBarters.push(...barters)
 
-			function recursion(barter: PlaceholderItem): PlaceholderItem 
-			{
-				if (barter.parentId == "hideout") 
-				{
+			function recursion(barter: PlaceholderItem): PlaceholderItem {
+				if (barter.parentId == "hideout") {
 					return barter
-				}
-				else 
-				{
+				} else {
 					let parentBarter
-					try 
-					{
+					try {
 						// spent literary 12 hours debugging this feature... KMP.
 						// all because of one item, SWORD International Mk-18 not having proper .parentId is assort table. who would have thought. thx Nikita
 						parentBarter = allTraderBarters.find((x) => x._id == barter.parentId)
 						parentBarter.originalItemID = parentBarter._tpl
-					}
-					catch (error) 
-					{
+					} catch (error) {
 						return barter // FML
 					}
 					return recursion(parentBarter)
@@ -1139,46 +928,35 @@ class ItemInfo implements IPostDBLoadMod
 		return itemBarters
 	}
 
-	barterInfoGenerator(itemBarters: ResolvedBarter[], locale = "en") 
-	{
+	barterInfoGenerator(itemBarters: ResolvedBarter[], locale = "en") {
 		let barterString = ""
 		let rarityArray = []
 		let prices = []
 
-		for (const barter of itemBarters) 
-		{
+		for (const barter of itemBarters) {
 			let totalBarterPrice = 0
 			let totalBarterPriceString = ""
 			let traderName = this.locales[locale][`${barter.traderID} Nickname`]
 			let partOf = ""
 
-			if (barter.parentItem != null) 
-			{
+			if (barter.parentItem != null) {
 				partOf = ` ∈ ${this.getItemShortName(barter.parentItem, locale)}`
 			}
 
 			barterString += `${translations[locale].Bought}${partOf} ${translations[locale].at} ${traderName} ${translations[locale].lv}${barter.barterLoyaltyLevel} < `
 
 			let isBarter = false
-			for (let resource of barter.barterResources) 
-			{
-				if (resource._tpl == "5449016a4bdc2d6f028b456f") 
-				{
+			for (let resource of barter.barterResources) {
+				if (resource._tpl == "5449016a4bdc2d6f028b456f") {
 					let rubles = resource.count
 					barterString += `${this.formatPrice(Math.round(rubles))}₽ + `
-				}
-				else if (resource._tpl == "569668774bdc2da2298b4568") 
-				{
+				} else if (resource._tpl == "569668774bdc2da2298b4568") {
 					let euro = resource.count
 					barterString += `${this.formatPrice(Math.round(euro))}€ ≈ ${this.formatPrice(Math.round(euroRatio * euro))}₽ + `
-				}
-				else if (resource._tpl == "5696686a4bdc2da3298b456a") 
-				{
+				} else if (resource._tpl == "5696686a4bdc2da3298b456a") {
 					let dollars = resource.count
 					barterString += `$${this.formatPrice(Math.round(dollars))} ≈ ${this.formatPrice(Math.round(dollarRatio * dollars))}₽ + `
-				}
-				else 
-				{
+				} else {
 					totalBarterPrice += this.getFleaPrice(resource._tpl) * resource.count
 					barterString += this.getItemShortName(resource._tpl, locale)
 					barterString += ` ×${resource.count} + `
@@ -1186,17 +964,13 @@ class ItemInfo implements IPostDBLoadMod
 				}
 			}
 
-			if (isBarter) 
-			{
+			if (isBarter) {
 				rarityArray.push(barter.barterLoyaltyLevel + 1)
-			}
-			else 
-			{
+			} else {
 				rarityArray.push(barter.barterLoyaltyLevel)
 			}
 
-			if (totalBarterPrice != 0) 
-			{
+			if (totalBarterPrice != 0) {
 				totalBarterPriceString = ` | Σ ≈ ${this.formatPrice(Math.round(totalBarterPrice))}₽`
 			}
 
@@ -1210,29 +984,22 @@ class ItemInfo implements IPostDBLoadMod
 		}
 	}
 
-	barterResourceInfoGenerator(itemID: string, locale = "en"): string 
-	{
+	barterResourceInfoGenerator(itemID: string, locale = "en"): string {
 		// Refactor this abomination pls
 		let baseBarterString = ""
-		for (const trader of this.traderList) 
-		{
+		for (const trader of this.traderList) {
 			let traderName = this.locales[locale][`${trader.base._id} Nickname`]
-			for (let barterID in trader.assort.barter_scheme) 
-			{
+			for (let barterID in trader.assort.barter_scheme) {
 				// iterate all seller barters
-				for (let srcs in trader.assort.barter_scheme[barterID][0]) 
-				{
-					if (trader.assort.barter_scheme[barterID][0][srcs]._tpl === itemID) 
-					{
+				for (let srcs in trader.assort.barter_scheme[barterID][0]) {
+					if (trader.assort.barter_scheme[barterID][0][srcs]._tpl === itemID) {
 						let barterResources = trader.assort.barter_scheme[barterID][0]
-						let bartedForItem: string;
+						let bartedForItem: string
 						let totalBarterPrice = 0
 						let barterLoyaltyLevel = trader.assort.loyal_level_items[barterID]
 
-						for (let originalBarter in trader.assort.items) 
-						{
-							if (trader.assort.items[originalBarter]._id == barterID) 
-							{
+						for (let originalBarter in trader.assort.items) {
+							if (trader.assort.items[originalBarter]._id == barterID) {
 								bartedForItem = trader.assort.items[originalBarter]._tpl
 							}
 						}
@@ -1242,17 +1009,16 @@ class ItemInfo implements IPostDBLoadMod
 							translations[locale].at + " " + traderName + " " + translations[locale].lv + barterLoyaltyLevel + " > " + this.getItemName(bartedForItem, locale)
 
 						let extendedBarterString = " < … + "
-						for (let barterResource in barterResources) 
-						{
+						for (let barterResource in barterResources) {
 							totalBarterPrice += this.getFleaPrice(barterResources[barterResource]._tpl) * barterResources[barterResource].count
-							if (barterResources[barterResource]._tpl != itemID) 
-							{
+							if (barterResources[barterResource]._tpl != itemID) {
 								extendedBarterString += this.getItemShortName(barterResources[barterResource]._tpl, locale)
 								extendedBarterString += ` ×${barterResources[barterResource].count} + `
 							}
 						}
 
-						const barterStringToAppend = totalBarterPrice != 0 ? ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(bartedForItem) - totalBarterPrice))}₽` : null;
+						const barterStringToAppend =
+							totalBarterPrice != 0 ? ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(bartedForItem) - totalBarterPrice))}₽` : null
 
 						extendedBarterString = extendedBarterString.slice(0, extendedBarterString.length - 3)
 						extendedBarterString += barterStringToAppend
@@ -1264,36 +1030,27 @@ class ItemInfo implements IPostDBLoadMod
 		return baseBarterString
 	}
 
-	getCraftingAreaName(areaType: number, locale = "en"): string 
-	{
+	getCraftingAreaName(areaType: number, locale = "en"): string {
 		let stringName = `hideout_area_${areaType}_name`
 		return this.locales[locale][stringName]
 	}
 
-	getCraftingRarity(areaType: number, level: number): number 
-	{
-		for (let s in this.hideoutAreas[areaType].stages) 
-		{
-			if (Number.parseInt(s) > 1) 
-			{
+	getCraftingRarity(areaType: number, level: number): number {
+		for (let s in this.hideoutAreas[areaType].stages) {
+			if (Number.parseInt(s) > 1) {
 				return level + 1
-			}
-			else 
-			{
+			} else {
 				return 4
 			}
 		}
 	}
 
-	productionGenarator(itemID: string, locale = "en"): string 
-	{
+	productionGenarator(itemID: string, locale = "en"): string {
 		let craftableString = ""
 		let rarityArray = []
 
-		for (let recipeId in this.hideoutProduction) 
-		{
-			if (itemID === this.hideoutProduction[recipeId].endProduct && this.hideoutProduction[recipeId].areaType !== 21) 
-			{
+		for (let recipeId in this.hideoutProduction) {
+			if (itemID === this.hideoutProduction[recipeId].endProduct && this.hideoutProduction[recipeId].areaType !== 21) {
 				// Find every recipe for itemid and don't use Christmas Tree crafts
 				let recipe = this.hideoutProduction[recipeId]
 				let componentsString = ""
@@ -1302,15 +1059,12 @@ class ItemInfo implements IPostDBLoadMod
 				let recipeDivision = ""
 				let questReq = ""
 
-				for (const requirement of recipe.requirements) 
-				{
-					if (requirement.type === "Area") 
-					{
+				for (const requirement of recipe.requirements) {
+					if (requirement.type === "Area") {
 						recipeAreaString = this.getCraftingAreaName(requirement.areaType, locale) + " " + translations[locale].lv + requirement.requiredLevel
 						rarityArray.push(this.getCraftingRarity(requirement.areaType, requirement.requiredLevel))
 					}
-					if (requirement.type === "Item") 
-					{
+					if (requirement.type === "Item") {
 						let craftComponentId = requirement.templateId
 						let craftComponentCount = requirement.count
 						let craftComponentPrice = this.getFleaPrice(craftComponentId)
@@ -1318,8 +1072,7 @@ class ItemInfo implements IPostDBLoadMod
 						componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + craftComponentCount + " + "
 						totalRecipePrice += craftComponentPrice * craftComponentCount
 					}
-					if (requirement.type === "Resource") 
-					{
+					if (requirement.type === "Resource") {
 						// superwater calculation
 						let craftComponentId = requirement.templateId
 						let resourceProportion = requirement.resource / this.items[requirement.templateId]._props.Resource
@@ -1328,21 +1081,18 @@ class ItemInfo implements IPostDBLoadMod
 						componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + Math.round(resourceProportion * 100) + "%" + " + "
 						totalRecipePrice += Math.round(craftComponentPrice * resourceProportion)
 					}
-					if (requirement.type === "QuestComplete") 
-					{
+					if (requirement.type === "QuestComplete") {
 						questReq = ` (${this.locales[locale][`${requirement.questId} name`]}✔)`
 					}
 				}
 
-				if (recipe.count > 1) 
-				{
+				if (recipe.count > 1) {
 					recipeDivision = " " + translations[locale].peritem
 				}
 
 				componentsString = componentsString.slice(0, componentsString.length - 3)
 
-				if (recipe.endProduct === "59faff1d86f7746c51718c9c") 
-				{
+				if (recipe.endProduct === "59faff1d86f7746c51718c9c") {
 					craftableString += `${translations[locale].Crafted} @ ${recipeAreaString}`
 					// const time = recipe.productionTime // Unused
 					// prettier-ignore
@@ -1354,22 +1104,18 @@ class ItemInfo implements IPostDBLoadMod
 					// // 10× GPU: ${convertTime(gpuTime(10))} x${roundWithPrecision(time/gpuTime(10), 2)}
 					// // 25× GPU: ${convertTime(gpuTime(25))} x${roundWithPrecision(time/gpuTime(25), 2)}
 					// // 50× GPU: ${convertTime(gpuTime(50))} x${roundWithPrecision(time/gpuTime(50), 2)}`)
-				}
-				else 
-				{
+				} else {
 					craftableString += `${translations[locale].Crafted} ×${recipe.count} @ ${recipeAreaString}${questReq} < `
 					craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽\n`
 				}
 
-				function convertTime(time: number, locale = "en"): string
-				{
+				function convertTime(time: number, locale = "en"): string {
 					const hours = Math.trunc(time / 60 / 60)
 					const minutes = Math.round((time - hours * 60 * 60) / 60)
 					return `${hours}${this.locales[locale].HOURS} ${minutes}${this.locales[locale].Min}`
 				}
 
-				function gpuTime(gpus: number): number
-				{
+				function gpuTime(gpus: number): number {
 					const time = this.hideoutProduction.find((x) => x.endProduct == "59faff1d86f7746c51718c9c").productionTime
 					return time / (1 + (gpus - 1) * this.tables.hideout.settings.gpuBoostRate)
 				}
@@ -1382,21 +1128,18 @@ class ItemInfo implements IPostDBLoadMod
 		return craftableString
 	}
 
-	HideoutInfoGenerator(itemID: string, locale = "en"): string 
-	{
+	HideoutInfoGenerator(itemID: string, locale = "en"): string {
 		// make it like this
 		// const r = data.filter(d => d.courses.every(c => courses.includes(c.id)));
 
 		let hideoutString = ""
-		for (const area of this.hideoutAreas) 
-		{
-			for (const stage in area.stages) 
-			{
-				for (const requirement of area.stages[stage].requirements) 
-				{
-					if (requirement.templateId === itemID) 
-					{
-						hideoutString += `${translations[locale].Need} ×${requirement.count} > ${this.getCraftingAreaName(area.type,locale)} ${translations[locale].lv}${stage}\n`
+		for (const area of this.hideoutAreas) {
+			for (const stage in area.stages) {
+				for (const requirement of area.stages[stage].requirements) {
+					if (requirement.templateId === itemID) {
+						hideoutString += `${translations[locale].Need} ×${requirement.count} > ${this.getCraftingAreaName(area.type, locale)} ${
+							translations[locale].lv
+						}${stage}\n`
 					}
 				}
 			}
@@ -1405,51 +1148,40 @@ class ItemInfo implements IPostDBLoadMod
 		return hideoutString
 	}
 
-	CraftingMaterialInfoGenarator(itemID: string, locale = "en"): string 
-	{
+	CraftingMaterialInfoGenarator(itemID: string, locale = "en"): string {
 		let usedForCraftingString = ""
 		// let totalCraftingPrice = 0 // Unused
 
-		for (const recipe of this.hideoutProduction) 
-		{
-			for (let s in recipe.requirements)
-			{
-				if (recipe.requirements[s].templateId === itemID) 
-				{
+		for (const recipe of this.hideoutProduction) {
+			for (let s in recipe.requirements) {
+				if (recipe.requirements[s].templateId === itemID) {
 					let usedForCraftingComponentsString = " < … + "
 					let recipeAreaString = ""
 					let totalRecipePrice = 0
 					let questReq = ""
 
-					for (const requirement of recipe.requirements)
-					{
-						if (requirement.type == "Area") 
-						{
+					for (const requirement of recipe.requirements) {
+						if (requirement.type == "Area") {
 							// prettier-ignore
 							recipeAreaString = this.getCraftingAreaName(requirement.areaType, locale) + " " + translations[locale].lv + requirement.requiredLevel
 						}
-						if (requirement.type == "Item") 
-						{
+						if (requirement.type == "Item") {
 							let craftComponent = requirement
-							if (craftComponent.templateId != itemID) 
-							{
+							if (craftComponent.templateId != itemID) {
 								usedForCraftingComponentsString += this.getItemShortName(craftComponent.templateId, locale) + " ×" + craftComponent.count + " + "
 							}
 							totalRecipePrice += this.getFleaPrice(craftComponent.templateId) * craftComponent.count
 						}
-						if (requirement.type == "Resource") 
-						{
+						if (requirement.type == "Resource") {
 							let craftComponent = requirement
 							let resourceProportion = craftComponent.resource / this.items[craftComponent.templateId]._props.Resource
-							if (craftComponent.templateId != itemID) 
-							{
+							if (craftComponent.templateId != itemID) {
 								usedForCraftingComponentsString +=
 									this.getItemShortName(craftComponent.templateId, locale) + " ×" + Math.round(resourceProportion * 100) + "%" + " + "
 							}
 							totalRecipePrice += Math.round(this.getFleaPrice(craftComponent.templateId) * resourceProportion)
 						}
-						if (requirement.type === "QuestComplete") 
-						{
+						if (requirement.type === "QuestComplete") {
 							questReq = ` (${this.locales[locale][`${requirement.questId} name`]}✔) `
 						}
 					}
@@ -1467,18 +1199,14 @@ class ItemInfo implements IPostDBLoadMod
 		return usedForCraftingString
 	}
 
-	QuestInfoGenerator(itemID: string, locale = "en"): string 
-	{
+	QuestInfoGenerator(itemID: string, locale = "en"): string {
 		let questString = ""
-		for (const questID in this.quests) 
-		{
+		for (const questID in this.quests) {
 			let questName = this.locales[locale][`${questID} name`]
 
 			let questConditions = this.quests[questID].conditions.AvailableForFinish
-			for (const condition of questConditions) 
-			{
-				if (condition._parent == "HandoverItem" && condition._props.target[0] == itemID) 
-				{
+			for (const condition of questConditions) {
+				if (condition._parent == "HandoverItem" && condition._props.target[0] == itemID) {
 					let trader = this.quests[questID].traderId
 					//let tradeName = tables.traders[trader].base.nickname
 					let traderName = this.locales[locale][`${trader} Nickname`]
@@ -1491,30 +1219,26 @@ class ItemInfo implements IPostDBLoadMod
 	}
 }
 
-function roundWithPrecision(num: number, precision: number): number 
-{
+function roundWithPrecision(num: number, precision: number): number {
 	const multiplier = Math.pow(10, precision)
 	return Math.round(num * multiplier) / multiplier
 }
 
-const log = (i) => 
-{
+const log = (i) => {
 	// for my sanity and convenience
 	console.log(i)
 }
 
 // A silly solution to some weird recursion logic that adds values to an object that shouldn't have them
-interface PlaceholderItem extends Item 
-{
-	originalItemId?: string;
+interface PlaceholderItem extends Item {
+	originalItemId?: string
 }
 
-interface ResolvedBarter 
-{
-	parentItem: string;
-	barterResources: IBarterScheme[];
-	barterLoyaltyLevel: number;
-	traderID: string;
+interface ResolvedBarter {
+	parentItem: string
+	barterResources: IBarterScheme[]
+	barterLoyaltyLevel: number
+	traderID: string
 }
 
 module.exports = { mod: new ItemInfo() }
