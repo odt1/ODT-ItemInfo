@@ -1098,7 +1098,7 @@ class ItemInfo implements IPostDBLoadMod {
 					craftableString += `${translations[locale].Crafted} @ ${recipeAreaString}`
 					const bitcoinTime = recipe.productionTime
 					// prettier-ignore
-					craftableString += ` | 1× GPU: ${convertTime(gpuTime(1, bitcoinTime), locale)}, 10× GPU: ${convertTime(gpuTime(10, bitcoinTime), locale)}, 25× GPU: ${convertTime(gpuTime(25, bitcoinTime), locale)}, 50× GPU: ${convertTime(gpuTime(50, bitcoinTime), locale)}`
+					craftableString += ` | 1× GPU: ${this.convertTime(this.gpuTime(1, bitcoinTime), locale)}, 10× GPU: ${this.convertTime(this.gpuTime(10, bitcoinTime), locale)}, 25× GPU: ${this.convertTime(this.gpuTime(25, bitcoinTime), locale)}, 50× GPU: ${this.convertTime(this.gpuTime(50, bitcoinTime), locale)}`
 
 					// 					log(`
 					// // Base time (x${roundWithPrecision(145000/time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(tables.hideout.settings.gpuBoostRate/0.041225, 2)}
@@ -1111,15 +1111,15 @@ class ItemInfo implements IPostDBLoadMod {
 					craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽\n`
 				}
 
-				function convertTime(time: number, locale = "en"): string {
-					const hours = Math.trunc(time / 60 / 60)
-					const minutes = Math.round((time - hours * 60 * 60) / 60)
-					return `${hours}${this.locales[locale].HOURS} ${minutes}${this.locales[locale].Min}`
-				}
-
-				function gpuTime(gpus: number, time: number): number {
-					return time / (1 + (gpus - 1) * this.tables.hideout.settings.gpuBoostRate)
-				}
+				//				function convertTime(time: number, locale = "en"): string {
+				//					const hours = Math.trunc(time / 60 / 60)
+				//					const minutes = Math.round((time - hours * 60 * 60) / 60)
+				//					return `${hours}${this.locales[locale].HOURS} ${minutes}${this.locales[locale].Min}`
+				//				}
+				//
+				//				function gpuTime(gpus: number, time: number): number {
+				//					return time / (1 + (gpus - 1) * this.tables.hideout.settings.gpuBoostRate)
+				//				}
 				// if (fleaPrice > totalRecipePrice/recipe.count) {
 				// 	let profit = Math.round(fleaPrice-(totalRecipePrice/recipe.count))
 				// 	console.log("Hava Nagila! Profitable craft at " + profit + " profit detected! " + this.GetItemName(id) + " can be crafted at " + recipeAreaString)
@@ -1127,6 +1127,16 @@ class ItemInfo implements IPostDBLoadMod {
 			}
 		}
 		return craftableString
+	}
+
+	convertTime(time: number, locale = "en"): string {
+		const hours = Math.trunc(time / 60 / 60)
+		const minutes = Math.round((time - hours * 60 * 60) / 60)
+		return `${hours}${this.locales[locale].HOURS} ${minutes}${this.locales[locale].Min}`
+	}
+
+	gpuTime(gpus: number, time: number): number {
+		return time / (1 + (gpus - 1) * this.tables.hideout.settings.gpuBoostRate)
 	}
 
 	HideoutInfoGenerator(itemID: string, locale = "en"): string {
