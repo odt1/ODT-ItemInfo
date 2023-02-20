@@ -28,9 +28,6 @@ import { Item } from "@spt-aki/models/eft/common/tables/IItem"
 // Using `this.` is perfectly fine. Much better than having ambiguous and typeless variables declared in some global scope
 // Don't worry - there's always opportunities to learn :) - Terkoiz
 
-const euroRatio = 134 // TODO: remove hardcode
-const dollarRatio = 121
-
 const newLine = "\n"
 
 const bsgBlacklist = [
@@ -229,6 +226,8 @@ class ItemInfo implements IPostDBLoadMod {
 	armors: ArmorMaterials
 	traders: Record<string, ITrader>
 	traderList: ITrader[]
+	euroRatio: number
+	dollarRatio: number
 
 	private init(container: DependencyContainer) {
 		this.database = container.resolve<DatabaseServer>("DatabaseServer")
@@ -347,6 +346,9 @@ class ItemInfo implements IPostDBLoadMod {
 		// I'll just pretend I thought about it beforehand and will call it "in hindsight optimization". Cheers.
 		// P.S. Is there a way to access last user selected locale at IPreAkiLoadMod?
 		//}
+
+		this.euroRatio = this.handbook.Items.find((x) => x.Id == "569668774bdc2da2298b4568").Price
+		this.dollarRatio = this.handbook.Items.find((x) => x.Id == "5696686a4bdc2da3298b456a").Price
 
 		for (const itemID in this.items) {
 			const item = this.items[itemID]
@@ -952,10 +954,10 @@ class ItemInfo implements IPostDBLoadMod {
 					barterString += `${this.formatPrice(Math.round(rubles))}₽ + `
 				} else if (resource._tpl == "569668774bdc2da2298b4568") {
 					let euro = resource.count
-					barterString += `${this.formatPrice(Math.round(euro))}€ ≈ ${this.formatPrice(Math.round(euroRatio * euro))}₽ + `
+					barterString += `${this.formatPrice(Math.round(euro))}€ ≈ ${this.formatPrice(Math.round(this.euroRatio * euro))}₽ + `
 				} else if (resource._tpl == "5696686a4bdc2da3298b456a") {
 					let dollars = resource.count
-					barterString += `$${this.formatPrice(Math.round(dollars))} ≈ ${this.formatPrice(Math.round(dollarRatio * dollars))}₽ + `
+					barterString += `$${this.formatPrice(Math.round(dollars))} ≈ ${this.formatPrice(Math.round(this.dollarRatio * dollars))}₽ + `
 				} else {
 					totalBarterPrice += this.getFleaPrice(resource._tpl) * resource.count
 					barterString += this.getItemShortName(resource._tpl, locale)
@@ -1094,9 +1096,9 @@ class ItemInfo implements IPostDBLoadMod {
 
 				if (recipe.endProduct === "59faff1d86f7746c51718c9c") {
 					craftableString += `${translations[locale].Crafted} @ ${recipeAreaString}`
-					// const time = recipe.productionTime // Unused
+					const bitcoinTime = recipe.productionTime
 					// prettier-ignore
-					craftableString += ` | 1× GPU: ${convertTime(gpuTime(1), locale)}, 10× GPU: ${convertTime(gpuTime(10), locale)}, 25× GPU: ${convertTime(gpuTime(25), locale)}, 50× GPU: ${convertTime(gpuTime(50), locale)}`
+					craftableString += ` | 1× GPU: ${convertTime(gpuTime(1, bitcoinTime), locale)}, 10× GPU: ${convertTime(gpuTime(10, bitcoinTime), locale)}, 25× GPU: ${convertTime(gpuTime(25, bitcoinTime), locale)}, 50× GPU: ${convertTime(gpuTime(50, bitcoinTime), locale)}`
 
 					// 					log(`
 					// // Base time (x${roundWithPrecision(145000/time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(tables.hideout.settings.gpuBoostRate/0.041225, 2)}
@@ -1115,8 +1117,7 @@ class ItemInfo implements IPostDBLoadMod {
 					return `${hours}${this.locales[locale].HOURS} ${minutes}${this.locales[locale].Min}`
 				}
 
-				function gpuTime(gpus: number): number {
-					const time = this.hideoutProduction.find((x) => x.endProduct == "59faff1d86f7746c51718c9c").productionTime
+				function gpuTime(gpus: number, time: number): number {
 					return time / (1 + (gpus - 1) * this.tables.hideout.settings.gpuBoostRate)
 				}
 				// if (fleaPrice > totalRecipePrice/recipe.count) {

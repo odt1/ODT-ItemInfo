@@ -3,40 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const LogTextColor_1 = require("C:/snapshot/project/obj/models/spt/logging/LogTextColor");
-const LogBackgroundColor_1 = require("C:/snapshot/project/obj/models/spt/logging/LogBackgroundColor");
 const ConfigTypes_1 = require("C:/snapshot/project/obj/models/enums/ConfigTypes");
-const translations_json_1 = __importDefault(require("./translations.json"));
+const LogBackgroundColor_1 = require("C:/snapshot/project/obj/models/spt/logging/LogBackgroundColor");
+const LogTextColor_1 = require("C:/snapshot/project/obj/models/spt/logging/LogTextColor");
+const Traders_1 = require("C:/snapshot/project/obj/models/enums/Traders");
 const config_json_1 = __importDefault(require("../config/config.json"));
 const tiers_json_1 = __importDefault(require("../config/tiers.json"));
-// Abandon hope, all ye who enter here...
-let database;
-let tables;
-let items;
-let handbook;
-let logger;
-let locales;
-let fleaPrices;
-let hideoutProduction;
-let hideoutAreas;
-let quests;
-let armors;
-let ragfairConfig;
-let hideoutConfig;
-let itemBaseClassService;
-let therapist;
-let ragman;
-let jaeger;
-let mechanic;
-let prapor;
-let peacekeeper;
-let skier;
-let traderList;
-// ^ PLS, somebody explain to me (I'm NOT a programmer btw) how not to use a bajillion "this.*" for EVERY variable in a class to write PROPER (sic) code. This can't be sane, I just refuse.
-const euroRatio = 134; // TODO: remove hardcode
-const dollarRatio = 121;
+const translations_json_1 = __importDefault(require("./translations.json"));
+// Using `this.` is perfectly fine. Much better than having ambiguous and typeless variables declared in some global scope
+// Don't worry - there's always opportunities to learn :) - Terkoiz
 const newLine = "\n";
-const BSGblacklist = [
+const bsgBlacklist = [
     "62e7e7bbe6da9612f743f1e0",
     "6357c98711fb55120211f7e1",
     "5cfe8010d7ad1a59283b14c6",
@@ -215,34 +192,38 @@ const BSGblacklist = [
 ];
 class ItemInfo {
     init(container) {
-        database = container.resolve("DatabaseServer");
-        const configServer = container.resolve("ConfigServer");
-        itemBaseClassService = container.resolve("ItemBaseClassService");
-        ragfairConfig = configServer.getConfig(ConfigTypes_1.ConfigTypes.RAGFAIR);
-        hideoutConfig = configServer.getConfig(ConfigTypes_1.ConfigTypes.HIDEOUT);
-        logger.info("[Item Info] Database data is loaded, working...");
-        tables = database.getTables();
-        items = tables.templates.items;
-        handbook = tables.templates.handbook;
-        locales = tables.locales.global;
-        fleaPrices = tables.templates.prices;
-        hideoutProduction = tables.hideout.production;
-        hideoutAreas = tables.hideout.areas;
-        quests = tables.templates.quests;
-        armors = tables.globals.config.ArmorMaterials;
-        therapist = tables.traders["54cb57776803fa99248b456e"];
-        ragman = tables.traders["5ac3b934156ae10c4430e83c"];
-        jaeger = tables.traders["5c0647fdd443bc2504c2d371"];
-        mechanic = tables.traders["5a7c2eca46aef81a7ca2145d"];
-        prapor = tables.traders["54cb50c76803fa8b248b4571"];
-        peacekeeper = tables.traders["5935c25fb3acc3127c3d8cd9"];
-        skier = tables.traders["58330581ace78e27b8b10cee"];
-        traderList = [therapist, ragman, jaeger, mechanic, prapor, skier, peacekeeper]; // Hardcode list for best buy_price_coef
+        this.database = container.resolve("DatabaseServer");
+        this.configServer = container.resolve("ConfigServer");
+        this.itemBaseClassService = container.resolve("ItemBaseClassService");
+        this.ragfairConfig = this.configServer.getConfig(ConfigTypes_1.ConfigTypes.RAGFAIR);
+        this.hideoutConfig = this.configServer.getConfig(ConfigTypes_1.ConfigTypes.HIDEOUT);
+        this.logger.info("[Item Info] Database data is loaded, working...");
+        this.tables = this.database.getTables();
+        this.items = this.tables.templates.items;
+        this.handbook = this.tables.templates.handbook;
+        this.locales = this.tables.locales.global;
+        this.fleaPrices = this.tables.templates.prices;
+        this.hideoutProduction = this.tables.hideout.production;
+        this.hideoutAreas = this.tables.hideout.areas;
+        this.quests = this.tables.templates.quests;
+        this.armors = this.tables.globals.config.ArmorMaterials;
+        this.traders = this.tables.traders;
+        // Hardcode list for best buy_price_coef
+        this.traderList = [
+            this.traders[Traders_1.Traders.THERAPIST],
+            this.traders[Traders_1.Traders.RAGMAN],
+            this.traders[Traders_1.Traders.JAEGER],
+            this.traders[Traders_1.Traders.MECHANIC],
+            this.traders[Traders_1.Traders.PRAPOR],
+            this.traders[Traders_1.Traders.SKIER],
+            this.traders[Traders_1.Traders.PEACEKEEPER],
+        ];
     }
     postDBLoad(container) {
-        logger = container.resolve("WinstonLogger");
+        this.logger = container.resolve("WinstonLogger");
+        // TODO: With order.json being a thing, this can probably be removed and instead instructions for changing load order could be added
         if (config_json_1.default.delay.enabled) {
-            logger.log(`[Item Info] Mod compatibility delay enabled (${config_json_1.default.delay.seconds} seconds), waiting for other mods data to load...`, LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.CYAN);
+            this.logger.log(`[Item Info] Mod compatibility delay enabled (${config_json_1.default.delay.seconds} seconds), waiting for other mods data to load...`, LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.CYAN);
             setTimeout(() => {
                 this.init(container);
                 this.ItemInfoMain();
@@ -256,11 +237,11 @@ class ItemInfo {
     ItemInfoMain() {
         let userLocale = config_json_1.default.UserLocale;
         if (!config_json_1.default.HideLanguageAlert) {
-            logger.log(`[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean, French and Chinese are fully translated.\nHide this message in config.json`, LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.WHITE);
-            logger.log(`[Item Info] Your selected language is "${userLocale}". \nYou can now customise it in Item Info config.json file. \nLooking for translators, PM me! \nTranslation debug mode is availiable in translations.json`, LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.GREEN);
+            this.logger.log("[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean, French and Chinese are fully translated.\nHide this message in config.json", LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.WHITE);
+            this.logger.log(`[Item Info] Your selected language is "${userLocale}". \nYou can now customise it in Item Info config.json file. \nLooking for translators, PM me! \nTranslation debug mode is availiable in translations.json`, LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.GREEN);
         }
         if (translations_json_1.default.debug.enabled) {
-            logger.warning(`Translation debugging mode enabled! Changing userLocale to ${translations_json_1.default.debug.languageToDebug}`);
+            this.logger.warning(`Translation debugging mode enabled! Changing userLocale to ${translations_json_1.default.debug.languageToDebug}`);
             userLocale = translations_json_1.default.debug.languageToDebug;
         }
         // Fill the missing translation dictionaries with English keys as a fallback + debug mode to help translations. Smart.
@@ -271,11 +252,11 @@ class ItemInfo {
                     lang == translations_json_1.default.debug.languageToDebug &&
                     translations_json_1.default[translations_json_1.default.debug.languageToDebug][key] == translations_json_1.default["en"][key] &&
                     key != "") {
-                    logger.warning(translations_json_1.default.debug.languageToDebug + ` language "${translations_json_1.default[translations_json_1.default.debug.languageToDebug][key]}" is the same as in English`);
+                    this.logger.warning(translations_json_1.default.debug.languageToDebug + ` language "${translations_json_1.default[translations_json_1.default.debug.languageToDebug][key]}" is the same as in English`);
                 }
                 if (key in translations_json_1.default[lang] == false) {
                     if (translations_json_1.default.debug.enabled && translations_json_1.default.debug.languageToDebug == lang) {
-                        logger.warning(`${lang} language is missing "${key}" transaition!`);
+                        this.logger.warning(`${lang} language is missing "${key}" transaition!`);
                     }
                     translations_json_1.default[lang][key] = translations_json_1.default["en"][key];
                 }
@@ -299,15 +280,17 @@ class ItemInfo {
         // I'll just pretend I thought about it beforehand and will call it "in hindsight optimization". Cheers.
         // P.S. Is there a way to access last user selected locale at IPreAkiLoadMod?
         //}
-        for (const itemID in items) {
-            const item = items[itemID];
+        this.euroRatio = this.handbook.Items.find((x) => x.Id == "569668774bdc2da2298b4568").Price;
+        this.dollarRatio = this.handbook.Items.find((x) => x.Id == "5696686a4bdc2da3298b456a").Price;
+        for (const itemID in this.items) {
+            const item = this.items[itemID];
             const itemInHandbook = this.getItemInHandbook(itemID);
             if (item._type === "Item" && // Check if the item is a real item and not a "node" type.
                 itemInHandbook != undefined && // Ignore "useless" items
-                item._props.QuestItem != true && // Ignore quest items.
+                !item._props.QuestItem && // Ignore quest items.
                 item._parent != "543be5dd4bdc2deb348b4569" // Ignore currencies.
             ) {
-                let name = this.getItemName(itemID, userLocale); // for debug only
+                // let name = this.getItemName(itemID, userLocale) // for debug only
                 // item._props.ExaminedByDefault = true
                 const i18n = translations_json_1.default[userLocale];
                 // boilerplate defaults
@@ -327,7 +310,7 @@ class ItemInfo {
                 let itemRarity = 0;
                 let spawnString = "";
                 let fleaPrice = this.getFleaPrice(itemID);
-                let itemBestVendor = this.getItemBestTrader350(itemID, userLocale);
+                let itemBestVendor = this.getItemBestTrader(itemID, userLocale);
                 let traderPrice = Math.round(itemBestVendor.price);
                 let traderName = itemBestVendor.name;
                 let spawnChance = 10; // DEGUG
@@ -340,14 +323,14 @@ class ItemInfo {
                 itemRarity = Math.min(...rarityArray);
                 let isBanned = false;
                 if (config_json_1.default.useBSGStaticFleaBanlist) {
-                    BSGblacklist.includes(itemID) ? (isBanned = true) : (isBanned = false);
+                    isBanned = bsgBlacklist.includes(itemID);
                 }
                 else {
-                    item._props.CanSellOnRagfair ? (isBanned = false) : (isBanned = true);
+                    isBanned = !item._props.CanSellOnRagfair;
                 }
-                if (isBanned == true) {
+                if (isBanned) {
                     fleaPrice = i18n.BANNED;
-                    if (itemRarity == 0) {
+                    if (!itemRarity) {
                         itemRarity = 7;
                     }
                 }
@@ -355,14 +338,14 @@ class ItemInfo {
                     // Ammo boxes special case
                     let count = item._props.StackSlots[0]._max_count;
                     let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0];
-                    let value = this.getItemBestTrader350(ammo).price;
+                    let value = this.getItemBestTrader(ammo).price;
                     // let value = this.getItemInHandbook(ammo).price
                     traderPrice = value * count;
-                    if (itemRarity == 0) {
+                    if (!itemRarity) {
                         itemRarity = this.barterInfoGenerator(this.bartersResolver(ammo)).rarity;
                     }
                 }
-                if (config_json_1.default.BulletStatsInName.enabled == true) {
+                if (config_json_1.default.BulletStatsInName.enabled) {
                     if (item._props.ammoType === "bullet" || item._props.ammoType === "buckshot") {
                         let damageMult = 1;
                         if (item._props.ammoType === "buckshot") {
@@ -372,11 +355,11 @@ class ItemInfo {
                     }
                 }
                 if (config_json_1.default.FleaAbusePatch.enabled) {
-                    if (fleaPrice * ragfairConfig.dynamic.price.min < traderPrice && isBanned == false) {
+                    if (fleaPrice * this.ragfairConfig.dynamic.price.min < traderPrice && !isBanned) {
                         // Ignore banned items for compatibility with Softcore mod.
                         // log(name)
-                        let fleaPriceFix = Math.round(traderPrice * (1 / ragfairConfig.dynamic.price.min + 0.01));
-                        fleaPrices[itemID] = fleaPriceFix;
+                        let fleaPriceFix = Math.round(traderPrice * (1 / this.ragfairConfig.dynamic.price.min + 0.01));
+                        this.fleaPrices[itemID] = fleaPriceFix;
                         fleaPrice = fleaPriceFix;
                     }
                 }
@@ -426,7 +409,7 @@ class ItemInfo {
                         // tier = i18n.CUSTOM2
                         item._props.BackgroundColor = tiers_json_1.default.CUSTOM2;
                     }
-                    if (config_json_1.default.RarityRecolor.fallbackValueBasedRecolor == true && itemRarity == 0) {
+                    if (config_json_1.default.RarityRecolor.fallbackValueBasedRecolor && itemRarity == 0) {
                         let itemValue = itemInHandbook.Price;
                         if (item._props.StackMaxSize > 1) {
                             // log(`"${itemID}", // ${name}`)
@@ -441,26 +424,27 @@ class ItemInfo {
                             // Ammo boxes special case
                             let count = item._props.StackSlots[0]._max_count;
                             let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0];
-                            let value = this.getItemInHandbook(ammo).price;
+                            let value = this.getItemInHandbook(ammo).Price;
                             itemValue = value * count;
                         }
-                        if (itemValue < tiers_json_1.default.COMMON_VALUE_FALLBACK) {
+                        // TODO: This will generate non-user friendly errors if they f*ck up their config. Maybe needs manual validation to ensure that all tiers.X values are numbers?
+                        if (itemValue < Number.parseInt(tiers_json_1.default.COMMON_VALUE_FALLBACK)) {
                             // tier = i18n.COMMON
                             item._props.BackgroundColor = tiers_json_1.default.COMMON;
                         }
-                        else if (itemValue < tiers_json_1.default.RARE_VALUE_FALLBACK) {
+                        else if (itemValue < Number.parseInt(tiers_json_1.default.RARE_VALUE_FALLBACK)) {
                             // tier = i18n.RARE
                             item._props.BackgroundColor = tiers_json_1.default.RARE;
                         }
-                        else if (itemValue < tiers_json_1.default.EPIC_VALUE_FALLBACK) {
+                        else if (itemValue < Number.parseInt(tiers_json_1.default.EPIC_VALUE_FALLBACK)) {
                             // tier = i18n.EPIC
                             item._props.BackgroundColor = tiers_json_1.default.EPIC;
                         }
-                        else if (itemValue < tiers_json_1.default.LEGENDARY_VALUE_FALLBACK) {
+                        else if (itemValue < Number.parseInt(tiers_json_1.default.LEGENDARY_VALUE_FALLBACK)) {
                             // tier = i18n.LEGENDARY
                             item._props.BackgroundColor = tiers_json_1.default.LEGENDARY;
                         }
-                        else if (itemValue < tiers_json_1.default.UBER_VALUE_FALLBACK) {
+                        else if (itemValue < Number.parseInt(tiers_json_1.default.UBER_VALUE_FALLBACK)) {
                             // tier = i18n.UBER
                             item._props.BackgroundColor = tiers_json_1.default.UBER;
                         }
@@ -478,9 +462,9 @@ class ItemInfo {
                 }
                 if (config_json_1.default.ArmorInfo.enabled) {
                     if (item._props.armorClass > 0) {
-                        let armor = armors[item._props.ArmorMaterial];
+                        let armor = this.armors[item._props.ArmorMaterial];
                         // prettier-ignore
-                        armorDurabilityString += `${config_json_1.default.ArmorInfo.addArmorClassInfo ? i18n.Armorclass + ": " + item._props.armorClass + " | " : ""}${i18n.Effectivedurability}: ${Math.round(item._props.MaxDurability / armor.Destructibility)} (${i18n.Max}: ${item._props.MaxDurability} x ${locales[userLocale][`Mat${(item._props.ArmorMaterial)}`]}: ${roundWithPrecision(1 / armor.Destructibility, 1)}) | ${i18n.Repairdegradation}: ${Math.round(armor.MinRepairDegradation * 100)}% - ${Math.round(armor.MaxRepairDegradation * 100)}%` + newLine + newLine;
+                        armorDurabilityString += `${config_json_1.default.ArmorInfo.addArmorClassInfo ? i18n.Armorclass + ": " + item._props.armorClass + " | " : ""}${i18n.Effectivedurability}: ${Math.round(item._props.MaxDurability / armor.Destructibility)} (${i18n.Max}: ${item._props.MaxDurability} x ${this.locales[userLocale][`Mat${(item._props.ArmorMaterial)}`]}: ${roundWithPrecision(1 / armor.Destructibility, 1)}) | ${i18n.Repairdegradation}: ${Math.round(armor.MinRepairDegradation * 100)}% - ${Math.round(armor.MaxRepairDegradation * 100)}%` + newLine + newLine;
                         //log(name)
                         //log(armorDurabilityString)
                     }
@@ -501,7 +485,7 @@ class ItemInfo {
                 if (config_json_1.default.MarkValueableItems.enabled) {
                     let itemvalue = traderPrice / slotDensity;
                     let fleaValue;
-                    if (isBanned == true) {
+                    if (isBanned) {
                         // For banned items, recalculate flea price.
                         fleaValue = this.getFleaPrice(itemID) / slotDensity;
                         if (config_json_1.default.MarkValueableItems.alwaysMarkBannedItems) {
@@ -511,7 +495,7 @@ class ItemInfo {
                     else {
                         fleaValue = fleaPrice / slotDensity;
                     }
-                    if (items[itemID]._parent != "5795f317245977243854e041") {
+                    if (this.items[itemID]._parent != "5795f317245977243854e041") {
                         // ignore containers
                         if (itemvalue > config_json_1.default.MarkValueableItems.traderSlotValueThresholdBest || fleaValue > config_json_1.default.MarkValueableItems.fleaSlotValueThresholdBest) {
                             if (config_json_1.default.MarkValueableItems.addToShortName) {
@@ -616,12 +600,12 @@ class ItemInfo {
                     log(this.getItemName(itemID, userLocale));
                     log(descriptionString);
                     // log(this.getItemDescription(itemID, userLocale))
-                    log(`---`);
+                    log("---");
                 }
                 // this.addToName(itemID, "✅✓✔☑🗸⍻√❎❌✖✗✘☒", "append");
             }
         }
-        logger.success("[Item Info] Finished processing items, enjoy!");
+        this.logger.success("[Item Info] Finished processing items, enjoy!");
         if (translations_json_1.default.debug.enabled) {
             let debugItemIDlist = [
                 "590a3efd86f77437d351a25b",
@@ -633,60 +617,60 @@ class ItemInfo {
                 "5bb20dcad4351e3bac1212da",
             ];
             for (const debugItemID of debugItemIDlist) {
-                logger.info(`---`);
-                logger.info(newLine);
-                logger.info(debugItemID);
-                logger.info(this.getItemName(debugItemID, translations_json_1.default.debug.languageToDebug));
-                logger.info(newLine);
-                logger.info(this.getItemDescription(debugItemID, translations_json_1.default.debug.languageToDebug));
+                this.logger.info("---");
+                this.logger.info(newLine);
+                this.logger.info(debugItemID);
+                this.logger.info(this.getItemName(debugItemID, translations_json_1.default.debug.languageToDebug));
+                this.logger.info(newLine);
+                this.logger.info(this.getItemDescription(debugItemID, translations_json_1.default.debug.languageToDebug));
             }
         }
     }
     getItemName(itemID, locale = "en") {
-        if (typeof locales[locale][`${itemID} Name`] != "undefined") {
-            return locales[locale][`${itemID} Name`];
+        if (typeof this.locales[locale][`${itemID} Name`] != "undefined") {
+            return this.locales[locale][`${itemID} Name`];
         }
-        else if (typeof locales["en"][`${itemID} Name`] != "undefined") {
-            return locales["en"][`${itemID} Name`];
+        else if (typeof this.locales["en"][`${itemID} Name`] != "undefined") {
+            return this.locales["en"][`${itemID} Name`];
         }
         else {
-            return items[itemID]._props.Name; // If THIS fails, the modmaker REALLY fucked up
+            return this.items[itemID]._props.Name; // If THIS fails, the modmaker REALLY fucked up
         }
     }
     getItemShortName(itemID, locale = "en") {
-        if (typeof locales[locale][`${itemID} ShortName`] != "undefined") {
-            return locales[locale][`${itemID} ShortName`];
+        if (typeof this.locales[locale][`${itemID} ShortName`] != "undefined") {
+            return this.locales[locale][`${itemID} ShortName`];
         }
-        else if (typeof locales["en"][`${itemID} ShortName`] != "undefined") {
-            return locales["en"][`${itemID} ShortName`];
+        else if (typeof this.locales["en"][`${itemID} ShortName`] != "undefined") {
+            return this.locales["en"][`${itemID} ShortName`];
         }
         else {
-            return items[itemID]._props.ShortName;
+            return this.items[itemID]._props.ShortName;
         }
     }
     getItemDescription(itemID, locale = "en") {
-        if (typeof locales[locale][`${itemID} Description`] != "undefined") {
-            return locales[locale][`${itemID} Description`];
+        if (typeof this.locales[locale][`${itemID} Description`] != "undefined") {
+            return this.locales[locale][`${itemID} Description`];
         }
-        else if (typeof locales["en"][`${itemID} Description`] != "undefined") {
-            return locales["en"][`${itemID} Description`];
+        else if (typeof this.locales["en"][`${itemID} Description`] != "undefined") {
+            return this.locales["en"][`${itemID} Description`];
         }
         else {
-            return items[itemID]._props.Description;
+            return this.items[itemID]._props.Description;
         }
     }
     formatPrice(price) {
-        if (typeof price == "number" && config_json_1.default.FormatPrice == true) {
+        if (typeof price == "number" && config_json_1.default.FormatPrice) {
             return Intl.NumberFormat("en-US").format(price);
         }
         else {
-            return price;
+            return price.toString();
         }
     }
     addToName(itemID, addToName, place, lang = "") {
         if (lang == "") {
             // I'm actually really proud of this one! If no lang argument is passed, it defaults to recursion for all languages.
-            for (const locale in locales) {
+            for (const locale in this.locales) {
                 this.addToName(itemID, addToName, place, locale);
             }
         }
@@ -694,17 +678,17 @@ class ItemInfo {
             let originalName = this.getItemName(itemID, lang);
             switch (place) {
                 case "prepend":
-                    locales[lang][`${itemID} Name`] = addToName + originalName;
+                    this.locales[lang][`${itemID} Name`] = addToName + originalName;
                     break;
                 case "append":
-                    locales[lang][`${itemID} Name`] = originalName + addToName;
+                    this.locales[lang][`${itemID} Name`] = originalName + addToName;
                     break;
             }
         }
     }
     addToShortName(itemID, addToShortName, place, lang = "") {
         if (lang == "") {
-            for (const locale in locales) {
+            for (const locale in this.locales) {
                 this.addToShortName(itemID, addToShortName, place, locale);
             }
         }
@@ -712,17 +696,17 @@ class ItemInfo {
             let originalShortName = this.getItemShortName(itemID, lang);
             switch (place) {
                 case "prepend":
-                    locales[lang][`${itemID} ShortName`] = addToShortName + originalShortName;
+                    this.locales[lang][`${itemID} ShortName`] = addToShortName + originalShortName;
                     break;
                 case "append":
-                    locales[lang][`${itemID} ShortName`] = originalShortName + addToShortName;
+                    this.locales[lang][`${itemID} ShortName`] = originalShortName + addToShortName;
                     break;
             }
         }
     }
     addToDescription(itemID, addToDescription, place, lang = "") {
         if (lang == "") {
-            for (const locale in locales) {
+            for (const locale in this.locales) {
                 this.addToDescription(itemID, addToDescription, place, locale);
             }
         }
@@ -730,39 +714,41 @@ class ItemInfo {
             let originalDescription = this.getItemDescription(itemID, lang);
             switch (place) {
                 case "prepend":
-                    locales[lang][`${itemID} Description`] = addToDescription + originalDescription;
+                    this.locales[lang][`${itemID} Description`] = addToDescription + originalDescription;
                     break;
                 case "append":
-                    locales[lang][`${itemID} Description`] = originalDescription + addToDescription;
+                    this.locales[lang][`${itemID} Description`] = originalDescription + addToDescription;
                     break;
             }
         }
     }
     getItemSlotDensity(itemID) {
-        return (items[itemID]._props.Width * items[itemID]._props.Height) / items[itemID]._props.StackMaxSize;
+        return (this.items[itemID]._props.Width * this.items[itemID]._props.Height) / this.items[itemID]._props.StackMaxSize;
     }
     getItemInHandbook(itemID) {
         try {
-            return handbook.Items.find((i) => i.Id === itemID); // Outs: @Id, @ParentId, @Price
+            return this.handbook.Items.find((i) => i.Id === itemID); // Outs: @Id, @ParentId, @Price
         }
         catch (error) {
             log(error);
         }
     }
-    resolveBestTrader350(itemID, locale = "en") {
+    resolveBestTrader(itemID, locale = "en") {
         let traderMulti = 0; // AVG fallback
         let traderName = "None";
-        let itemParentID = items[itemID]._parent;
-        let itemBaseClasses = itemBaseClassService.getItemBaseClasses(itemID);
+        // let itemParentID = this.items[itemID]._parent // Unused
+        let itemBaseClasses = this.itemBaseClassService.getItemBaseClasses(itemID);
         // log(itemBaseClasses)
         // let handbookCategories = handbook.Categories.filter((i) => i.Id === handbookParentId)[0]
         // traderSellCategory = handbookCategories?.Id // "?" check is for shitty custom items
         // altTraderSellCategory = handbookCategories?.ParentId
-        for (let i = 0; i < 7; i++) {
-            if ((traderList[i].base.items_buy.category.some((x) => itemBaseClasses.includes(x)) || traderList[i].base.items_buy.id_list.includes(itemID)) && !traderList[i].base.items_buy_prohibited.id_list.includes(itemID)) { // items_buy is new to 350 it seems
-                traderMulti = (100 - traderList[i].base.loyaltyLevels[0].buy_price_coef) / 100;
+        for (const trader of this.traderList) {
+            if ((trader.base.items_buy.category.some((x) => itemBaseClasses.includes(x)) || trader.base.items_buy.id_list.includes(itemID)) &&
+                !trader.base.items_buy_prohibited.id_list.includes(itemID)) {
+                // items_buy is new to 350 it seems
+                traderMulti = (100 - trader.base.loyaltyLevels[0].buy_price_coef) / 100;
                 //traderName = traderList[i].base.nickname
-                traderName = locales[locale][`${traderList[i].base._id} Nickname`];
+                traderName = this.locales[locale][`${trader.base._id} Nickname`];
                 // log(`${this.getItemName(itemID)} @ ${traderName}`)
                 return {
                     multi: traderMulti,
@@ -775,45 +761,10 @@ class ItemInfo {
             name: traderName,
         };
     }
-    getItemBestTrader350(itemID, locale = "en") {
-        let itemBasePrice = 1;
-        let handbookItem = this.getItemInHandbook(itemID);
-        // log(handbookItem)
-        let bestTrader = this.resolveBestTrader350(itemID, locale);
-        let result = handbookItem.Price * bestTrader.multi;
-        return {
-            price: result,
-            name: bestTrader.name,
-            ParentId: handbookItem.ParentId,
-        };
-    }
-    resolveBestTrader(handbookParentId, locale = "en") {
-        // I stole this code from someone looong ago, can't remember where, PM me to give proper credit
-        let traderSellCategory = "";
-        let traderMulti = 0.54; // AVG fallback
-        let altTraderSellCategory = "";
-        let traderName = "";
-        let handbookCategories = handbook.Categories.filter((i) => i.Id === handbookParentId)[0];
-        traderSellCategory = handbookCategories?.Id; // "?" check is for shitty custom items
-        altTraderSellCategory = handbookCategories?.ParentId;
-        for (let i = 0; i < 7; i++) {
-            if (traderList[i].base.sell_category.includes(traderSellCategory) || traderList[i].base.sell_category.includes(altTraderSellCategory)) {
-                traderMulti = (100 - traderList[i].base.loyaltyLevels[0].buy_price_coef) / 100;
-                //traderName = traderList[i].base.nickname
-                traderName = locales[locale][`${traderList[i].base._id} Nickname`];
-                return {
-                    multi: traderMulti,
-                    name: traderName,
-                };
-            }
-        }
-        return traderMulti;
-    }
     getItemBestTrader(itemID, locale = "en") {
-        let itemBasePrice = 1;
         let handbookItem = this.getItemInHandbook(itemID);
         // log(handbookItem)
-        let bestTrader = this.resolveBestTrader(handbookItem.ParentId, locale);
+        let bestTrader = this.resolveBestTrader(itemID, locale);
         let result = handbookItem.Price * bestTrader.multi;
         return {
             price: result,
@@ -822,25 +773,25 @@ class ItemInfo {
         };
     }
     getFleaPrice(itemID) {
-        if (typeof fleaPrices[itemID] != "undefined") {
+        if (typeof this.fleaPrices[itemID] != "undefined") {
             // Forgot quotes, typeof returns string..
-            return fleaPrices[itemID];
+            return this.fleaPrices[itemID];
         }
         else {
             return this.getItemInHandbook(itemID).Price;
         }
     }
     getBestPrice(itemID) {
-        if (typeof fleaPrices[itemID] != "undefined") {
-            return fleaPrices[itemID];
+        if (typeof this.fleaPrices[itemID] != "undefined") {
+            return this.fleaPrices[itemID];
         }
         else {
-            return this.getItemBestTrader350(itemID).price;
+            return this.getItemBestTrader(itemID).price;
         }
     }
     bartersResolver(itemID) {
         let itemBarters = [];
-        traderList.forEach((trader) => {
+        this.traderList.forEach((trader) => {
             const allTraderBarters = trader.assort.items;
             const traderBarters = allTraderBarters.filter((x) => x._tpl == itemID);
             const barters = traderBarters
@@ -848,12 +799,12 @@ class ItemInfo {
                 .map((barter) => ({
                 // reset parentItem for actual parent items because of recursion function.
                 // can be done in a more elegant way, but i'm too tired after a night of debugging. who cares anyway, it works.
-                parentItem: barter.originalItemID ? (barter.originalItemID == itemID ? null : barter.originalItemID) : null,
+                parentItem: barter.originalItemId ? (barter.originalItemId == itemID ? null : barter.originalItemId) : null,
                 barterResources: trader.assort.barter_scheme[barter._id][0],
                 barterLoyaltyLevel: trader.assort.loyal_level_items[barter._id],
                 traderID: trader.base._id,
             }));
-            itemBarters.push(barters);
+            itemBarters.push(...barters);
             function recursion(barter) {
                 if (barter.parentId == "hideout") {
                     return barter;
@@ -873,7 +824,7 @@ class ItemInfo {
                 }
             }
         });
-        return itemBarters.flat();
+        return itemBarters;
     }
     barterInfoGenerator(itemBarters, locale = "en") {
         let barterString = "";
@@ -882,7 +833,7 @@ class ItemInfo {
         for (const barter of itemBarters) {
             let totalBarterPrice = 0;
             let totalBarterPriceString = "";
-            let traderName = locales[locale][`${barter.traderID} Nickname`];
+            let traderName = this.locales[locale][`${barter.traderID} Nickname`];
             let partOf = "";
             if (barter.parentItem != null) {
                 partOf = ` ∈ ${this.getItemShortName(barter.parentItem, locale)}`;
@@ -896,11 +847,11 @@ class ItemInfo {
                 }
                 else if (resource._tpl == "569668774bdc2da2298b4568") {
                     let euro = resource.count;
-                    barterString += `${this.formatPrice(Math.round(euro))}€ ≈ ${this.formatPrice(Math.round(euroRatio * euro))}₽ + `;
+                    barterString += `${this.formatPrice(Math.round(euro))}€ ≈ ${this.formatPrice(Math.round(this.euroRatio * euro))}₽ + `;
                 }
                 else if (resource._tpl == "5696686a4bdc2da3298b456a") {
                     let dollars = resource.count;
-                    barterString += `$${this.formatPrice(Math.round(dollars))} ≈ ${this.formatPrice(Math.round(dollarRatio * dollars))}₽ + `;
+                    barterString += `$${this.formatPrice(Math.round(dollars))} ≈ ${this.formatPrice(Math.round(this.dollarRatio * dollars))}₽ + `;
                 }
                 else {
                     totalBarterPrice += this.getFleaPrice(resource._tpl) * resource.count;
@@ -929,23 +880,22 @@ class ItemInfo {
     barterResourceInfoGenerator(itemID, locale = "en") {
         // Refactor this abomination pls
         let baseBarterString = "";
-        for (let trader = 0; trader < 7; trader++ // iterate excluding Fence sales.
-        ) {
-            let traderName = locales[locale][`${traderList[trader].base._id} Nickname`];
-            for (let barterID in traderList[trader].assort.barter_scheme) {
+        for (const trader of this.traderList) {
+            let traderName = this.locales[locale][`${trader.base._id} Nickname`];
+            for (let barterID in trader.assort.barter_scheme) {
                 // iterate all seller barters
-                for (let srcs in traderList[trader].assort.barter_scheme[barterID][0]) {
-                    if (traderList[trader].assort.barter_scheme[barterID][0][srcs]._tpl == itemID) {
-                        let barterResources = traderList[trader].assort.barter_scheme[barterID][0];
+                for (let srcs in trader.assort.barter_scheme[barterID][0]) {
+                    if (trader.assort.barter_scheme[barterID][0][srcs]._tpl === itemID) {
+                        let barterResources = trader.assort.barter_scheme[barterID][0];
                         let bartedForItem;
                         let totalBarterPrice = 0;
-                        let barterLoyaltyLevel = traderList[trader].assort.loyal_level_items[barterID];
-                        for (let originalBarter in traderList[trader].assort.items) {
-                            if (traderList[trader].assort.items[originalBarter]._id == barterID) {
-                                bartedForItem = traderList[trader].assort.items[originalBarter]._tpl;
+                        let barterLoyaltyLevel = trader.assort.loyal_level_items[barterID];
+                        for (let originalBarter in trader.assort.items) {
+                            if (trader.assort.items[originalBarter]._id == barterID) {
+                                bartedForItem = trader.assort.items[originalBarter]._tpl;
                             }
                         }
-                        baseBarterString += translations_json_1.default[locale].Traded + " ×" + traderList[trader].assort.barter_scheme[barterID][0][srcs].count + " ";
+                        baseBarterString += translations_json_1.default[locale].Traded + " ×" + trader.assort.barter_scheme[barterID][0][srcs].count + " ";
                         baseBarterString +=
                             translations_json_1.default[locale].at + " " + traderName + " " + translations_json_1.default[locale].lv + barterLoyaltyLevel + " > " + this.getItemName(bartedForItem, locale);
                         let extendedBarterString = " < … + ";
@@ -956,15 +906,10 @@ class ItemInfo {
                                 extendedBarterString += ` ×${barterResources[barterResource].count} + `;
                             }
                         }
-                        if (totalBarterPrice != 0) {
-                            totalBarterPrice = ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(bartedForItem) - totalBarterPrice))}₽`;
-                        }
-                        else {
-                            totalBarterPrice = "";
-                        }
+                        const barterStringToAppend = totalBarterPrice != 0 ? ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(bartedForItem) - totalBarterPrice))}₽` : null;
                         extendedBarterString = extendedBarterString.slice(0, extendedBarterString.length - 3);
-                        extendedBarterString += totalBarterPrice;
-                        baseBarterString += extendedBarterString + "\n";
+                        extendedBarterString += barterStringToAppend;
+                        baseBarterString += extendedBarterString + newLine;
                     }
                 }
             }
@@ -973,12 +918,12 @@ class ItemInfo {
     }
     getCraftingAreaName(areaType, locale = "en") {
         let stringName = `hideout_area_${areaType}_name`;
-        return locales[locale][stringName];
+        return this.locales[locale][stringName];
     }
-    getCraftingRarity(areaType, Level) {
-        for (let s in hideoutAreas[areaType].stages) {
-            if (s > 1) {
-                return Level + 1;
+    getCraftingRarity(areaType, level) {
+        for (let s in this.hideoutAreas[areaType].stages) {
+            if (Number.parseInt(s) > 1) {
+                return level + 1;
             }
             else {
                 return 4;
@@ -988,51 +933,48 @@ class ItemInfo {
     productionGenarator(itemID, locale = "en") {
         let craftableString = "";
         let rarityArray = [];
-        for (let recipeId in hideoutProduction) {
-            if (itemID === hideoutProduction[recipeId].endProduct && hideoutProduction[recipeId].areaType != "21") {
+        for (let recipeId in this.hideoutProduction) {
+            if (itemID === this.hideoutProduction[recipeId].endProduct && this.hideoutProduction[recipeId].areaType !== 21) {
                 // Find every recipe for itemid and don't use Christmas Tree crafts
-                let recipe = hideoutProduction[recipeId];
+                let recipe = this.hideoutProduction[recipeId];
                 let componentsString = "";
                 let recipeAreaString = this.getCraftingAreaName(recipe.areaType, locale);
                 let totalRecipePrice = 0;
                 let recipeDivision = "";
                 let questReq = "";
-                for (let i = recipe.requirements.length - 1; i >= 0; i-- // Itterate
-                ) {
-                    if (recipe.requirements[i].type === "Area") {
-                        let recipeArea = recipe.requirements[i]; // Find and save craft area object
-                        recipeAreaString = this.getCraftingAreaName(recipeArea.areaType, locale) + " " + translations_json_1.default[locale].lv + recipeArea.requiredLevel;
-                        rarityArray.push(this.getCraftingRarity(recipeArea.areaType, recipeArea.requiredLevel));
+                for (const requirement of recipe.requirements) {
+                    if (requirement.type === "Area") {
+                        recipeAreaString = this.getCraftingAreaName(requirement.areaType, locale) + " " + translations_json_1.default[locale].lv + requirement.requiredLevel;
+                        rarityArray.push(this.getCraftingRarity(requirement.areaType, requirement.requiredLevel));
                     }
-                    if (recipe.requirements[i].type === "Item") {
-                        let craftComponentId = recipe.requirements[i].templateId;
-                        let craftComponentCount = recipe.requirements[i].count;
+                    if (requirement.type === "Item") {
+                        let craftComponentId = requirement.templateId;
+                        let craftComponentCount = requirement.count;
                         let craftComponentPrice = this.getFleaPrice(craftComponentId);
                         componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + craftComponentCount + " + ";
                         totalRecipePrice += craftComponentPrice * craftComponentCount;
                     }
-                    if (recipe.requirements[i].type === "Resource") {
+                    if (requirement.type === "Resource") {
                         // superwater calculation
-                        let craftComponentId = recipe.requirements[i].templateId;
-                        let resourceProportion = recipe.requirements[i].resource / items[recipe.requirements[i].templateId]._props.Resource;
+                        let craftComponentId = requirement.templateId;
+                        let resourceProportion = requirement.resource / this.items[requirement.templateId]._props.Resource;
                         let craftComponentPrice = this.getFleaPrice(craftComponentId);
                         componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + Math.round(resourceProportion * 100) + "%" + " + ";
                         totalRecipePrice += Math.round(craftComponentPrice * resourceProportion);
                     }
-                    if (recipe.requirements[i].type === "QuestComplete") {
-                        //
-                        questReq = ` (${locales[locale][`${recipe.requirements[i].questId} name`]}✔)`;
+                    if (requirement.type === "QuestComplete") {
+                        questReq = ` (${this.locales[locale][`${requirement.questId} name`]}✔)`;
                     }
                 }
                 if (recipe.count > 1) {
                     recipeDivision = " " + translations_json_1.default[locale].peritem;
                 }
                 componentsString = componentsString.slice(0, componentsString.length - 3);
-                if (recipe.endProduct == "59faff1d86f7746c51718c9c") {
+                if (recipe.endProduct === "59faff1d86f7746c51718c9c") {
                     craftableString += `${translations_json_1.default[locale].Crafted} @ ${recipeAreaString}`;
-                    const time = recipe.productionTime;
+                    const bitcoinTime = recipe.productionTime;
                     // prettier-ignore
-                    craftableString += ` | 1× GPU: ${convertTime(gpuTime(1), locale)}, 10× GPU: ${convertTime(gpuTime(10), locale)}, 25× GPU: ${convertTime(gpuTime(25), locale)}, 50× GPU: ${convertTime(gpuTime(50), locale)}`;
+                    craftableString += ` | 1× GPU: ${convertTime(gpuTime(1, bitcoinTime), locale)}, 10× GPU: ${convertTime(gpuTime(10, bitcoinTime), locale)}, 25× GPU: ${convertTime(gpuTime(25, bitcoinTime), locale)}, 50× GPU: ${convertTime(gpuTime(50, bitcoinTime), locale)}`;
                     // 					log(`
                     // // Base time (x${roundWithPrecision(145000/time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(tables.hideout.settings.gpuBoostRate/0.041225, 2)}
                     // // 2× GPU: ${convertTime(gpuTime(2))} x${roundWithPrecision(time/gpuTime(2), 2)}
@@ -1047,11 +989,11 @@ class ItemInfo {
                 function convertTime(time, locale = "en") {
                     const hours = Math.trunc(time / 60 / 60);
                     const minutes = Math.round((time - hours * 60 * 60) / 60);
-                    return `${hours}${locales[locale].HOURS} ${minutes}${locales[locale].Min}`;
+                    return `${hours}${ItemInfo.locales[locale].HOURS} ${minutes}${ItemInfo.locales[locale].Min}`;
                 }
-                function gpuTime(gpus) {
-                    const time = hideoutProduction.find((x) => x.endProduct == "59faff1d86f7746c51718c9c").productionTime;
-                    return time / (1 + (gpus - 1) * tables.hideout.settings.gpuBoostRate);
+                function gpuTime(gpus, time) {
+                    // return time / (1 + (gpus - 1) * this.tables.hideout.settings.gpuBoostRate)
+                    return time / (1 + (gpus - 1) * 0.041225);
                 }
                 // if (fleaPrice > totalRecipePrice/recipe.count) {
                 // 	let profit = Math.round(fleaPrice-(totalRecipePrice/recipe.count))
@@ -1065,11 +1007,11 @@ class ItemInfo {
         // make it like this
         // const r = data.filter(d => d.courses.every(c => courses.includes(c.id)));
         let hideoutString = "";
-        for (let area in hideoutAreas) {
-            for (let s in hideoutAreas[area].stages) {
-                for (let a in hideoutAreas[area].stages[s].requirements) {
-                    if (hideoutAreas[area].stages[s].requirements[a].templateId == itemID) {
-                        hideoutString += `${translations_json_1.default[locale].Need} ×${hideoutAreas[area].stages[s].requirements[a].count} > ${this.getCraftingAreaName(hideoutAreas[area].type, locale)} ${translations_json_1.default[locale].lv}${s}\n`;
+        for (const area of this.hideoutAreas) {
+            for (const stage in area.stages) {
+                for (const requirement of area.stages[stage].requirements) {
+                    if (requirement.templateId === itemID) {
+                        hideoutString += `${translations_json_1.default[locale].Need} ×${requirement.count} > ${this.getCraftingAreaName(area.type, locale)} ${translations_json_1.default[locale].lv}${stage}\n`;
                     }
                 }
             }
@@ -1079,45 +1021,44 @@ class ItemInfo {
     }
     CraftingMaterialInfoGenarator(itemID, locale = "en") {
         let usedForCraftingString = "";
-        let totalCraftingPrice = 0;
-        for (let craftID in hideoutProduction) {
-            for (let s in hideoutProduction[craftID].requirements) {
-                if (hideoutProduction[craftID].requirements[s].templateId == itemID) {
+        // let totalCraftingPrice = 0 // Unused
+        for (const recipe of this.hideoutProduction) {
+            for (let s in recipe.requirements) {
+                if (recipe.requirements[s].templateId === itemID) {
                     let usedForCraftingComponentsString = " < … + ";
                     let recipeAreaString = "";
                     let totalRecipePrice = 0;
                     let questReq = "";
-                    for (let i = hideoutProduction[craftID].requirements.length - 1; i >= 0; i-- // Itterate
-                    ) {
-                        if (hideoutProduction[craftID].requirements[i].type == "Area") {
+                    for (const requirement of recipe.requirements) {
+                        if (requirement.type == "Area") {
                             // prettier-ignore
-                            recipeAreaString = this.getCraftingAreaName(hideoutProduction[craftID].requirements[i].areaType, locale) + " " + translations_json_1.default[locale].lv + hideoutProduction[craftID].requirements[i].requiredLevel;
+                            recipeAreaString = this.getCraftingAreaName(requirement.areaType, locale) + " " + translations_json_1.default[locale].lv + requirement.requiredLevel;
                         }
-                        if (hideoutProduction[craftID].requirements[i].type == "Item") {
-                            let craftComponent = hideoutProduction[craftID].requirements[i];
+                        if (requirement.type == "Item") {
+                            let craftComponent = requirement;
                             if (craftComponent.templateId != itemID) {
                                 usedForCraftingComponentsString += this.getItemShortName(craftComponent.templateId, locale) + " ×" + craftComponent.count + " + ";
                             }
                             totalRecipePrice += this.getFleaPrice(craftComponent.templateId) * craftComponent.count;
                         }
-                        if (hideoutProduction[craftID].requirements[i].type == "Resource") {
-                            let craftComponent = hideoutProduction[craftID].requirements[i];
-                            let resourceProportion = craftComponent.resource / items[craftComponent.templateId]._props.Resource;
+                        if (requirement.type == "Resource") {
+                            let craftComponent = requirement;
+                            let resourceProportion = craftComponent.resource / this.items[craftComponent.templateId]._props.Resource;
                             if (craftComponent.templateId != itemID) {
                                 usedForCraftingComponentsString +=
                                     this.getItemShortName(craftComponent.templateId, locale) + " ×" + Math.round(resourceProportion * 100) + "%" + " + ";
                             }
                             totalRecipePrice += Math.round(this.getFleaPrice(craftComponent.templateId) * resourceProportion);
                         }
-                        if (hideoutProduction[craftID].requirements[i].type === "QuestComplete") {
-                            questReq = ` (${locales[locale][`${hideoutProduction[craftID].requirements[i].questId} name`]}✔) `;
+                        if (requirement.type === "QuestComplete") {
+                            questReq = ` (${this.locales[locale][`${requirement.questId} name`]}✔) `;
                         }
                     }
                     usedForCraftingComponentsString = usedForCraftingComponentsString.slice(0, usedForCraftingComponentsString.length - 3);
                     // prettier-ignore
-                    usedForCraftingComponentsString += ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(hideoutProduction[craftID].endProduct) * hideoutProduction[craftID].count - totalRecipePrice))}₽`;
+                    usedForCraftingComponentsString += ` | Δ ≈ ${this.formatPrice(Math.round(this.getFleaPrice(recipe.endProduct) * recipe.count - totalRecipePrice))}₽`;
                     // prettier-ignore
-                    usedForCraftingString += `${hideoutProduction[craftID].requirements[s].type == "Tool" ? translations_json_1.default[locale].Tool : translations_json_1.default[locale].Part + " ×" + hideoutProduction[craftID].requirements[s].count} > ${this.getItemName(hideoutProduction[craftID].endProduct, locale)} ×${hideoutProduction[craftID].count}`;
+                    usedForCraftingString += `${recipe.requirements[s].type == "Tool" ? translations_json_1.default[locale].Tool : translations_json_1.default[locale].Part + " ×" + recipe.requirements[s].count} > ${this.getItemName(recipe.endProduct, locale)} ×${recipe.count}`;
                     usedForCraftingString += ` @ ${recipeAreaString + questReq + usedForCraftingComponentsString}\n`;
                 }
             }
@@ -1128,16 +1069,16 @@ class ItemInfo {
     }
     QuestInfoGenerator(itemID, locale = "en") {
         let questString = "";
-        for (let questID in quests) {
-            let questName = locales[locale][`${questID} name`];
-            let questConditions = quests[questID].conditions.AvailableForFinish;
-            for (let i in questConditions) {
-                if (questConditions[i]._parent == "HandoverItem" && questConditions[i]._props.target[0] == itemID) {
-                    let trader = quests[questID].traderId;
+        for (const questID in this.quests) {
+            let questName = this.locales[locale][`${questID} name`];
+            let questConditions = this.quests[questID].conditions.AvailableForFinish;
+            for (const condition of questConditions) {
+                if (condition._parent == "HandoverItem" && condition._props.target[0] == itemID) {
+                    let trader = this.quests[questID].traderId;
                     //let tradeName = tables.traders[trader].base.nickname
-                    let traderName = locales[locale][`${trader} Nickname`];
+                    let traderName = this.locales[locale][`${trader} Nickname`];
                     // prettier-ignore
-                    questString += `${translations_json_1.default[locale].Found} ${questConditions[i]._props.onlyFoundInRaid ? "(✔) " : ""}×${questConditions[i]._props.value} > ${questName} @ ${traderName}\n`;
+                    questString += `${translations_json_1.default[locale].Found} ${condition._props.onlyFoundInRaid ? "(✔) " : ""}×${condition._props.value} > ${questName} @ ${traderName}\n`;
                 }
             }
         }
@@ -1145,7 +1086,7 @@ class ItemInfo {
     }
 }
 function roundWithPrecision(num, precision) {
-    var multiplier = Math.pow(10, precision);
+    const multiplier = Math.pow(10, precision);
     return Math.round(num * multiplier) / multiplier;
 }
 const log = (i) => {
