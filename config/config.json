@@ -4,10 +4,11 @@
 	"HideLanguageAlert": false,
 	"FormatPrice": true,
 	"PricesInfo": {
-		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to. Separate option to hide flea price info.",
+		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to. Separate option to hide flea price info. addItemValue uses plain BSG handbook/traders data.",
 		"_example": "Flea price: 61703₽ | Ragman's valuation: 37386₽",
 		"enabled": true,
-		"addFleaPrice": true
+		"addFleaPrice": true,
+		"addItemValue": false
 	},
 	"FleaAbusePatch": {
 		"_description": "Fixes prices for items you can buy on flea cheaper then sold to traders, sticks to lowest possible increase to make abuse unprofitable.",
@@ -20,7 +21,7 @@
 		"fallbackValueBasedRecolor": true,
 		"_description_fallbackValueBasedRecolor": "If item is unbuyable from traders, fallsback to slot value rarity tiering.",
 		"customRarity": {
-			"Use https://db.sp-tarkov.com/search to find itemID you are interested in.": "Custom rarity values: COMMON 1, RARE 2, EPIC 3, LEGENDARY 4, UBER 5, UNOBTAINIUM 6, OVERPOWERED 7, CUSTOM 8 (dim red BG), CUSTOM 9 (called oragne, but actually brown)",
+			"Use https://db.sp-tarkov.com/search to find itemID you are interested in.": "Custom rarity values: COMMON 1, RARE 2, EPIC 3, LEGENDARY 4, UBER 5, UNOBTAINIUM 6, OVERPOWERED 7, CUSTOM 8 (dim red BG), CUSTOM 9 (called orange, but actually brown)",
 			"add itemID here": "add rarity here",
 			"59faff1d86f7746c51718c9c": "6",
 			"5c0530ee86f774697952d952": "6",

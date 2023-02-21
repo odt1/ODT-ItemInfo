@@ -598,7 +598,7 @@ class ItemInfo implements IPostDBLoadMod {
 
 				if (config.PricesInfo.enabled) {
 					// prettier-ignore
-					priceString += (config.PricesInfo.addFleaPrice ? i18n.Fleaprice + ": " + this.formatPrice(fleaPrice) + (fleaPrice > 0 ? "₽" : "") + " | " : "") + i18n.Valuation1 + traderName + i18n.Valuation2 + ": " + this.formatPrice(traderPrice) + "₽" + newLine + newLine;
+					priceString += (config.PricesInfo.addFleaPrice ? i18n.Fleaprice + ": " + this.formatPrice(fleaPrice) + (fleaPrice > 0 ? "₽" : "") + " | " : "") + (config.PricesInfo.addItemValue ? i18n.ItemValue + ": " + this.formatPrice(itemInHandbook.Price) + " | " : "")  + i18n.Valuation1 + traderName + i18n.Valuation2 + ": " + this.formatPrice(traderPrice) + "₽" + newLine + newLine;
 
 					// log(priceString)
 				}

@@ -517,7 +517,7 @@ class ItemInfo {
                 }
                 if (config_json_1.default.PricesInfo.enabled) {
                     // prettier-ignore
-                    priceString += (config_json_1.default.PricesInfo.addFleaPrice ? i18n.Fleaprice + ": " + this.formatPrice(fleaPrice) + (fleaPrice > 0 ? "₽" : "") + " | " : "") + i18n.Valuation1 + traderName + i18n.Valuation2 + ": " + this.formatPrice(traderPrice) + "₽" + newLine + newLine;
+                    priceString += (config_json_1.default.PricesInfo.addFleaPrice ? i18n.Fleaprice + ": " + this.formatPrice(fleaPrice) + (fleaPrice > 0 ? "₽" : "") + " | " : "") + (config_json_1.default.PricesInfo.addItemValue ? i18n.ItemValue + ": " + this.formatPrice(itemInHandbook.Price) + " | " : "") + i18n.Valuation1 + traderName + i18n.Valuation2 + ": " + this.formatPrice(traderPrice) + "₽" + newLine + newLine;
                     // log(priceString)
                 }
                 if (config_json_1.default.HeadsetInfo.enabled) {
@@ -974,7 +974,7 @@ class ItemInfo {
                     craftableString += `${translations_json_1.default[locale].Crafted} @ ${recipeAreaString}`;
                     const bitcoinTime = recipe.productionTime;
                     // prettier-ignore
-                    craftableString += ` | 1× GPU: ${convertTime(gpuTime(1, bitcoinTime), locale)}, 10× GPU: ${convertTime(gpuTime(10, bitcoinTime), locale)}, 25× GPU: ${convertTime(gpuTime(25, bitcoinTime), locale)}, 50× GPU: ${convertTime(gpuTime(50, bitcoinTime), locale)}`;
+                    craftableString += ` | 1× GPU: ${this.convertTime(this.gpuTime(1, bitcoinTime), locale)}, 10× GPU: ${this.convertTime(this.gpuTime(10, bitcoinTime), locale)}, 25× GPU: ${this.convertTime(this.gpuTime(25, bitcoinTime), locale)}, 50× GPU: ${this.convertTime(this.gpuTime(50, bitcoinTime), locale)}`;
                     // 					log(`
                     // // Base time (x${roundWithPrecision(145000/time, 2)}): ${convertTime(time)}, GPU Boost: x${roundWithPrecision(tables.hideout.settings.gpuBoostRate/0.041225, 2)}
                     // // 2× GPU: ${convertTime(gpuTime(2))} x${roundWithPrecision(time/gpuTime(2), 2)}
@@ -986,15 +986,15 @@ class ItemInfo {
                     craftableString += `${translations_json_1.default[locale].Crafted} ×${recipe.count} @ ${recipeAreaString}${questReq} < `;
                     craftableString += `${componentsString} | Σ${recipeDivision} ≈ ${this.formatPrice(Math.round(totalRecipePrice / recipe.count))}₽\n`;
                 }
-                function convertTime(time, locale = "en") {
-                    const hours = Math.trunc(time / 60 / 60);
-                    const minutes = Math.round((time - hours * 60 * 60) / 60);
-                    return `${hours}${ItemInfo.locales[locale].HOURS} ${minutes}${ItemInfo.locales[locale].Min}`;
-                }
-                function gpuTime(gpus, time) {
-                    // return time / (1 + (gpus - 1) * this.tables.hideout.settings.gpuBoostRate)
-                    return time / (1 + (gpus - 1) * 0.041225);
-                }
+                //				function convertTime(time: number, locale = "en"): string {
+                //					const hours = Math.trunc(time / 60 / 60)
+                //					const minutes = Math.round((time - hours * 60 * 60) / 60)
+                //					return `${hours}${this.locales[locale].HOURS} ${minutes}${this.locales[locale].Min}`
+                //				}
+                //
+                //				function gpuTime(gpus: number, time: number): number {
+                //					return time / (1 + (gpus - 1) * this.tables.hideout.settings.gpuBoostRate)
+                //				}
                 // if (fleaPrice > totalRecipePrice/recipe.count) {
                 // 	let profit = Math.round(fleaPrice-(totalRecipePrice/recipe.count))
                 // 	console.log("Hava Nagila! Profitable craft at " + profit + " profit detected! " + this.GetItemName(id) + " can be crafted at " + recipeAreaString)
@@ -1002,6 +1002,14 @@ class ItemInfo {
             }
         }
         return craftableString;
+    }
+    convertTime(time, locale = "en") {
+        const hours = Math.trunc(time / 60 / 60);
+        const minutes = Math.round((time - hours * 60 * 60) / 60);
+        return `${hours}${this.locales[locale].HOURS} ${minutes}${this.locales[locale].Min}`;
+    }
+    gpuTime(gpus, time) {
+        return time / (1 + (gpus - 1) * this.tables.hideout.settings.gpuBoostRate);
     }
     HideoutInfoGenerator(itemID, locale = "en") {
         // make it like this
