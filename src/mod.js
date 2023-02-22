@@ -498,19 +498,39 @@ class ItemInfo {
                     if (this.items[itemID]._parent != "5795f317245977243854e041") {
                         // ignore containers
                         if (itemvalue > config_json_1.default.MarkValueableItems.traderSlotValueThresholdBest || fleaValue > config_json_1.default.MarkValueableItems.fleaSlotValueThresholdBest) {
-                            if (config_json_1.default.MarkValueableItems.addToShortName) {
-                                this.addToShortName(itemID, "★", "prepend");
+                            if (userLocale == "jp" || userLocale == "kr" || config_json_1.default.MarkValueableItems.useAltValueMarks) {
+                                if (config_json_1.default.MarkValueableItems.addToShortName) {
+                                    this.addToShortName(itemID, config_json_1.default.MarkValueableItems.AltBestValueMark, "prepend");
+                                }
+                                if (config_json_1.default.MarkValueableItems.addToName) {
+                                    this.addToName(itemID, config_json_1.default.MarkValueableItems.AltBestValueMark, "append");
+                                }
                             }
-                            if (config_json_1.default.MarkValueableItems.addToName) {
-                                this.addToName(itemID, "★", "append");
+                            else {
+                                if (config_json_1.default.MarkValueableItems.addToShortName) {
+                                    this.addToShortName(itemID, config_json_1.default.MarkValueableItems.BestValueMark, "prepend");
+                                }
+                                if (config_json_1.default.MarkValueableItems.addToName) {
+                                    this.addToName(itemID, config_json_1.default.MarkValueableItems.BestValueMark, "append");
+                                }
                             }
                         }
                         else if (itemvalue > config_json_1.default.MarkValueableItems.traderSlotValueThresholdGood || fleaValue > config_json_1.default.MarkValueableItems.fleaSlotValueThresholdGood) {
-                            if (config_json_1.default.MarkValueableItems.addToShortName) {
-                                this.addToShortName(itemID, "☆", "prepend");
+                            if (userLocale == "jp" || userLocale == "kr" || config_json_1.default.MarkValueableItems.useAltValueMarks) {
+                                if (config_json_1.default.MarkValueableItems.addToShortName) {
+                                    this.addToShortName(itemID, config_json_1.default.MarkValueableItems.AltGoodValueMark, "prepend");
+                                }
+                                if (config_json_1.default.MarkValueableItems.addToName) {
+                                    this.addToName(itemID, config_json_1.default.MarkValueableItems.AltGoodValueMark, "append");
+                                }
                             }
-                            if (config_json_1.default.MarkValueableItems.addToName) {
-                                this.addToName(itemID, "☆", "append");
+                            else {
+                                if (config_json_1.default.MarkValueableItems.addToShortName) {
+                                    this.addToShortName(itemID, config_json_1.default.MarkValueableItems.GoodValueMark, "prepend");
+                                }
+                                if (config_json_1.default.MarkValueableItems.addToName) {
+                                    this.addToName(itemID, config_json_1.default.MarkValueableItems.GoodValueMark, "append");
+                                }
                             }
                         }
                     }
@@ -621,6 +641,8 @@ class ItemInfo {
                 this.logger.info(newLine);
                 this.logger.info(debugItemID);
                 this.logger.info(this.getItemName(debugItemID, translations_json_1.default.debug.languageToDebug));
+                this.logger.info(newLine);
+                this.logger.info(this.getItemShortName(debugItemID, translations_json_1.default.debug.languageToDebug));
                 this.logger.info(newLine);
                 this.logger.info(this.getItemDescription(debugItemID, translations_json_1.default.debug.languageToDebug));
             }

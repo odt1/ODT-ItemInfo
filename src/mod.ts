@@ -286,7 +286,7 @@ class ItemInfo implements IPostDBLoadMod {
 
 		if (!config.HideLanguageAlert) {
 			this.logger.log(
-				"[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean, French and Chinese are fully translated.\nHide this message in config.json",
+				"[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean, French, Chinese, Japanese and German are fully translated.\nHide this message in config.json",
 				LogTextColor.BLACK,
 				LogBackgroundColor.WHITE
 			)
@@ -579,18 +579,36 @@ class ItemInfo implements IPostDBLoadMod {
 					if (this.items[itemID]._parent != "5795f317245977243854e041") {
 						// ignore containers
 						if (itemvalue > config.MarkValueableItems.traderSlotValueThresholdBest || fleaValue > config.MarkValueableItems.fleaSlotValueThresholdBest) {
-							if (config.MarkValueableItems.addToShortName) {
-								this.addToShortName(itemID, "★", "prepend")
-							}
-							if (config.MarkValueableItems.addToName) {
-								this.addToName(itemID, "★", "append")
+							if (userLocale == "jp" || userLocale == "kr" || config.MarkValueableItems.useAltValueMarks) {
+								if (config.MarkValueableItems.addToShortName) {
+									this.addToShortName(itemID, config.MarkValueableItems.AltBestValueMark, "prepend")
+								}
+								if (config.MarkValueableItems.addToName) {
+									this.addToName(itemID, config.MarkValueableItems.AltBestValueMark, "append")
+								}
+							} else {
+								if (config.MarkValueableItems.addToShortName) {
+									this.addToShortName(itemID, config.MarkValueableItems.BestValueMark, "prepend")
+								}
+								if (config.MarkValueableItems.addToName) {
+									this.addToName(itemID, config.MarkValueableItems.BestValueMark, "append")
+								}
 							}
 						} else if (itemvalue > config.MarkValueableItems.traderSlotValueThresholdGood || fleaValue > config.MarkValueableItems.fleaSlotValueThresholdGood) {
-							if (config.MarkValueableItems.addToShortName) {
-								this.addToShortName(itemID, "☆", "prepend")
-							}
-							if (config.MarkValueableItems.addToName) {
-								this.addToName(itemID, "☆", "append")
+							if (userLocale == "jp" || userLocale == "kr" || config.MarkValueableItems.useAltValueMarks) {
+								if (config.MarkValueableItems.addToShortName) {
+									this.addToShortName(itemID, config.MarkValueableItems.AltGoodValueMark, "prepend")
+								}
+								if (config.MarkValueableItems.addToName) {
+									this.addToName(itemID, config.MarkValueableItems.AltGoodValueMark, "append")
+								}
+							} else {
+								if (config.MarkValueableItems.addToShortName) {
+									this.addToShortName(itemID, config.MarkValueableItems.GoodValueMark, "prepend")
+								}
+								if (config.MarkValueableItems.addToName) {
+									this.addToName(itemID, config.MarkValueableItems.GoodValueMark, "append")
+								}
 							}
 						}
 					}
@@ -714,6 +732,8 @@ class ItemInfo implements IPostDBLoadMod {
 				this.logger.info(newLine)
 				this.logger.info(debugItemID)
 				this.logger.info(this.getItemName(debugItemID, translations.debug.languageToDebug))
+				this.logger.info(newLine)
+				this.logger.info(this.getItemShortName(debugItemID, translations.debug.languageToDebug))
 				this.logger.info(newLine)
 				this.logger.info(this.getItemDescription(debugItemID, translations.debug.languageToDebug))
 			}
