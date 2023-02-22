@@ -921,7 +921,7 @@ class ItemInfo implements IPostDBLoadMod {
 				.map((barter) => ({
 					// reset parentItem for actual parent items because of recursion function.
 					// can be done in a more elegant way, but i'm too tired after a night of debugging. who cares anyway, it works.
-					parentItem: barter.originalItemId ? (barter.originalItemId == itemID ? null : barter.originalItemId) : null,
+					parentItem: barter.originalItemID ? (barter.originalItemID == itemID ? null : barter.originalItemID) : null,
 					barterResources: trader.assort.barter_scheme[barter._id][0],
 					barterLoyaltyLevel: trader.assort.loyal_level_items[barter._id],
 					traderID: trader.base._id,
@@ -1262,7 +1262,7 @@ const log = (i) => {
 
 // A silly solution to some weird recursion logic that adds values to an object that shouldn't have them
 interface PlaceholderItem extends Item {
-	originalItemId?: string
+	originalItemID?: string
 }
 
 interface ResolvedBarter {
