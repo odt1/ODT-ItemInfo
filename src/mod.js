@@ -237,7 +237,7 @@ class ItemInfo {
     ItemInfoMain() {
         let userLocale = config_json_1.default.UserLocale;
         if (!config_json_1.default.HideLanguageAlert) {
-            this.logger.log("[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean, French and Chinese are fully translated.\nHide this message in config.json", LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.WHITE);
+            this.logger.log("[Item Info] This mod supports other languages! \nМод поддерживает другие языки! \nEste mod es compatible con otros idiomas! \nTen mod obsługuje inne języki! \nEnglish, Russian, Spanish, Korean, French, Chinese, Japanese and German are fully translated.\nHide this message in config.json", LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.WHITE);
             this.logger.log(`[Item Info] Your selected language is "${userLocale}". \nYou can now customise it in Item Info config.json file. \nLooking for translators, PM me! \nTranslation debug mode is availiable in translations.json`, LogTextColor_1.LogTextColor.BLACK, LogBackgroundColor_1.LogBackgroundColor.GREEN);
         }
         if (translations_json_1.default.debug.enabled) {
@@ -291,7 +291,7 @@ class ItemInfo {
                 item._parent != "543be5dd4bdc2deb348b4569" // Ignore currencies.
             ) {
                 // let name = this.getItemName(itemID, userLocale) // for debug only
-                // item._props.ExaminedByDefault = true
+                item._props.ExaminedByDefault = true; // DEBUG!!!
                 const i18n = translations_json_1.default[userLocale];
                 // boilerplate defaults
                 let descriptionString = "";
@@ -464,7 +464,7 @@ class ItemInfo {
                     if (item._props.armorClass > 0) {
                         let armor = this.armors[item._props.ArmorMaterial];
                         // prettier-ignore
-                        armorDurabilityString += `${config_json_1.default.ArmorInfo.addArmorClassInfo ? i18n.Armorclass + ": " + item._props.armorClass + " | " : ""}${i18n.Effectivedurability}: ${Math.round(item._props.MaxDurability / armor.Destructibility)} (${i18n.Max}: ${item._props.MaxDurability} x ${this.locales[userLocale][`Mat${(item._props.ArmorMaterial)}`]}: ${roundWithPrecision(1 / armor.Destructibility, 1)}) | ${i18n.Repairdegradation}: ${Math.round(armor.MinRepairDegradation * 100)}% - ${Math.round(armor.MaxRepairDegradation * 100)}%` + newLine + newLine;
+                        armorDurabilityString += `${config_json_1.default.ArmorInfo.addArmorClassInfo ? i18n.Armorclass + ": " + item._props?.armorClass + " | " : ""}${i18n.Effectivedurability}: ${Math.round(item._props?.MaxDurability / armor?.Destructibility)} (${i18n.Max}: ${item._props?.MaxDurability} x ${this.locales[userLocale][`Mat${(item._props?.ArmorMaterial)}`]}: ${roundWithPrecision(1 / armor?.Destructibility, 1)}) | ${i18n.Repairdegradation}: ${Math.round(armor?.MinRepairDegradation * 100)}% - ${Math.round(armor?.MaxRepairDegradation * 100)}%` + newLine + newLine;
                         //log(name)
                         //log(armorDurabilityString)
                     }
@@ -821,7 +821,7 @@ class ItemInfo {
                 .map((barter) => ({
                 // reset parentItem for actual parent items because of recursion function.
                 // can be done in a more elegant way, but i'm too tired after a night of debugging. who cares anyway, it works.
-                parentItem: barter.originalItemId ? (barter.originalItemId == itemID ? null : barter.originalItemId) : null,
+                parentItem: barter.originalItemID ? (barter.originalItemID == itemID ? null : barter.originalItemID) : null,
                 barterResources: trader.assort.barter_scheme[barter._id][0],
                 barterLoyaltyLevel: trader.assort.loyal_level_items[barter._id],
                 traderID: trader.base._id,
