@@ -291,7 +291,7 @@ class ItemInfo {
                 item._parent != "543be5dd4bdc2deb348b4569" // Ignore currencies.
             ) {
                 // let name = this.getItemName(itemID, userLocale) // for debug only
-                item._props.ExaminedByDefault = true; // DEBUG!!!
+                // item._props.ExaminedByDefault = true // DEBUG!!!
                 const i18n = translations_json_1.default[userLocale];
                 // boilerplate defaults
                 let descriptionString = "";
