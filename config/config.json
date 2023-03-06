@@ -59,7 +59,7 @@
 		"addToName": true,
 		"addToShortName": true,
 		"BestValueMark": "★",
-		"GoodValueMark": "☆",		
+		"GoodValueMark": "☆",
 		"AltBestValueMark": "●",
 		"AltGoodValueMark": "○",
 		"useAltValueMarks": false,

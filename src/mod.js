@@ -813,39 +813,45 @@ class ItemInfo {
     }
     bartersResolver(itemID) {
         let itemBarters = [];
-        this.traderList.forEach((trader) => {
-            const allTraderBarters = trader.assort.items;
-            const traderBarters = allTraderBarters.filter((x) => x._tpl == itemID);
-            const barters = traderBarters
-                .map((barter) => recursion(barter)) // find and get list of "parent items" for a passed component
-                .map((barter) => ({
-                // reset parentItem for actual parent items because of recursion function.
-                // can be done in a more elegant way, but i'm too tired after a night of debugging. who cares anyway, it works.
-                parentItem: barter.originalItemID ? (barter.originalItemID == itemID ? null : barter.originalItemID) : null,
-                barterResources: trader.assort.barter_scheme[barter._id][0],
-                barterLoyaltyLevel: trader.assort.loyal_level_items[barter._id],
-                traderID: trader.base._id,
-            }));
-            itemBarters.push(...barters);
-            function recursion(barter) {
-                if (barter.parentId == "hideout") {
-                    return barter;
-                }
-                else {
-                    let parentBarter;
-                    try {
-                        // spent literary 12 hours debugging this feature... KMP.
-                        // all because of one item, SWORD International Mk-18 not having proper .parentId is assort table. who would have thought. thx Nikita
-                        parentBarter = allTraderBarters.find((x) => x._id == barter.parentId);
-                        parentBarter.originalItemID = parentBarter._tpl;
+        try {
+            this.traderList.forEach((trader) => {
+                const allTraderBarters = trader.assort.items;
+                const traderBarters = allTraderBarters.filter((x) => x._tpl == itemID);
+                const barters = traderBarters
+                    .map((barter) => recursion(barter)) // find and get list of "parent items" for a passed component
+                    .map((barter) => ({
+                    // reset parentItem for actual parent items because of recursion function.
+                    // can be done in a more elegant way, but i'm too tired after a night of debugging. who cares anyway, it works.
+                    parentItem: barter.originalItemID ? (barter.originalItemID == itemID ? null : barter.originalItemID) : null,
+                    barterResources: trader.assort.barter_scheme[barter._id][0],
+                    barterLoyaltyLevel: trader.assort.loyal_level_items[barter._id],
+                    traderID: trader.base._id,
+                }));
+                itemBarters.push(...barters);
+                function recursion(barter) {
+                    if (barter.parentId == "hideout") {
+                        return barter;
                     }
-                    catch (error) {
-                        return barter; // FML
+                    else {
+                        let parentBarter;
+                        try {
+                            // spent literary 12 hours debugging this feature... KMP.
+                            // all because of one item, SWORD International Mk-18 not having proper .parentId is assort table. who would have thought. thx Nikita
+                            parentBarter = allTraderBarters.find((x) => x._id == barter.parentId);
+                            parentBarter.originalItemID = parentBarter._tpl;
+                        }
+                        catch (error) {
+                            return barter; // FML
+                        }
+                        return recursion(parentBarter);
                     }
-                    return recursion(parentBarter);
                 }
-            }
-        });
+            });
+        }
+        catch (error) {
+            this.logger.warning(`\n[ItemInfo] bartersResolver failed because of another mod. Send bug report. Continue safely.`);
+            log(error);
+        }
         return itemBarters;
     }
     barterInfoGenerator(itemBarters, locale = "en") {
