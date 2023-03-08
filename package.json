@@ -1,10 +1,10 @@
 {
 	"name": "ItemInfo",
-	"version": "3.1.5",
+	"version": "3.1.6",
 	"main": "src/mod.js",
 	"license": "MIT",
 	"author": "ODT",
-	"akiVersion": "3.5.1",
+	"akiVersion": "3.5.2",
 	"scripts": {
 		"setup": "npm i",
 		"build": "node ./packageBuild.ts"

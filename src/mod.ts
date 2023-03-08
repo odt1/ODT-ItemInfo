@@ -542,7 +542,7 @@ class ItemInfo implements IPostDBLoadMod {
 					if (item._props.armorClass > 0) {
 						let armor = this.armors[item._props.ArmorMaterial]
 						// prettier-ignore
-						armorDurabilityString += `${config.ArmorInfo.addArmorClassInfo ? i18n.Armorclass + ": " + item._props?.armorClass + " | " : ""}${i18n.Effectivedurability}: ${Math.round(item._props?.MaxDurability / armor?.Destructibility)} (${i18n.Max}: ${item._props?.MaxDurability} x ${this.locales[userLocale][`Mat${(item._props?.ArmorMaterial)}`]}: ${roundWithPrecision(1 / armor?.Destructibility, 1)}) | ${i18n.Repairdegradation}: ${Math.round(armor?.MinRepairDegradation * 100)}% - ${Math.round(armor?.MaxRepairDegradation * 100)}%` + newLine + newLine;
+						armorDurabilityString += `${config.ArmorInfo.addArmorClassInfo ? i18n.Armorclass + ": " + item._props?.armorClass + " | " : ""}${i18n.Effectivedurability}: ${Math.round(item._props?.MaxDurability / armor?.Destructibility)} (${i18n.Max}: ${Math.round(item._props?.MaxDurability)} x ${this.locales[userLocale][`Mat${(item._props?.ArmorMaterial)}`]}: ${roundWithPrecision(1 / armor?.Destructibility, 1)}) | ${i18n.Repairdegradation}: ${Math.round(armor?.MinRepairDegradation * 100)}% - ${Math.round(armor?.MaxRepairDegradation * 100)}%` + newLine + newLine;
 						//log(name)
 						//log(armorDurabilityString)
 					}
