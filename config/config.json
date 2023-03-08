@@ -1,14 +1,14 @@
 {
 	"_SELECT YOUR LANGUAGE IN UserLocale CONFIGURATION BELOW. USE ONE OF THESE LANGUAGE CODES": "ch, cz, en, es-mx, es, fr, ge, hu, it, jp, kr, pl, po, ru, sk, tu",
-	"UserLocale": "ru",
-	"HideLanguageAlert": true,
+	"UserLocale": "en",
+	"HideLanguageAlert": false,
 	"FormatPrice": true,
 	"PricesInfo": {
 		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to. Separate option to hide flea price info. addItemValue uses plain BSG handbook/traders data.",
 		"_example": "Flea price: 61703₽ | Ragman's valuation: 37386₽",
 		"enabled": true,
-		"addFleaPrice": false,
-		"addItemValue": true
+		"addFleaPrice": true,
+		"addItemValue": false
 	},
 	"FleaAbusePatch": {
 		"_description": "Fixes prices for items you can buy on flea cheaper then sold to traders, sticks to lowest possible increase to make abuse unprofitable.",
