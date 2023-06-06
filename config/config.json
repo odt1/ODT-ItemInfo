@@ -124,7 +124,7 @@
 	"delay": {
 		"_description": "Delay loading the mod for compatibility reasons (mods that add items in a weird way, or mods that take too long to load like Lua's Flea Market Price Updater).",
 		"enabled": true,
-		"seconds": 5
+		"seconds": 2
 	},
 	"useBSGStaticFleaBanlist": {
 		"_description": "For compatibility reasons with other mods that modify flea banned items",
