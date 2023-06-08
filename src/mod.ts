@@ -393,18 +393,18 @@ class ItemInfo implements IPostDBLoadMod {
 				let spawnString = ""
 
 				let fleaPrice = this.getFleaPrice(itemID)
-				let itemBestVendor = this.getItemBestTrader(itemID, userLocale)
+				const itemBestVendor = this.getItemBestTrader(itemID, userLocale)
 				let traderPrice = Math.round(itemBestVendor.price)
-				let traderName = itemBestVendor.name
+				const traderName = itemBestVendor.name
 
 				let spawnChance = 10 // DEGUG
 
-				let slotDensity = this.getItemSlotDensity(itemID)
+				const slotDensity = this.getItemSlotDensity(itemID)
 
-				let itemBarters = this.bartersResolver(itemID)
-				let barterInfo = this.barterInfoGenerator(itemBarters, userLocale)
-				let barterResourceInfo = this.barterResourceInfoGenerator(itemID, userLocale)
-				let rarityArray = []
+				const itemBarters = this.bartersResolver(itemID)
+				const barterInfo = this.barterInfoGenerator(itemBarters, userLocale)
+				const barterResourceInfo = this.barterResourceInfoGenerator(itemID, userLocale)
+				const rarityArray = []
 				rarityArray.push(barterInfo.rarity) // futureprofing, add other rarity calculations
 				itemRarity = Math.min(...rarityArray)
 
@@ -425,10 +425,10 @@ class ItemInfo implements IPostDBLoadMod {
 
 				if (item._parent == "543be5cb4bdc2deb348b4568") {
 					// Ammo boxes special case
-					let count = item._props.StackSlots[0]._max_count
-					let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0]
+					const count = item._props.StackSlots[0]._max_count
+					const ammo = item._props.StackSlots[0]._props.filters[0].Filter[0]
 
-					let value = this.getItemBestTrader(ammo).price
+					const value = this.getItemBestTrader(ammo).price
 					// let value = this.getItemInHandbook(ammo).price
 					traderPrice = value * count
 
@@ -451,7 +451,7 @@ class ItemInfo implements IPostDBLoadMod {
 					if (fleaPrice * this.ragfairConfig.dynamic.price.min < traderPrice && !isBanned) {
 						// Ignore banned items for compatibility with Softcore mod.
 						// log(name)
-						let fleaPriceFix = Math.round(traderPrice * (1 / this.ragfairConfig.dynamic.price.min + 0.01))
+						const fleaPriceFix = Math.round(traderPrice * (1 / this.ragfairConfig.dynamic.price.min + 0.01))
 						this.fleaPrices[itemID] = fleaPriceFix
 						fleaPrice = fleaPriceFix
 					}
@@ -506,7 +506,7 @@ class ItemInfo implements IPostDBLoadMod {
 							itemValue = itemInHandbook.Price * item._props.StackMaxSize
 						}
 
-						let itemSlots = item._props.Width * item._props.Height
+						const itemSlots = item._props.Width * item._props.Height
 						if (itemSlots > 1) {
 							itemValue = Math.round(itemValue / itemSlots)
 						}
@@ -514,9 +514,9 @@ class ItemInfo implements IPostDBLoadMod {
 
 						if (item._parent == "543be5cb4bdc2deb348b4568") {
 							// Ammo boxes special case
-							let count = item._props.StackSlots[0]._max_count
-							let ammo = item._props.StackSlots[0]._props.filters[0].Filter[0]
-							let value = this.getItemInHandbook(ammo).Price
+							const count = item._props.StackSlots[0]._max_count
+							const ammo = item._props.StackSlots[0]._props.filters[0].Filter[0]
+							const value = this.getItemInHandbook(ammo).Price
 							itemValue = value * count
 						}
 
@@ -551,7 +551,7 @@ class ItemInfo implements IPostDBLoadMod {
 
 				if (config.ArmorInfo.enabled) {
 					if (item._props.armorClass > 0) {
-						let armor = this.armors[item._props.ArmorMaterial]
+						const armor = this.armors[item._props.ArmorMaterial]
 						// prettier-ignore
 						armorDurabilityString += `${config.ArmorInfo.addArmorClassInfo ? i18n.Armorclass + ": " + item._props?.armorClass + " | " : ""}${i18n.Effectivedurability}: ${Math.round(item._props?.MaxDurability / armor?.Destructibility)} (${i18n.Max}: ${Math.round(item._props?.MaxDurability)} x ${this.locales[userLocale][`Mat${(item._props?.ArmorMaterial)}`]}: ${roundWithPrecision(1 / armor?.Destructibility, 1)}) | ${i18n.Repairdegradation}: ${Math.round(armor?.MinRepairDegradation * 100)}% - ${Math.round(armor?.MaxRepairDegradation * 100)}%` + newLine + newLine;
 						//log(name)
@@ -565,7 +565,7 @@ class ItemInfo implements IPostDBLoadMod {
 						for (const grid of item._props.Grids) {
 							totalSlots += grid._props.cellsH * grid._props.cellsV
 						}
-						let slotefficiency = roundWithPrecision(totalSlots / (item._props.Width * item._props.Height), 2)
+						const slotefficiency = roundWithPrecision(totalSlots / (item._props.Width * item._props.Height), 2)
 						// prettier-ignore
 						slotefficiencyString += `${i18n.Slotefficiency}: ×${slotefficiency} (${totalSlots}/${item._props.Width * item._props.Height})` + newLine + newLine;
 						// log(name)
@@ -574,7 +574,7 @@ class ItemInfo implements IPostDBLoadMod {
 				}
 
 				if (config.MarkValueableItems.enabled) {
-					let itemvalue = traderPrice / slotDensity
+					const itemvalue = traderPrice / slotDensity
 					let fleaValue
 					if (isBanned) {
 						// For banned items, recalculate flea price.
@@ -634,8 +634,8 @@ class ItemInfo implements IPostDBLoadMod {
 
 				if (config.HeadsetInfo.enabled) {
 					if (item._props.Distortion !== undefined) {
-						let gain = item._props.CompressorGain
-						let thresh = item._props.CompressorTreshold
+						const gain = item._props.CompressorGain
+						const thresh = item._props.CompressorTreshold
 						// prettier-ignore
 						headsetDescription = `${i18n.AmbientVolume}: ${item._props.AmbientVolume}dB | ${i18n.Compressor}: ${i18n.Gain} +${gain}dB × ${i18n.Treshold} ${thresh}dB ≈ ×${Math.abs((gain * thresh) / 100)} ${i18n.Boost} | ${i18n.ResonanceFilter}: ${item._props.Resonance}@${item._props.CutoffFreq}Hz | ${i18n.Distortion}: ${Math.round(item._props.Distortion * 100)}%` + newLine + newLine;
 						// log(name)
@@ -652,7 +652,7 @@ class ItemInfo implements IPostDBLoadMod {
 				}
 
 				if (config.ProductionInfo.enabled) {
-					let productionInfo = this.productionGenarator(itemID, userLocale)
+					const productionInfo = this.productionGenarator(itemID, userLocale)
 					if (productionInfo.length > 1) {
 						productionString = productionInfo + newLine
 						// log(name)
@@ -729,7 +729,7 @@ class ItemInfo implements IPostDBLoadMod {
 		}
 		this.logger.success("[Item Info] Finished processing items, enjoy!")
 		if (translations.debug.enabled) {
-			let debugItemIDlist = [
+			const debugItemIDlist = [
 				"590a3efd86f77437d351a25b",
 				"5c0e722886f7740458316a57",
 				"5645bcc04bdc2d363b8b4572",
@@ -796,7 +796,7 @@ class ItemInfo implements IPostDBLoadMod {
 				this.addToName(itemID, addToName, place, locale)
 			}
 		} else {
-			let originalName = this.getItemName(itemID, lang)
+			const originalName = this.getItemName(itemID, lang)
 			switch (place) {
 				case "prepend":
 					this.locales[lang][`${itemID} Name`] = addToName + originalName
@@ -814,7 +814,7 @@ class ItemInfo implements IPostDBLoadMod {
 				this.addToShortName(itemID, addToShortName, place, locale)
 			}
 		} else {
-			let originalShortName = this.getItemShortName(itemID, lang)
+			const originalShortName = this.getItemShortName(itemID, lang)
 			switch (place) {
 				case "prepend":
 					this.locales[lang][`${itemID} ShortName`] = addToShortName + originalShortName
@@ -832,7 +832,7 @@ class ItemInfo implements IPostDBLoadMod {
 				this.addToDescription(itemID, addToDescription, place, locale)
 			}
 		} else {
-			let originalDescription = this.getItemDescription(itemID, lang)
+			const originalDescription = this.getItemDescription(itemID, lang)
 			switch (place) {
 				case "prepend":
 					this.locales[lang][`${itemID} Description`] = addToDescription + originalDescription
@@ -860,7 +860,7 @@ class ItemInfo implements IPostDBLoadMod {
 		let traderMulti = 0 // AVG fallback
 		let traderName = "None"
 		// let itemParentID = this.items[itemID]._parent // Unused
-		let itemBaseClasses = this.itemBaseClassService.getItemBaseClasses(itemID)
+		const itemBaseClasses = this.itemBaseClassService.getItemBaseClasses(itemID)
 		// log(itemBaseClasses)
 		// let handbookCategories = handbook.Categories.filter((i) => i.Id === handbookParentId)[0]
 
@@ -891,11 +891,11 @@ class ItemInfo implements IPostDBLoadMod {
 	}
 
 	getItemBestTrader(itemID: string, locale = "en") {
-		let handbookItem = this.getItemInHandbook(itemID)
+		const handbookItem = this.getItemInHandbook(itemID)
 
 		// log(handbookItem)
-		let bestTrader = this.resolveBestTrader(itemID, locale)
-		let result = handbookItem.Price * bestTrader.multi
+		const bestTrader = this.resolveBestTrader(itemID, locale)
+		const result = handbookItem.Price * bestTrader.multi
 		return {
 			price: result,
 			name: bestTrader.name,
@@ -921,7 +921,7 @@ class ItemInfo implements IPostDBLoadMod {
 	}
 
 	bartersResolver(itemID: string): ResolvedBarter[] {
-		let itemBarters: ResolvedBarter[] = []
+		const itemBarters: ResolvedBarter[] = []
 
 		try {
 			this.traderList.forEach((trader) => {
@@ -968,13 +968,13 @@ class ItemInfo implements IPostDBLoadMod {
 
 	barterInfoGenerator(itemBarters: ResolvedBarter[], locale = "en") {
 		let barterString = ""
-		let rarityArray = []
-		let prices = []
+		const rarityArray = []
+		const prices = []
 
 		for (const barter of itemBarters) {
 			let totalBarterPrice = 0
 			let totalBarterPriceString = ""
-			let traderName = this.locales[locale][`${barter.traderID} Nickname`]
+			const traderName = this.locales[locale][`${barter.traderID} Nickname`]
 			let partOf = ""
 
 			if (barter.parentItem != null) {
@@ -984,15 +984,15 @@ class ItemInfo implements IPostDBLoadMod {
 			barterString += `${translations[locale].Bought}${partOf} ${translations[locale].at} ${traderName} ${translations[locale].lv}${barter.barterLoyaltyLevel} < `
 
 			let isBarter = false
-			for (let resource of barter.barterResources) {
+			for (const resource of barter.barterResources) {
 				if (resource._tpl == "5449016a4bdc2d6f028b456f") {
-					let rubles = resource.count
+					const rubles = resource.count
 					barterString += `${this.formatPrice(Math.round(rubles))}₽ + `
 				} else if (resource._tpl == "569668774bdc2da2298b4568") {
-					let euro = resource.count
+					const euro = resource.count
 					barterString += `${this.formatPrice(Math.round(euro))}€ ≈ ${this.formatPrice(Math.round(this.euroRatio * euro))}₽ + `
 				} else if (resource._tpl == "5696686a4bdc2da3298b456a") {
-					let dollars = resource.count
+					const dollars = resource.count
 					barterString += `$${this.formatPrice(Math.round(dollars))} ≈ ${this.formatPrice(Math.round(this.dollarRatio * dollars))}₽ + `
 				} else {
 					totalBarterPrice += this.getFleaPrice(resource._tpl) * resource.count
@@ -1026,17 +1026,17 @@ class ItemInfo implements IPostDBLoadMod {
 		// Refactor this abomination pls
 		let baseBarterString = ""
 		for (const trader of this.traderList) {
-			let traderName = this.locales[locale][`${trader.base._id} Nickname`]
-			for (let barterID in trader.assort.barter_scheme) {
+			const traderName = this.locales[locale][`${trader.base._id} Nickname`]
+			for (const barterID in trader.assort.barter_scheme) {
 				// iterate all seller barters
-				for (let srcs in trader.assort.barter_scheme[barterID][0]) {
+				for (const srcs in trader.assort.barter_scheme[barterID][0]) {
 					if (trader.assort.barter_scheme[barterID][0][srcs]._tpl === itemID) {
-						let barterResources = trader.assort.barter_scheme[barterID][0]
+						const barterResources = trader.assort.barter_scheme[barterID][0]
 						let bartedForItem: string
 						let totalBarterPrice = 0
-						let barterLoyaltyLevel = trader.assort.loyal_level_items[barterID]
+						const barterLoyaltyLevel = trader.assort.loyal_level_items[barterID]
 
-						for (let originalBarter in trader.assort.items) {
+						for (const originalBarter in trader.assort.items) {
 							if (trader.assort.items[originalBarter]._id == barterID) {
 								bartedForItem = trader.assort.items[originalBarter]._tpl
 							}
@@ -1047,7 +1047,7 @@ class ItemInfo implements IPostDBLoadMod {
 							translations[locale].at + " " + traderName + " " + translations[locale].lv + barterLoyaltyLevel + " > " + this.getItemName(bartedForItem, locale)
 
 						let extendedBarterString = " < … + "
-						for (let barterResource in barterResources) {
+						for (const barterResource in barterResources) {
 							totalBarterPrice += this.getFleaPrice(barterResources[barterResource]._tpl) * barterResources[barterResource].count
 							if (barterResources[barterResource]._tpl != itemID) {
 								extendedBarterString += this.getItemShortName(barterResources[barterResource]._tpl, locale)
@@ -1069,12 +1069,12 @@ class ItemInfo implements IPostDBLoadMod {
 	}
 
 	getCraftingAreaName(areaType: number, locale = "en"): string {
-		let stringName = `hideout_area_${areaType}_name`
+		const stringName = `hideout_area_${areaType}_name`
 		return this.locales[locale][stringName]
 	}
 
 	getCraftingRarity(areaType: number, level: number): number {
-		for (let s in this.hideoutAreas[areaType].stages) {
+		for (const s in this.hideoutAreas[areaType].stages) {
 			if (Number.parseInt(s) > 1) {
 				return level + 1
 			} else {
@@ -1085,12 +1085,12 @@ class ItemInfo implements IPostDBLoadMod {
 
 	productionGenarator(itemID: string, locale = "en"): string {
 		let craftableString = ""
-		let rarityArray = []
+		const rarityArray = []
 
-		for (let recipeId in this.hideoutProduction) {
+		for (const recipeId in this.hideoutProduction) {
 			if (itemID === this.hideoutProduction[recipeId].endProduct && this.hideoutProduction[recipeId].areaType !== 21) {
 				// Find every recipe for itemid and don't use Christmas Tree crafts
-				let recipe = this.hideoutProduction[recipeId]
+				const recipe = this.hideoutProduction[recipeId]
 				let componentsString = ""
 				let recipeAreaString = this.getCraftingAreaName(recipe.areaType, locale)
 				let totalRecipePrice = 0
@@ -1103,18 +1103,18 @@ class ItemInfo implements IPostDBLoadMod {
 						rarityArray.push(this.getCraftingRarity(requirement.areaType, requirement.requiredLevel))
 					}
 					if (requirement.type === "Item") {
-						let craftComponentId = requirement.templateId
-						let craftComponentCount = requirement.count
-						let craftComponentPrice = this.getFleaPrice(craftComponentId)
+						const craftComponentId = requirement.templateId
+						const craftComponentCount = requirement.count
+						const craftComponentPrice = this.getFleaPrice(craftComponentId)
 
 						componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + craftComponentCount + " + "
 						totalRecipePrice += craftComponentPrice * craftComponentCount
 					}
 					if (requirement.type === "Resource") {
 						// superwater calculation
-						let craftComponentId = requirement.templateId
-						let resourceProportion = requirement.resource / this.items[requirement.templateId]._props.Resource
-						let craftComponentPrice = this.getFleaPrice(craftComponentId)
+						const craftComponentId = requirement.templateId
+						const resourceProportion = requirement.resource / this.items[requirement.templateId]._props.Resource
+						const craftComponentPrice = this.getFleaPrice(craftComponentId)
 
 						componentsString += this.getItemShortName(craftComponentId, locale) + " ×" + Math.round(resourceProportion * 100) + "%" + " + "
 						totalRecipePrice += Math.round(craftComponentPrice * resourceProportion)
@@ -1200,7 +1200,7 @@ class ItemInfo implements IPostDBLoadMod {
 		// let totalCraftingPrice = 0 // Unused
 
 		for (const recipe of this.hideoutProduction) {
-			for (let s in recipe.requirements) {
+			for (const s in recipe.requirements) {
 				if (recipe.requirements[s].templateId === itemID) {
 					let usedForCraftingComponentsString = " < … + "
 					let recipeAreaString = ""
@@ -1213,15 +1213,15 @@ class ItemInfo implements IPostDBLoadMod {
 							recipeAreaString = this.getCraftingAreaName(requirement.areaType, locale) + " " + translations[locale].lv + requirement.requiredLevel
 						}
 						if (requirement.type == "Item") {
-							let craftComponent = requirement
+							const craftComponent = requirement
 							if (craftComponent.templateId != itemID) {
 								usedForCraftingComponentsString += this.getItemShortName(craftComponent.templateId, locale) + " ×" + craftComponent.count + " + "
 							}
 							totalRecipePrice += this.getFleaPrice(craftComponent.templateId) * craftComponent.count
 						}
 						if (requirement.type == "Resource") {
-							let craftComponent = requirement
-							let resourceProportion = craftComponent.resource / this.items[craftComponent.templateId]._props.Resource
+							const craftComponent = requirement
+							const resourceProportion = craftComponent.resource / this.items[craftComponent.templateId]._props.Resource
 							if (craftComponent.templateId != itemID) {
 								usedForCraftingComponentsString +=
 									this.getItemShortName(craftComponent.templateId, locale) + " ×" + Math.round(resourceProportion * 100) + "%" + " + "
@@ -1249,14 +1249,14 @@ class ItemInfo implements IPostDBLoadMod {
 	QuestInfoGenerator(itemID: string, locale = "en"): string {
 		let questString = ""
 		for (const questID in this.quests) {
-			let questName = this.locales[locale][`${questID} name`]
+			const questName = this.locales[locale][`${questID} name`]
 
-			let questConditions = this.quests[questID].conditions.AvailableForFinish
+			const questConditions = this.quests[questID].conditions.AvailableForFinish
 			for (const condition of questConditions) {
 				if (condition._parent == "HandoverItem" && condition._props.target[0] == itemID) {
-					let trader = this.quests[questID].traderId
+					const trader = this.quests[questID].traderId
 					//let tradeName = tables.traders[trader].base.nickname
-					let traderName = this.locales[locale][`${trader} Nickname`]
+					const traderName = this.locales[locale][`${trader} Nickname`]
 					// prettier-ignore
 					questString += `${translations[locale].Found} ${condition._props.onlyFoundInRaid ? "(✔) " : ""}×${condition._props.value} > ${questName} @ ${traderName}\n`
 				}
