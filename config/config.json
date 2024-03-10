@@ -1,7 +1,7 @@
 {
 	"_SELECT YOUR LANGUAGE IN UserLocale CONFIGURATION BELOW. USE ONE OF THESE LANGUAGE CODES": "ch, cz, en, es-mx, es, fr, ge, hu, it, jp, kr, pl, po, ru, sk, tu",
 	"UserLocale": "en",
-	"HideLanguageAlert": false,
+	"HideLanguageAlert": true,
 	"FormatPrice": true,
 	"PricesInfo": {
 		"_description": "Basic module that adds prices information to item description, includes avarage flea price and best trader to sell to. Separate option to hide flea price info. addItemValue uses plain BSG handbook/traders data.",
@@ -9,10 +9,6 @@
 		"enabled": true,
 		"addFleaPrice": true,
 		"addItemValue": false
-	},
-	"FleaAbusePatch": {
-		"_description": "Fixes prices for items you can buy on flea cheaper then sold to traders, sticks to lowest possible increase to make abuse unprofitable.",
-		"enabled": false
 	},
 	"RarityRecolor": {
 		"_description": "This feature clears and changes background color on EVERY item in the game based on MMO style rarity tier-list with colors that make actual sense. Tiers are based on trader level you can purchase or barter the item. Barters are considered +1 rarity level. If item is unbuyable, calculates rarity based on item in-game per-slot value and uses thresholds set in tiers config. Banned on flea market items are given highest rarity - overpowered. The tier list: Common (grey background, bought with level 1 traders OR under 10k) > Rare (blue, level 2 trades for currency and level 1 barters OR under 20k) > Epic (purple, level 3 and level 2 barters OR under 30k) > Legendary (dim yellow, level 4 and level 3 barters OR under 40k) > Uber (bright yellow, level 4 barters only OR under 60k) > UNOBTAINIUM (bright green, super valuable items worth over 60k per slot) > OP (bright red, banned on flea market) > CUSTOM (dim red, not used by default). Works for 95% of items well enough to be very much usable. Can add tier name to PricesInfo module.",
