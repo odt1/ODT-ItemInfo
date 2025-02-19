@@ -696,6 +696,20 @@ class ItemInfo implements IPostDBLoadMod {
 						}
 						this.addToName(itemID, ` (${item._props.Damage * damageMult}/${item._props.PenetrationPower})`, "append")
 					}
+					// If parent is ammobox
+					if (item._parent === "543be5cb4bdc2deb348b4568") {
+						const ammoSlots = item._props.StackSlots;
+						if (ammoSlots !== undefined && ammoSlots.length > 0) {
+							const stack = ammoSlots[0];
+							const bulletId = stack._props.filters[0].Filter[0];
+							const bulletItem = this.items[bulletId];
+							let damageMult = 1;
+							if (bulletItem._props.ammoType === "buckshot") {
+								damageMult = item._props.buckshotBullets
+							}
+							this.addToName(itemID, ` (${bulletItem._props.Damage * damageMult}/${bulletItem._props.PenetrationPower})`, "append")
+						}
+					}
 				}
 
 				// if (config.FleaAbusePatch.enabled) {
